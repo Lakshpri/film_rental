@@ -17,6 +17,7 @@ import java.util.Set;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString(exclude = "filmActors")
 public class Actor {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "actor_id")
     private Integer actorId;
