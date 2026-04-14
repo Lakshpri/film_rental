@@ -1,5 +1,6 @@
 package com.example.flim_rental_app.entity;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -49,21 +50,17 @@ public class Address {
     @Column(name = "last_update", nullable = false)
     private LocalDateTime lastUpdate;
 
-    // Many Addresses -> One City
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "city_id", nullable = false,
-//            foreignKey = @ForeignKey(name = "fk_address_city"))
-//    private City city;
-//
-//    // One Address -> Many Customers
-//    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
-//    private Set<Customer> customers = new HashSet<>();
-//
-//    // One Address -> Many Staff
-//    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
-//    private Set<Staff> staffList = new HashSet<>();
-//
-//    // One Address -> Many Stores
-//    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
-//    private Set<Store> stores = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "city_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_address_city"))
+    private City city;
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    private Set<Customer> customers = new HashSet<>();
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    private Set<Staff> staffList = new HashSet<>();
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    private Set<Store> stores = new HashSet<>();
 }
