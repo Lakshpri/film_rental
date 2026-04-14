@@ -36,7 +36,8 @@ public class Actor {
     @Column(name = "last_update", nullable = false)
     private LocalDateTime lastUpdate;
 
-    // One Actor -> Many FilmActor join records
-//    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private Set<FilmActor> filmActors = new HashSet<>();
+
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<FilmActor> filmActors = new HashSet<>();
 }
+
