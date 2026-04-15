@@ -1,4 +1,4 @@
-package com.example.flim_rental_app.entity;
+package com.example.film_rental_app.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;

@@ -1,13 +1,13 @@
-package com.example.flim_rental_app;
+package com.example.film_rental_app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FlimRentalAppApplication {
+public class FilmRentalAppApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlimRentalAppApplication.class, args);
+		SpringApplication.run(FilmRentalAppApplication.class, args);
 	}
 
 }
