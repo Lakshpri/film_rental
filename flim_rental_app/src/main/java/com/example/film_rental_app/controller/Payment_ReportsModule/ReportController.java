@@ -1,6 +1,12 @@
 package com.example.film_rental_app.controller.Payment_ReportsModule;
 
 
+import com.example.film_rental_app.entity.Customer_Inventory_RentalModule.Customer;
+import com.example.film_rental_app.entity.FilmCatalog_ContentModule.Actor;
+import com.example.film_rental_app.entity.FilmCatalog_ContentModule.Film;
+import com.example.film_rental_app.entity.FilmCatalog_ContentModule.FilmCategory;
+import com.example.film_rental_app.entity.Location_Store_StaffModule.Staff;
+import com.example.film_rental_app.entity.Payment_ReportsModule.Payment;
 import com.example.film_rental_app.repository.Customer_Inventory_RentalModule.CustomerRepository;
 import com.example.film_rental_app.repository.Location_Store_StaffModule.StaffRepository;
 import com.example.film_rental_app.repository.FilmCatalog_ContentModule.ActorRepository;
