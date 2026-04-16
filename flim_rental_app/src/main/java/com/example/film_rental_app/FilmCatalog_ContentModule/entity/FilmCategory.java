@@ -3,14 +3,12 @@ package com.example.film_rental_app.FilmCatalog_ContentModule.entity;
 
 import com.example.film_rental_app.Master_DataModule.entity.Category;
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "film_category")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString(exclude = {"film", "category"})
 public class FilmCategory {
 
     @EmbeddedId
@@ -33,4 +31,56 @@ public class FilmCategory {
     @JoinColumn(name = "category_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_film_category_category"))
     private Category category;
+
+    public FilmCategoryId getId() {
+        return id;
+    }
+
+    public void setId(FilmCategoryId id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Film getFilm() {
+        return film;
+    }
+
+    public void setFilm(Film film) {
+        this.film = film;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    public FilmCategory(){
+
+    }
+
+    public FilmCategory(FilmCategoryId id, LocalDateTime lastUpdate, Film film, Category category) {
+        this.id = id;
+        this.lastUpdate = lastUpdate;
+        this.film = film;
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "FilmCategory{" +
+                "id=" + id +
+                ", lastUpdate=" + lastUpdate +
+                ", film=" + film +
+                ", category=" + category +
+                '}';
+    }
 }

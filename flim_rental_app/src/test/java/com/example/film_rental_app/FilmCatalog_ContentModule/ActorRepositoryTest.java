@@ -101,4 +101,75 @@ class ActorRepositoryTest {
         Actor saved = actorRepository.saveAndFlush(actor);
         assertThat(saved.getActorId()).isNotNull();
     }
+    @Test
+    @DisplayName("Find actor by ID should return actor")
+    void findById_shouldReturnActor() {
+        Actor actor = new Actor();
+        actor.setFirstName("Tom");
+        actor.setLastName("Hanks");
+
+        Actor saved = actorRepository.saveAndFlush(actor);
+
+        Actor found = actorRepository.findById(saved.getActorId()).orElse(null);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getFirstName()).isEqualTo("Tom");
+    }
+    @Test
+    @DisplayName("Find all actors should return list")
+    void findAll_shouldReturnActors() {
+        Actor a1 = new Actor(null, "Tom", "Hanks", null, null);
+        Actor a2 = new Actor(null, "Leonardo", "DiCaprio", null, null);
+
+        actorRepository.save(a1);
+        actorRepository.save(a2);
+
+        var actors = actorRepository.findAll();
+
+        assertThat(actors).hasSizeGreaterThanOrEqualTo(2);
+    }
+    @Test
+    @DisplayName("Update actor should modify existing record")
+    void updateActor_shouldUpdateFields() {
+        Actor actor = new Actor();
+        actor.setFirstName("Tom");
+        actor.setLastName("Hanks");
+
+        Actor saved = actorRepository.saveAndFlush(actor);
+
+        // Update
+        saved.setFirstName("Thomas");
+        Actor updated = actorRepository.saveAndFlush(saved);
+
+        assertThat(updated.getFirstName()).isEqualTo("Thomas");
+    }
+    @Test
+    @DisplayName("Delete actor should remove record")
+    void deleteActor_shouldRemove() {
+        Actor actor = new Actor();
+        actor.setFirstName("Tom");
+        actor.setLastName("Hanks");
+
+        Actor saved = actorRepository.saveAndFlush(actor);
+
+        actorRepository.deleteById(saved.getActorId());
+        actorRepository.flush();
+
+        boolean exists = actorRepository.existsById(saved.getActorId());
+
+        assertThat(exists).isFalse();
+    }
+    @Test
+    @DisplayName("ExistsById should return true if actor exists")
+    void existsById_shouldReturnTrue() {
+        Actor actor = new Actor();
+        actor.setFirstName("Tom");
+        actor.setLastName("Hanks");
+
+        Actor saved = actorRepository.saveAndFlush(actor);
+
+        boolean exists = actorRepository.existsById(saved.getActorId());
+
+        assertThat(exists).isTrue();
+    }
 }

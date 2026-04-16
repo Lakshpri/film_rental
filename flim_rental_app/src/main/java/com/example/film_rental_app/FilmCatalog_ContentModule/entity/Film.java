@@ -4,7 +4,6 @@ import com.example.film_rental_app.Customer_Inventory_RentalModule.entity.Invent
 import com.example.film_rental_app.Master_DataModule.entity.Language;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -13,13 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "film", indexes = {
-        @Index(name = "idx_title", columnList = "title"),
-        @Index(name = "idx_fk_language_id", columnList = "language_id"),
-        @Index(name = "idx_fk_original_language_id", columnList = "original_language_id")
-})
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
-@ToString(exclude = {"language", "originalLanguage", "filmActors", "filmCategories", "inventories"})
+@Table(name = "film")
 public class Film {
 
     public enum Rating {
@@ -92,4 +85,176 @@ public class Film {
     // One Film -> Many Inventory items
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Inventory> inventories = new HashSet<>();
+
+    public Integer getFilmId() {
+        return filmId;
+    }
+
+    public void setFilmId(Integer filmId) {
+        this.filmId = filmId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Short getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(Short releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public Short getRentalDuration() {
+        return rentalDuration;
+    }
+
+    public void setRentalDuration(Short rentalDuration) {
+        this.rentalDuration = rentalDuration;
+    }
+
+    public BigDecimal getRentalRate() {
+        return rentalRate;
+    }
+
+    public void setRentalRate(BigDecimal rentalRate) {
+        this.rentalRate = rentalRate;
+    }
+
+    public Short getLength() {
+        return length;
+    }
+
+    public void setLength(Short length) {
+        this.length = length;
+    }
+
+    public BigDecimal getReplacementCost() {
+        return replacementCost;
+    }
+
+    public void setReplacementCost(BigDecimal replacementCost) {
+        this.replacementCost = replacementCost;
+    }
+
+    public Rating getRating() {
+        return rating;
+    }
+
+    public void setRating(Rating rating) {
+        this.rating = rating;
+    }
+
+    public String getSpecialFeatures() {
+        return specialFeatures;
+    }
+
+    public void setSpecialFeatures(String specialFeatures) {
+        this.specialFeatures = specialFeatures;
+    }
+
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
+
+    public Language getOriginalLanguage() {
+        return originalLanguage;
+    }
+
+    public void setOriginalLanguage(Language originalLanguage) {
+        this.originalLanguage = originalLanguage;
+    }
+
+    public Set<FilmActor> getFilmActors() {
+        return filmActors;
+    }
+
+    public void setFilmActors(Set<FilmActor> filmActors) {
+        this.filmActors = filmActors;
+    }
+
+    public Set<FilmCategory> getFilmCategories() {
+        return filmCategories;
+    }
+
+    public void setFilmCategories(Set<FilmCategory> filmCategories) {
+        this.filmCategories = filmCategories;
+    }
+
+    public Set<Inventory> getInventories() {
+        return inventories;
+    }
+
+    public void setInventories(Set<Inventory> inventories) {
+        this.inventories = inventories;
+    }
+    public Film(){
+
+    }
+
+    public Film(String specialFeatures, Integer filmId, String title, String description, Short releaseYear, Short rentalDuration, BigDecimal rentalRate, Short length, BigDecimal replacementCost, Rating rating, LocalDateTime lastUpdate, Language language, Language originalLanguage, Set<FilmActor> filmActors, Set<FilmCategory> filmCategories, Set<Inventory> inventories) {
+        this.specialFeatures = specialFeatures;
+        this.filmId = filmId;
+        this.title = title;
+        this.description = description;
+        this.releaseYear = releaseYear;
+        this.rentalDuration = rentalDuration;
+        this.rentalRate = rentalRate;
+        this.length = length;
+        this.replacementCost = replacementCost;
+        this.rating = rating;
+        this.lastUpdate = lastUpdate;
+        this.language = language;
+        this.originalLanguage = originalLanguage;
+        this.filmActors = filmActors;
+        this.filmCategories = filmCategories;
+        this.inventories = inventories;
+    }
+
+    @Override
+    public String toString() {
+        return "Film{" +
+                "filmId=" + filmId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", releaseYear=" + releaseYear +
+                ", rentalDuration=" + rentalDuration +
+                ", rentalRate=" + rentalRate +
+                ", length=" + length +
+                ", replacementCost=" + replacementCost +
+                ", rating=" + rating +
+                ", specialFeatures='" + specialFeatures + '\'' +
+                ", lastUpdate=" + lastUpdate +
+                ", language=" + language +
+                ", originalLanguage=" + originalLanguage +
+                ", filmActors=" + filmActors +
+                ", filmCategories=" + filmCategories +
+                ", inventories=" + inventories +
+                '}';
+    }
 }
