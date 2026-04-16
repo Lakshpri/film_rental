@@ -3,7 +3,6 @@ package com.example.film_rental_app.Customer_Inventory_RentalModule.entity;
 import com.example.film_rental_app.FilmCatalog_ContentModule.entity.Film;
 import com.example.film_rental_app.Location_Store_StaffModule.entity.Store;
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,12 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "inventory", indexes = {
-        @Index(name = "idx_fk_film_id",        columnList = "film_id"),
-        @Index(name = "idx_store_id_film_id",   columnList = "store_id, film_id")
-})
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
-@ToString(exclude = {"film", "store", "rentals"})
+@Table(name = "inventory")
 public class Inventory {
 
     @Id
@@ -43,4 +37,48 @@ public class Inventory {
     // One Inventory item -> Many Rentals
     @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Rental> rentals = new HashSet<>();
+
+    //  No-Args Constructor (Required by JPA)
+    public Inventory() {}
+
+    // Constructor with ID
+    public Inventory(Integer inventoryId) {
+        this.inventoryId = inventoryId;
+    }
+
+    // Full Constructor
+    public Inventory(Integer inventoryId, LocalDateTime lastUpdate,
+                     Film film, Store store, Set<Rental> rentals) {
+        this.inventoryId = inventoryId;
+        this.lastUpdate = lastUpdate;
+        this.film = film;
+        this.store = store;
+        this.rentals = rentals;
+    }
+
+    // Getters and Setters
+
+    public Integer getInventoryId() { return inventoryId; }
+    public void setInventoryId(Integer inventoryId) { this.inventoryId = inventoryId; }
+
+    public LocalDateTime getLastUpdate() { return lastUpdate; }
+    public void setLastUpdate(LocalDateTime lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public Film getFilm() { return film; }
+    public void setFilm(Film film) { this.film = film; }
+
+    public Store getStore() { return store; }
+    public void setStore(Store store) { this.store = store; }
+
+    public Set<Rental> getRentals() { return rentals; }
+    public void setRentals(Set<Rental> rentals) { this.rentals = rentals; }
+
+    // ✅ toString (exclude relationships to avoid recursion)
+    @Override
+    public String toString() {
+        return "Inventory{" +
+                "inventoryId=" + inventoryId +
+                ", lastUpdate=" + lastUpdate +
+                '}';
+    }
 }
