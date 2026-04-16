@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PaymentEntityValidationTest {
+class PaymentRepositoryTest {
 
     private static Validator validator;
 
@@ -24,7 +24,7 @@ class PaymentEntityValidationTest {
         validator = factory.getValidator();
     }
 
-    // ✅ Valid payment should have zero violations
+    // Valid payment should have zero violations
     @Test
     void validPayment_shouldHaveNoViolations() {
         Payment payment = new Payment();
@@ -35,7 +35,7 @@ class PaymentEntityValidationTest {
         assertThat(violations).isEmpty();
     }
 
-    // ❌ Null amount should trigger @NotNull
+    //  Null amount should trigger @NotNull
     @Test
     void nullAmount_shouldFailValidation() {
         Payment payment = new Payment();
@@ -46,7 +46,7 @@ class PaymentEntityValidationTest {
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("amount"));
     }
 
-    // ❌ Null paymentDate should trigger @NotNull
+    // Null paymentDate should trigger @NotNull
     @Test
     void nullPaymentDate_shouldFailValidation() {
         Payment payment = new Payment();
@@ -57,7 +57,7 @@ class PaymentEntityValidationTest {
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("paymentDate"));
     }
 
-    // ❌ Negative amount should trigger @DecimalMin("0.00")
+    //  Negative amount should trigger @DecimalMin("0.00")
     @Test
     void negativeAmount_shouldFailValidation() {
         Payment payment = new Payment();
@@ -68,7 +68,7 @@ class PaymentEntityValidationTest {
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("amount"));
     }
 
-    // ✅ Zero amount should pass since @DecimalMin("0.00") is inclusive
+    //  Zero amount should pass since @DecimalMin("0.00") is inclusive
     @Test
     void zeroAmount_shouldPassValidation() {
         Payment payment = new Payment();
