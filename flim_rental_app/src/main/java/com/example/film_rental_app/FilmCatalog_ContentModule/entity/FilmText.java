@@ -3,11 +3,10 @@ package com.example.film_rental_app.FilmCatalog_ContentModule.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+
 
 @Entity
 @Table(name = "film_text")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class FilmText {
     @Id
     @Column(name = "film_id")
@@ -20,4 +19,36 @@ public class FilmText {
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    public Integer getFilmId() {
+        return filmId;
+    }
+
+    public void setFilmId(Integer filmId) {
+        this.filmId = filmId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public FilmText(){
+
+    }
+    public FilmText(Integer filmId, String title, String description) {
+        this.filmId = filmId;
+        this.title = title;
+        this.description = description;
+    }
 }
