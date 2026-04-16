@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,13 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "customer", indexes = {
-        @Index(name = "idx_fk_store_id",   columnList = "store_id"),
-        @Index(name = "idx_fk_address_id", columnList = "address_id"),
-        @Index(name = "idx_last_name",     columnList = "last_name")
-})
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
-@ToString(exclude = {"store", "address", "rentals", "payments"})
+@Table(name = "customer")
 public class Customer {
 
     @Id
@@ -75,4 +68,78 @@ public class Customer {
     // One Customer -> Many Payments
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Payment> payments = new HashSet<>();
+
+    // Default Constructor
+    public Customer() {}
+
+    // Constructor with ID
+    public Customer(Integer customerId) {
+        this.customerId = customerId;
+    }
+
+    // Full Constructor
+    public Customer(Integer customerId, String firstName, String lastName, String email,
+                    boolean active, LocalDateTime createDate, LocalDateTime lastUpdate,
+                    Store store, Address address, Set<Rental> rentals, Set<Payment> payments) {
+        this.customerId = customerId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.active = active;
+        this.createDate = createDate;
+        this.lastUpdate = lastUpdate;
+        this.store = store;
+        this.address = address;
+        this.rentals = rentals;
+        this.payments = payments;
+    }
+
+    // Getters and Setters
+
+    public Integer getCustomerId() { return customerId; }
+    public void setCustomerId(Integer customerId) { this.customerId = customerId; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    public LocalDateTime getCreateDate() { return createDate; }
+    public void setCreateDate(LocalDateTime createDate) { this.createDate = createDate; }
+
+    public LocalDateTime getLastUpdate() { return lastUpdate; }
+    public void setLastUpdate(LocalDateTime lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public Store getStore() { return store; }
+    public void setStore(Store store) { this.store = store; }
+
+    public Address getAddress() { return address; }
+    public void setAddress(Address address) { this.address = address; }
+
+    public Set<Rental> getRentals() { return rentals; }
+    public void setRentals(Set<Rental> rentals) { this.rentals = rentals; }
+
+    public Set<Payment> getPayments() { return payments; }
+    public void setPayments(Set<Payment> payments) { this.payments = payments; }
+
+    // toString (excluding relationships to avoid recursion)
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "customerId=" + customerId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", active=" + active +
+                ", createDate=" + createDate +
+                ", lastUpdate=" + lastUpdate +
+                '}';
+    }
 }
