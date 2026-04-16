@@ -1,8 +1,9 @@
-package com.example.film_rental_app.Customer_Inventory_RentalModule.service;
+package com.example.film_rental_app.Customer_Inventory_RentalModule.service.implementation;
 
 import com.example.film_rental_app.Customer_Inventory_RentalModule.entity.Customer;
 import com.example.film_rental_app.Customer_Inventory_RentalModule.exception.CustomerNotFoundException;
 import com.example.film_rental_app.Customer_Inventory_RentalModule.repository.CustomerRepository;
+import com.example.film_rental_app.Customer_Inventory_RentalModule.service.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
