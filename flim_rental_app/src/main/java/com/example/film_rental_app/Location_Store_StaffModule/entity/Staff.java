@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,12 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "staff", indexes = {
-        @Index(name = "idx_fk_store_id", columnList = "store_id"),
-        @Index(name = "idx_fk_address_id", columnList = "address_id")
-})
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
-@ToString(exclude = {"address", "store", "rentals", "payments"})
+@Table(name = "staff")
 public class Staff {
 
     @Id
@@ -68,7 +62,7 @@ public class Staff {
     private Address address;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "store_id", nullable = false,
+    @JoinColumn(name = "store_id",nullable = false,
             foreignKey = @ForeignKey(name = "fk_staff_store"))
     private Store store;
 
@@ -77,4 +71,80 @@ public class Staff {
 
     @OneToMany(mappedBy = "staff", fetch = FetchType.LAZY)
     private Set<Payment> payments = new HashSet<>();
+
+
+    public Staff() {}
+
+    //  AllArgsConstructor
+    public Staff(Integer staffId, String firstName, String lastName, String email,
+                 boolean active, String username, String password, byte[] picture,
+                 LocalDateTime lastUpdate, Address address, Store store,
+                 Set<Rental> rentals, Set<Payment> payments) {
+        this.staffId = staffId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.active = active;
+        this.username = username;
+        this.password = password;
+        this.picture = picture;
+        this.lastUpdate = lastUpdate;
+        this.address = address;
+        this.store = store;
+        this.rentals = rentals;
+        this.payments = payments;
+    }
+
+    //  Getters & Setters
+
+    public Integer getStaffId() { return staffId; }
+    public void setStaffId(Integer staffId) { this.staffId = staffId; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public byte[] getPicture() { return picture; }
+    public void setPicture(byte[] picture) { this.picture = picture; }
+
+    public LocalDateTime getLastUpdate() { return lastUpdate; }
+
+    public Address getAddress() { return address; }
+    public void setAddress(Address address) { this.address = address; }
+
+    public Store getStore() { return store; }
+    public void setStore(Store store) { this.store = store; }
+
+    public Set<Rental> getRentals() { return rentals; }
+    public void setRentals(Set<Rental> rentals) { this.rentals = rentals; }
+
+    public Set<Payment> getPayments() { return payments; }
+    public void setPayments(Set<Payment> payments) { this.payments = payments; }
+
+    //  toString (exclude relations)
+    @Override
+    public String toString() {
+        return "Staff{" +
+                "staffId=" + staffId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", active=" + active +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }
