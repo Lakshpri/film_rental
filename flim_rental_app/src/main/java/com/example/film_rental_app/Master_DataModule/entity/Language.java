@@ -4,7 +4,6 @@ import com.example.film_rental_app.FilmCatalog_ContentModule.entity.Film;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "language")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString(exclude = {"films", "originalLanguageFilms"})
 public class Language {
 
     @Id
@@ -37,4 +35,65 @@ public class Language {
     // One Language -> Many Films (original language)
     @OneToMany(mappedBy = "originalLanguage", fetch = FetchType.LAZY)
     private Set<Film> originalLanguageFilms = new HashSet<>();
+
+    public Language(Integer languageId, String name, LocalDateTime lastUpdate, Set<Film> films, Set<Film> originalLanguageFilms) {
+        this.languageId = languageId;
+        this.name = name;
+        this.lastUpdate = lastUpdate;
+        this.films = films;
+        this.originalLanguageFilms = originalLanguageFilms;
+    }
+    public Language(){
+    }
+
+    public Integer getLanguageId() {
+        return languageId;
+    }
+
+    public void setLanguageId(Integer languageId) {
+        this.languageId = languageId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Set<Film> getFilms() {
+        return films;
+    }
+
+    public void setFilms(Set<Film> films) {
+        this.films = films;
+    }
+
+    public Set<Film> getOriginalLanguageFilms() {
+        return originalLanguageFilms;
+    }
+
+    public void setOriginalLanguageFilms(Set<Film> originalLanguageFilms) {
+        this.originalLanguageFilms = originalLanguageFilms;
+    }
+
+    @Override
+    public String toString() {
+        return "Language{" +
+                "languageId=" + languageId +
+                ", name='" + name + '\'' +
+                ", lastUpdate=" + lastUpdate +
+                ", films=" + films +
+                ", originalLanguageFilms=" + originalLanguageFilms +
+                '}';
+    }
 }
