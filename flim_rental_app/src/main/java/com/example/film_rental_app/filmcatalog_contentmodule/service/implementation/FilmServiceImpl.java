@@ -13,10 +13,13 @@ import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService
 import com.example.film_rental_app.master_datamodule.entity.Category;
 import com.example.film_rental_app.master_datamodule.repository.CategoryRepository;
 import com.example.film_rental_app.common.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
+@Transactional
 public class FilmServiceImpl implements FilmService {
 
     private final FilmRepository filmRepository;
@@ -74,11 +77,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void deleteFilm(Integer filmId) {
+    public boolean deleteFilm(Integer filmId) {
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
         filmRepository.deleteById(filmId);
+        return true;
     }
 
     @Override
@@ -108,12 +112,13 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeActorFromFilm(Integer filmId, Integer actorId) {
+    public boolean removeActorFromFilm(Integer filmId, Integer actorId) {
         FilmActorId id = new FilmActorId(actorId, filmId);
         if (!filmActorRepository.existsById(id)) {
             throw new ResourceNotFoundException("FilmActor association not found for filmId: " + filmId + " and actorId: " + actorId);
         }
         filmActorRepository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -143,11 +148,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeCategoryFromFilm(Integer filmId, Integer categoryId) {
+    public boolean removeCategoryFromFilm(Integer filmId, Integer categoryId) {
         FilmCategoryId id = new FilmCategoryId(filmId, categoryId);
         if (!filmCategoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("FilmCategory association not found for filmId: " + filmId + " and categoryId: " + categoryId);
         }
         filmCategoryRepository.deleteById(id);
+        return true;
     }
 }
