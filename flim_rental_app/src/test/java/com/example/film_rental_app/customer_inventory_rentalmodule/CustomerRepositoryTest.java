@@ -42,7 +42,7 @@ class CustomerRepositoryTest {
 
 
 
-    // ✅ CUSTOM QUERY TEST
+    // CUSTOM QUERY TEST
     @Test
     void shouldFindByStoreAndActive() {
         List<Customer> customers =
