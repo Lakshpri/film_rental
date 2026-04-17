@@ -1,12 +1,12 @@
 package com.example.film_rental_app.location_store_staffmodule.controller;
 
-
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Inventory;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.InventoryService;
 import com.example.film_rental_app.location_store_staffmodule.entity.Staff;
 import com.example.film_rental_app.location_store_staffmodule.entity.Store;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,13 +39,13 @@ public class StoreController {
     }
 
     @PostMapping
-    public Store createStore(@RequestBody Store store) {
+    public Store createStore(@Valid @RequestBody Store store) {
         return storeService.createStore(store);
     }
 
     @PutMapping("/{storeId}")
     public ResponseEntity<Store> updateStore(@PathVariable Integer storeId,
-                                             @RequestBody Store updated) {
+            @Valid @RequestBody Store updated) {
         return ResponseEntity.ok(storeService.updateStore(storeId, updated));
     }
 
@@ -57,14 +57,12 @@ public class StoreController {
 
     @GetMapping("/{storeId}/staff")
     public ResponseEntity<List<Staff>> getStaffByStore(@PathVariable Integer storeId) {
-        // Validate store exists first
         storeService.getStoreById(storeId);
         return ResponseEntity.ok(staffService.getStaffByStore(storeId));
     }
 
     @GetMapping("/{storeId}/inventory")
     public ResponseEntity<List<Inventory>> getInventoryByStore(@PathVariable Integer storeId) {
-        // Validate store exists first
         storeService.getStoreById(storeId);
         return ResponseEntity.ok(inventoryService.getInventoryByStore(storeId));
     }
