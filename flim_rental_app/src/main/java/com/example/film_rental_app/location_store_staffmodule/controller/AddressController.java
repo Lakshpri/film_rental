@@ -1,64 +1,46 @@
 package com.example.film_rental_app.location_store_staffmodule.controller;
 
 import com.example.film_rental_app.location_store_staffmodule.entity.Address;
-import com.example.film_rental_app.location_store_staffmodule.repository.AddressRepository;
-import com.example.film_rental_app.master_datamodule.repository.CityRepository;
+import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/addresses")
 public class AddressController {
-    private final AddressRepository addressRepository;
-    private final CityRepository cityRepository;
 
-    public AddressController(AddressRepository addressRepository, CityRepository cityRepository) {
-        this.addressRepository = addressRepository;
-        this.cityRepository = cityRepository;
+    private final AddressService addressService;
+
+    public AddressController(AddressService addressService) {
+        this.addressService = addressService;
     }
 
-    @GetMapping("/api/addresses")
+    @GetMapping
     public List<Address> getAllAddresses() {
-        return addressRepository.findAll();
+        return addressService.getAllAddresses();
     }
 
-    @GetMapping("/api/addresses/{addressId}")
+    @GetMapping("/{addressId}")
     public ResponseEntity<Address> getAddressById(@PathVariable Integer addressId) {
-        return addressRepository.findById(addressId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(addressService.getAddressById(addressId));
     }
 
-    @GetMapping("/api/cities/{cityId}/addresses")
-    public ResponseEntity<List<Address>> getAddressesByCity(@PathVariable Integer cityId) {
-        if (!cityRepository.existsById(cityId)) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(addressRepository.findByCity_CityId(cityId));
-    }
-
-    @PostMapping("/api/addresses")
+    @PostMapping
     public Address createAddress(@RequestBody Address address) {
-        return addressRepository.save(address);
+        return addressService.createAddress(address);
     }
 
-    @PutMapping("/api/addresses/{addressId}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Integer addressId, @RequestBody Address updated) {
-        return addressRepository.findById(addressId).map(addr -> {
-            addr.setAddress(updated.getAddress());
-            addr.setAddress2(updated.getAddress2());
-            addr.setDistrict(updated.getDistrict());
-            addr.setPostalCode(updated.getPostalCode());
-            addr.setPhone(updated.getPhone());
-            if (updated.getCity() != null) addr.setCity(updated.getCity());
-            return ResponseEntity.ok(addressRepository.save(addr));
-        }).orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{addressId}")
+    public ResponseEntity<Address> updateAddress(@PathVariable Integer addressId,
+                                                 @RequestBody Address updated) {
+        return ResponseEntity.ok(addressService.updateAddress(addressId, updated));
     }
 
-    @DeleteMapping("/api/addresses/{addressId}")
+    @DeleteMapping("/{addressId}")
     public ResponseEntity<Void> deleteAddress(@PathVariable Integer addressId) {
-        if (!addressRepository.existsById(addressId)) return ResponseEntity.notFound().build();
-        addressRepository.deleteById(addressId);
+        addressService.deleteAddress(addressId);
         return ResponseEntity.noContent().build();
     }
-
 }

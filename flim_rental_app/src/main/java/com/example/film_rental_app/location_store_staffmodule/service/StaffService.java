@@ -13,7 +13,7 @@ public interface StaffService {
 
     Staff updateStaff(Integer staffId, Staff updated);
 
-    void deleteStaff(Integer staffId);
+    boolean deleteStaff(Integer staffId);
 
     List<Staff> getStaffByStore(Integer storeId);
 }

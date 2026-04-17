@@ -55,11 +55,12 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public void deleteAddress(Integer addressId) {
+    public boolean deleteAddress(Integer addressId) {
         if (!addressRepository.existsById(addressId)) {
             throw new AddressNotFoundException(addressId);
         }
         addressRepository.deleteById(addressId);
+        return true;
     }
 
     @Override

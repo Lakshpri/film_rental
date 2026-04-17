@@ -13,5 +13,5 @@ public interface StoreService {
 
     Store updateStore(Integer storeId, Store updated);
 
-    void deleteStore(Integer storeId);
+    boolean deleteStore(Integer storeId);
 }
