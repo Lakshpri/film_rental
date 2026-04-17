@@ -19,8 +19,8 @@ public class StaffController {
     }
 
     @GetMapping
-    public List<Staff> getAllStaff() {
-        return staffService.getAllStaff();
+    public ResponseEntity<List<Staff>> getAllStaff() {
+        return ResponseEntity.ok(staffService.getAllStaff());
     }
 
     @GetMapping("/{staffId}")
@@ -29,12 +29,14 @@ public class StaffController {
     }
 
     @PostMapping
-    public Staff createStaff(@Valid @RequestBody Staff staff) {
-        return staffService.createStaff(staff);
+    public ResponseEntity<Staff> createStaff(@Valid @RequestBody Staff staff) {
+        Staff created = staffService.createStaff(staff);
+        return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{staffId}")
-    public ResponseEntity<Staff> updateStaff(@PathVariable Integer staffId,
+    public ResponseEntity<Staff> updateStaff(
+            @PathVariable Integer staffId,
             @Valid @RequestBody Staff updated) {
         return ResponseEntity.ok(staffService.updateStaff(staffId, updated));
     }

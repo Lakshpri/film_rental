@@ -29,8 +29,8 @@ public class StoreController {
     }
 
     @GetMapping
-    public List<Store> getAllStores() {
-        return storeService.getAllStores();
+    public ResponseEntity<List<Store>> getAllStores() {
+        return ResponseEntity.ok(storeService.getAllStores());
     }
 
     @GetMapping("/{storeId}")
@@ -39,12 +39,14 @@ public class StoreController {
     }
 
     @PostMapping
-    public Store createStore(@Valid @RequestBody Store store) {
-        return storeService.createStore(store);
+    public ResponseEntity<Store> createStore(@Valid @RequestBody Store store) {
+        Store created = storeService.createStore(store);
+        return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{storeId}")
-    public ResponseEntity<Store> updateStore(@PathVariable Integer storeId,
+    public ResponseEntity<Store> updateStore(
+            @PathVariable Integer storeId,
             @Valid @RequestBody Store updated) {
         return ResponseEntity.ok(storeService.updateStore(storeId, updated));
     }
@@ -57,13 +59,13 @@ public class StoreController {
 
     @GetMapping("/{storeId}/staff")
     public ResponseEntity<List<Staff>> getStaffByStore(@PathVariable Integer storeId) {
-        storeService.getStoreById(storeId);
+        storeService.getStoreById(storeId); // validate existence
         return ResponseEntity.ok(staffService.getStaffByStore(storeId));
     }
 
     @GetMapping("/{storeId}/inventory")
     public ResponseEntity<List<Inventory>> getInventoryByStore(@PathVariable Integer storeId) {
-        storeService.getStoreById(storeId);
+        storeService.getStoreById(storeId); // validate existence
         return ResponseEntity.ok(inventoryService.getInventoryByStore(storeId));
     }
 }
