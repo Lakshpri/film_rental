@@ -46,10 +46,11 @@ public class LanguageServiceImpl implements LanguageService {
     }
 
     @Override
-    public void deleteLanguage(Integer languageId) {
+    public boolean deleteLanguage(Integer languageId) {
         if (!languageRepository.existsById(languageId)) {
             throw new LanguageNotFoundException(languageId);
         }
         languageRepository.deleteById(languageId);
+        return true;
     }
 }

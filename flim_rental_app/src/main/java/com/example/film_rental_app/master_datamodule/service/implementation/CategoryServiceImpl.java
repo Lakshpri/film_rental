@@ -46,10 +46,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(Integer categoryId) {
+    public boolean deleteCategory(Integer categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
             throw new CategoryNotFoundException(categoryId);
         }
         categoryRepository.deleteById(categoryId);
+        return true;
     }
 }
