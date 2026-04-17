@@ -2,6 +2,7 @@ package com.example.film_rental_app.customer_inventory_rentalmodule.controller;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Inventory;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,13 @@ public class InventoryController {
     }
 
     @PostMapping
-    public Inventory createInventory(@RequestBody Inventory inventory) {
+    public Inventory createInventory(@Valid @RequestBody Inventory inventory) {
         return inventoryService.createInventory(inventory);
     }
 
     @PutMapping("/{inventoryId}")
     public ResponseEntity<Inventory> updateInventory(@PathVariable Integer inventoryId,
-                                                     @RequestBody Inventory updated) {
+                                                     @Valid @RequestBody Inventory updated) {
         return ResponseEntity.ok(inventoryService.updateInventory(inventoryId, updated));
     }
 
