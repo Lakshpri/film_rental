@@ -18,8 +18,8 @@ public class AddressController {
         this.addressService = addressService;
     }
     @GetMapping
-    public List<Address> getAllAddresses() {
-        return addressService.getAllAddresses();
+    public ResponseEntity<List<Address>> getAllAddresses() {
+        return ResponseEntity.ok(addressService.getAllAddresses());
     }
 
     @GetMapping("/{addressId}")
@@ -28,12 +28,14 @@ public class AddressController {
     }
 
     @PostMapping
-    public Address createAddress(@Valid @RequestBody Address address) {
-        return addressService.createAddress(address);
+    public ResponseEntity<Address> createAddress(@Valid @RequestBody Address address) {
+        Address created = addressService.createAddress(address);
+        return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{addressId}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Integer addressId,
+    public ResponseEntity<Address> updateAddress(
+            @PathVariable Integer addressId,
             @Valid @RequestBody Address updated) {
         return ResponseEntity.ok(addressService.updateAddress(addressId, updated));
     }
