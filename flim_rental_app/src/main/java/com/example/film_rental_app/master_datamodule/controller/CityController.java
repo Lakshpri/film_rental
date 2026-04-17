@@ -1,40 +1,64 @@
 package com.example.film_rental_app.master_datamodule.controller;
 
+import com.example.film_rental_app.master_datamodule.dto.request.CityRequestDTO;
+import com.example.film_rental_app.master_datamodule.dto.response.CityResponseDTO;
 import com.example.film_rental_app.master_datamodule.entity.City;
+import com.example.film_rental_app.master_datamodule.entity.Country;
+import com.example.film_rental_app.master_datamodule.mapper.CityMapper;
 import com.example.film_rental_app.master_datamodule.service.CityService;
+import com.example.film_rental_app.master_datamodule.service.CountryService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+
 import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/cities")
 public class CityController {
 
     private final CityService cityService;
+    private final CountryService countryService;
+    private final CityMapper cityMapper;
 
-    public CityController(CityService cityService) {
+    public CityController(CityService cityService, CountryService countryService, CityMapper cityMapper) {
         this.cityService = cityService;
+        this.countryService = countryService;
+        this.cityMapper = cityMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<City>> getAllCities() {
-        return ResponseEntity.ok(cityService.getAllCities());
+    public ResponseEntity<List<CityResponseDTO>> getAllCities() {
+        List<CityResponseDTO> result = cityService.getAllCities().stream()
+                .map(cityMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{cityId}")
-    public ResponseEntity<City> getCityById(@PathVariable Integer cityId) {
-        return ResponseEntity.ok(cityService.getCityById(cityId));
+    public ResponseEntity<CityResponseDTO> getCityById(@PathVariable Integer cityId) {
+        return ResponseEntity.ok(cityMapper.toResponseDTO(cityService.getCityById(cityId)));
     }
 
     @PostMapping
-    public ResponseEntity<City> createCity(@Valid @RequestBody City city) {
-        return ResponseEntity.ok(cityService.createCity(city));
+    public ResponseEntity<CityResponseDTO> createCity(@Valid @RequestBody CityRequestDTO dto) {
+        City city = cityMapper.toEntity(dto);
+        Country country = countryService.getCountryById(dto.getCountryId());
+        city.setCountry(country);
+        return ResponseEntity.status(201).body(cityMapper.toResponseDTO(cityService.createCity(city)));
     }
 
     @PutMapping("/{cityId}")
-    public ResponseEntity<City> updateCity(@PathVariable Integer cityId,
-                                           @Valid @RequestBody City updated) {
-        return ResponseEntity.ok(cityService.updateCity(cityId, updated));
+    public ResponseEntity<CityResponseDTO> updateCity(@PathVariable Integer cityId,
+                                                      @Valid @RequestBody CityRequestDTO dto) {
+        City existing = cityService.getCityById(cityId);
+        existing.setCity(dto.getCity());
+        if (dto.getCountryId() != null) {
+            Country country = countryService.getCountryById(dto.getCountryId());
+            existing.setCountry(country);
+        }
+        return ResponseEntity.ok(cityMapper.toResponseDTO(cityService.updateCity(cityId, existing)));
     }
 
     @DeleteMapping("/{cityId}")
