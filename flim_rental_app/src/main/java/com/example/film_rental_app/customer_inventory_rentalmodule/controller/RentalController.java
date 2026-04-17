@@ -19,8 +19,8 @@ public class RentalController {
     }
 
     @GetMapping
-    public List<Rental> getAllRentals() {
-        return rentalService.getAllRentals();
+    public ResponseEntity<List<Rental>> getAllRentals() {
+        return ResponseEntity.ok(rentalService.getAllRentals());
     }
 
     @GetMapping("/{rentalId}")
@@ -29,8 +29,8 @@ public class RentalController {
     }
 
     @PostMapping
-    public Rental createRental(@Valid @RequestBody Rental rental) {
-        return rentalService.createRental(rental);
+    public ResponseEntity<Rental> createRental(@Valid @RequestBody Rental rental) {
+        return ResponseEntity.status(201).body(rentalService.createRental(rental));
     }
 
     @PutMapping("/{rentalId}")

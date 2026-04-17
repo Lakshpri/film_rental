@@ -5,8 +5,8 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Inven
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -19,8 +19,8 @@ public class InventoryController {
     }
 
     @GetMapping
-    public List<Inventory> getAllInventory() {
-        return inventoryService.getAllInventory();
+    public ResponseEntity<List<Inventory>> getAllInventory() {
+        return ResponseEntity.ok(inventoryService.getAllInventory());
     }
 
     @GetMapping("/{inventoryId}")
@@ -29,8 +29,8 @@ public class InventoryController {
     }
 
     @PostMapping
-    public Inventory createInventory(@Valid @RequestBody Inventory inventory) {
-        return inventoryService.createInventory(inventory);
+    public ResponseEntity<Inventory> createInventory(@Valid @RequestBody Inventory inventory) {
+        return ResponseEntity.status(201).body(inventoryService.createInventory(inventory));
     }
 
     @PutMapping("/{inventoryId}")
