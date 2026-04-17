@@ -50,11 +50,12 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public void deleteCountry(Integer countryId) {
+    public boolean deleteCountry(Integer countryId) {
         if (!countryRepository.existsById(countryId)) {
             throw new CountryNotFoundException(countryId);
         }
         countryRepository.deleteById(countryId);
+        return true;
     }
 
     @Override

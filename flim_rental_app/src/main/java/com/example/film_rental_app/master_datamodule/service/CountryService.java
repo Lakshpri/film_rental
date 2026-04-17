@@ -15,7 +15,7 @@ public interface CountryService {
 
     Country updateCountry(Integer countryId, Country updated);
 
-    void deleteCountry(Integer countryId);
+    boolean deleteCountry(Integer countryId);
 
     List<City> getCitiesByCountry(Integer countryId);
 }

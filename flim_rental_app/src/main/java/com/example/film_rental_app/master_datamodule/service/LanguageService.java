@@ -14,5 +14,5 @@ public interface LanguageService {
 
     Language updateLanguage(Integer languageId, Language updated);
 
-    void deleteLanguage(Integer languageId);
+    boolean deleteLanguage(Integer languageId);
 }

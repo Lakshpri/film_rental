@@ -51,11 +51,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public void deleteCity(Integer cityId) {
+    public boolean deleteCity(Integer cityId) {
         if (!cityRepository.existsById(cityId)) {
             throw new CityNotFoundException(cityId);
         }
         cityRepository.deleteById(cityId);
+        return true;
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface CityService {
 
     City updateCity(Integer cityId, City updated);
 
-    void deleteCity(Integer cityId);
+    boolean deleteCity(Integer cityId);
 
     List<City> getCitiesByCountry(Integer countryId);
 }
