@@ -19,8 +19,8 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
     @GetMapping("/{customerId}")
@@ -29,8 +29,8 @@ public class CustomerController {
     }
 
     @PostMapping
-    public Customer createCustomer(@Valid @RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+        return ResponseEntity.status(201).body(customerService.createCustomer(customer));
     }
 
     @PutMapping("/{customerId}")
@@ -46,7 +46,7 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
-    public List<Customer> searchCustomers(@RequestParam String keyword) {
-        return customerService.searchCustomersByName(keyword);
+    public ResponseEntity<List<Customer>> searchCustomers(@RequestParam String keyword) {
+        return ResponseEntity.ok(customerService.searchCustomersByName(keyword));
     }
 }
