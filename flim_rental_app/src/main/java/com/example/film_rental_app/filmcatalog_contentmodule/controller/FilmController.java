@@ -4,6 +4,7 @@ import com.example.film_rental_app.filmcatalog_contentmodule.entity.Film;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmActor;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmCategory;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,15 +29,15 @@ public class FilmController {
     public ResponseEntity<Film> getFilmById(@PathVariable Integer filmId) {
         return ResponseEntity.ok(filmService.getFilmById(filmId));
     }
-
     @PostMapping
-    public Film createFilm(@RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) {
         return filmService.createFilm(film);
     }
-
     @PutMapping("/{filmId}")
-    public ResponseEntity<Film> updateFilm(@PathVariable Integer filmId,
-                                           @RequestBody Film updated) {
+    public ResponseEntity<Film> updateFilm(
+            @PathVariable Integer filmId,
+            @Valid @RequestBody Film updated) {
+
         return ResponseEntity.ok(filmService.updateFilm(filmId, updated));
     }
 
