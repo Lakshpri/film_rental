@@ -4,6 +4,7 @@ package com.example.film_rental_app.payment_reportsmodule.controller;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 import com.example.film_rental_app.payment_reportsmodule.repository.PaymentRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,7 @@ public class PaymentController {
     }
 
     @PostMapping("/api/payments")
-    public Payment createPayment(@RequestBody Payment payment) {
+    public Payment createPayment(@Valid @RequestBody Payment payment) {
         return paymentRepository.save(payment);
     }
 
