@@ -14,7 +14,7 @@ public interface CustomerService {
 
     Customer updateCustomer(Integer customerId, Customer updated);
 
-    void deleteCustomer(Integer customerId);
+    boolean deleteCustomer(Integer customerId);
 
     List<Customer> getCustomersByStoreAndStatus(Integer storeId, boolean active);
 
