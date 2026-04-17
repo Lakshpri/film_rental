@@ -50,11 +50,12 @@ public class RentalServiceImpl implements RentalService {
     }
 
     @Override
-    public void deleteRental(Integer rentalId) {
+    public boolean deleteRental(Integer rentalId) {
         if (!rentalRepository.existsById(rentalId)) {
             throw new RentalNotFoundException(rentalId);
         }
         rentalRepository.deleteById(rentalId);
+        return true;
     }
 
     @Override

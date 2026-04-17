@@ -14,7 +14,7 @@ public interface InventoryService {
 
     Inventory updateInventory(Integer inventoryId, Inventory updated);
 
-    void deleteInventory(Integer inventoryId);
+    boolean deleteInventory(Integer inventoryId);
 
     List<Inventory> getInventoryByStore(Integer storeId);
 

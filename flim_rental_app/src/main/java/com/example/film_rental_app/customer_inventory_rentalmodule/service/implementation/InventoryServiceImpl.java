@@ -47,11 +47,12 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public void deleteInventory(Integer inventoryId) {
+    public boolean deleteInventory(Integer inventoryId) {
         if (!inventoryRepository.existsById(inventoryId)) {
             throw new InventoryNotFoundException(inventoryId);
         }
         inventoryRepository.deleteById(inventoryId);
+        return true;
     }
 
     @Override

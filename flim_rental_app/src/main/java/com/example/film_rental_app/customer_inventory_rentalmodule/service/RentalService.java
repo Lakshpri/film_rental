@@ -14,7 +14,7 @@ public interface RentalService {
 
     Rental updateRental(Integer rentalId, Rental updated);
 
-    void deleteRental(Integer rentalId);
+    boolean deleteRental(Integer rentalId);
 
     List<Rental> getRentalsByCustomer(Integer customerId);
 }
