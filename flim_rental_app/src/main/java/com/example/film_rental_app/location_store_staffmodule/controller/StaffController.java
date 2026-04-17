@@ -1,8 +1,8 @@
 package com.example.film_rental_app.location_store_staffmodule.controller;
 
-
 import com.example.film_rental_app.location_store_staffmodule.entity.Staff;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +29,13 @@ public class StaffController {
     }
 
     @PostMapping
-    public Staff createStaff(@RequestBody Staff staff) {
+    public Staff createStaff(@Valid @RequestBody Staff staff) {
         return staffService.createStaff(staff);
     }
 
     @PutMapping("/{staffId}")
     public ResponseEntity<Staff> updateStaff(@PathVariable Integer staffId,
-                                             @RequestBody Staff updated) {
+            @Valid @RequestBody Staff updated) {
         return ResponseEntity.ok(staffService.updateStaff(staffId, updated));
     }
 
@@ -45,4 +45,3 @@ public class StaffController {
         return ResponseEntity.noContent().build();
     }
 }
-
