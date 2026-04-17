@@ -5,9 +5,8 @@ import com.example.film_rental_app.master_datamodule.entity.Country;
 import com.example.film_rental_app.master_datamodule.service.CountryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/countries")
 public class CountryController {
@@ -19,8 +18,8 @@ public class CountryController {
     }
 
     @GetMapping
-    public List<Country> getAllCountries() {
-        return countryService.getAllCountries();
+    public ResponseEntity<List<Country>> getAllCountries() {
+        return ResponseEntity.ok(countryService.getAllCountries());
     }
 
     @GetMapping("/{countryId}")
@@ -34,13 +33,13 @@ public class CountryController {
     }
 
     @PostMapping
-    public Country createCountry(@RequestBody Country country) {
-        return countryService.createCountry(country);
+    public ResponseEntity<Country> createCountry(@Valid @RequestBody Country country) {
+        return ResponseEntity.ok(countryService.createCountry(country));
     }
 
     @PutMapping("/{countryId}")
     public ResponseEntity<Country> updateCountry(@PathVariable Integer countryId,
-                                                 @RequestBody Country updated) {
+                                                 @Valid @RequestBody Country updated) {
         return ResponseEntity.ok(countryService.updateCountry(countryId, updated));
     }
 

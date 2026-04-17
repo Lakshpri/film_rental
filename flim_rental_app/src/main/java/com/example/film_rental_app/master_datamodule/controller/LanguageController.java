@@ -4,9 +4,8 @@ import com.example.film_rental_app.master_datamodule.entity.Language;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/languages")
 public class LanguageController {
@@ -18,8 +17,8 @@ public class LanguageController {
     }
 
     @GetMapping
-    public List<Language> getAllLanguages() {
-        return languageService.getAllLanguages();
+    public ResponseEntity<List<Language>> getAllLanguages() {
+        return ResponseEntity.ok(languageService.getAllLanguages());
     }
 
     @GetMapping("/{languageId}")
@@ -28,13 +27,13 @@ public class LanguageController {
     }
 
     @PostMapping
-    public Language createLanguage(@RequestBody Language language) {
-        return languageService.createLanguage(language);
+    public ResponseEntity<Language> createLanguage(@Valid @RequestBody Language language) {
+        return ResponseEntity.ok(languageService.createLanguage(language));
     }
 
     @PutMapping("/{languageId}")
     public ResponseEntity<Language> updateLanguage(@PathVariable Integer languageId,
-                                                   @RequestBody Language updated) {
+                                                   @Valid @RequestBody Language updated) {
         return ResponseEntity.ok(languageService.updateLanguage(languageId, updated));
     }
 

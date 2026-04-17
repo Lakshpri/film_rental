@@ -5,9 +5,9 @@ import com.example.film_rental_app.master_datamodule.entity.Category;
 import com.example.film_rental_app.master_datamodule.repository.CategoryRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -19,8 +19,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryRepository.findAll());
     }
 
     @GetMapping("/{categoryId}")
@@ -31,23 +31,27 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryRepository.save(category);
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
+        return ResponseEntity.ok(categoryRepository.save(category));
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Integer categoryId, @RequestBody Category updated) {
-        return categoryRepository.findById(categoryId).map(cat -> {
-            cat.setName(updated.getName());
-            return ResponseEntity.ok(categoryRepository.save(cat));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Category> updateCategory(@PathVariable Integer categoryId,
+                                                   @Valid @RequestBody Category updated) {
+        return categoryRepository.findById(categoryId)
+                .map(cat -> {
+                    cat.setName(updated.getName());
+                    return ResponseEntity.ok(categoryRepository.save(cat));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer categoryId) {
-        if (!categoryRepository.existsById(categoryId)) return ResponseEntity.notFound().build();
+        if (!categoryRepository.existsById(categoryId)) {
+            return ResponseEntity.notFound().build();
+        }
         categoryRepository.deleteById(categoryId);
         return ResponseEntity.noContent().build();
     }
 }
-
