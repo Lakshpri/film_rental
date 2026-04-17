@@ -1,40 +1,54 @@
 package com.example.film_rental_app.master_datamodule.controller;
 
+import com.example.film_rental_app.master_datamodule.dto.request.LanguageRequestDTO;
+import com.example.film_rental_app.master_datamodule.dto.response.LanguageResponseDTO;
 import com.example.film_rental_app.master_datamodule.entity.Language;
+import com.example.film_rental_app.master_datamodule.mapper.LanguageMapper;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+
 import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/languages")
 public class LanguageController {
 
     private final LanguageService languageService;
+    private final LanguageMapper languageMapper;
 
-    public LanguageController(LanguageService languageService) {
+    public LanguageController(LanguageService languageService, LanguageMapper languageMapper) {
         this.languageService = languageService;
+        this.languageMapper = languageMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<Language>> getAllLanguages() {
-        return ResponseEntity.ok(languageService.getAllLanguages());
+    public ResponseEntity<List<LanguageResponseDTO>> getAllLanguages() {
+        List<LanguageResponseDTO> result = languageService.getAllLanguages().stream()
+                .map(languageMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{languageId}")
-    public ResponseEntity<Language> getLanguageById(@PathVariable Integer languageId) {
-        return ResponseEntity.ok(languageService.getLanguageById(languageId));
+    public ResponseEntity<LanguageResponseDTO> getLanguageById(@PathVariable Integer languageId) {
+        return ResponseEntity.ok(languageMapper.toResponseDTO(languageService.getLanguageById(languageId)));
     }
 
     @PostMapping
-    public ResponseEntity<Language> createLanguage(@Valid @RequestBody Language language) {
-        return ResponseEntity.ok(languageService.createLanguage(language));
+    public ResponseEntity<LanguageResponseDTO> createLanguage(@Valid @RequestBody LanguageRequestDTO dto) {
+        Language language = languageMapper.toEntity(dto);
+        return ResponseEntity.status(201).body(languageMapper.toResponseDTO(languageService.createLanguage(language)));
     }
 
     @PutMapping("/{languageId}")
-    public ResponseEntity<Language> updateLanguage(@PathVariable Integer languageId,
-                                                   @Valid @RequestBody Language updated) {
-        return ResponseEntity.ok(languageService.updateLanguage(languageId, updated));
+    public ResponseEntity<LanguageResponseDTO> updateLanguage(@PathVariable Integer languageId,
+                                                              @Valid @RequestBody LanguageRequestDTO dto) {
+        Language existing = languageService.getLanguageById(languageId);
+        languageMapper.updateEntity(existing, dto);
+        return ResponseEntity.ok(languageMapper.toResponseDTO(languageService.updateLanguage(languageId, existing)));
     }
 
     @DeleteMapping("/{languageId}")

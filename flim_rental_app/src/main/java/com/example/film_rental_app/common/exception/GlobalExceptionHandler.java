@@ -12,33 +12,58 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /* ── 404 : ResourceNotFoundException and all subclasses ─────────────── */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+        Map<String, Object> body = base(HttpStatus.NOT_FOUND, "Resource Not Found");
+        body.put("exceptionType", ex.getClass().getSimpleName());
+        body.put("resourceName",  ex.getResourceName());
+        body.put("resourceId",    ex.getResourceId());
+        body.put("message",       ex.getMessage());
+        body.put("suggestion",    "Verify the ID you provided. Use the GET-all endpoint to see existing records.");
+        return response(body, HttpStatus.NOT_FOUND);
     }
 
+    /* ── 409 : DuplicateResourceException and all subclasses ────────────── */
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
-        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateResourceException ex) {
+        Map<String, Object> body = base(HttpStatus.CONFLICT, "Duplicate Resource");
+        body.put("exceptionType", ex.getClass().getSimpleName());
+        body.put("resourceName",  ex.getResourceName());
+        body.put("message",       ex.getMessage());
+        body.put("suggestion",    "The record or link you tried to create already exists. Use a different value or update the existing entry.");
+        return response(body, HttpStatus.CONFLICT);
     }
 
+    /* ── 400 : InvalidOperationException and all subclasses ─────────────── */
     @ExceptionHandler(InvalidOperationException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidOperation(InvalidOperationException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        Map<String, Object> body = base(HttpStatus.BAD_REQUEST, "Invalid Operation");
+        body.put("exceptionType", ex.getClass().getSimpleName());
+        body.put("message",       ex.getMessage());
+        body.put("suggestion",    "Check your request data and ensure all business rules are satisfied before retrying.");
+        return response(body, HttpStatus.BAD_REQUEST);
     }
 
+    /* ── 500 : fallback ──────────────────────────────────────────────────── */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + ex.getMessage());
+        Map<String, Object> body = base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+        body.put("message",      "An unexpected error occurred. Please contact support if this persists.");
+        body.put("debugMessage", ex.getMessage());
+        return response(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
+    /* ── helpers ─────────────────────────────────────────────────────────── */
+    private Map<String, Object> base(HttpStatus status, String error) {
+        Map<String, Object> b = new LinkedHashMap<>();
+        b.put("timestamp", LocalDateTime.now());
+        b.put("status",    status.value());
+        b.put("error",     error);
+        return b;
+    }
+
+    private ResponseEntity<Map<String, Object>> response(Map<String, Object> body, HttpStatus status) {
         return new ResponseEntity<>(body, status);
     }
 }
-

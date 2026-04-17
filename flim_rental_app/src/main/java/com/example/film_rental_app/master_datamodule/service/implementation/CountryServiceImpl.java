@@ -2,6 +2,8 @@ package com.example.film_rental_app.master_datamodule.service.implementation;
 
 import com.example.film_rental_app.master_datamodule.entity.City;
 import com.example.film_rental_app.master_datamodule.entity.Country;
+import com.example.film_rental_app.master_datamodule.exception.CountryAlreadyExistsException;
+import com.example.film_rental_app.master_datamodule.exception.CountryInvalidOperationException;
 import com.example.film_rental_app.master_datamodule.exception.CountryNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.CityRepository;
 import com.example.film_rental_app.master_datamodule.repository.CountryRepository;
@@ -20,7 +22,7 @@ public class CountryServiceImpl implements CountryService {
 
     public CountryServiceImpl(CountryRepository countryRepository, CityRepository cityRepository) {
         this.countryRepository = countryRepository;
-        this.cityRepository = cityRepository;
+        this.cityRepository    = cityRepository;
     }
 
     @Override
@@ -32,27 +34,44 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional(readOnly = true)
     public Country getCountryById(Integer countryId) {
+        // ResourceNotFoundException → HTTP 404
         return countryRepository.findById(countryId)
                 .orElseThrow(() -> new CountryNotFoundException(countryId));
     }
 
     @Override
     public Country createCountry(Country country) {
+        // DuplicateResourceException → HTTP 409
+        if (countryRepository.existsByCountry(country.getCountry())) {
+            throw new CountryAlreadyExistsException(country.getCountry());
+        }
         return countryRepository.save(country);
     }
 
     @Override
     public Country updateCountry(Integer countryId, Country updated) {
+        // ResourceNotFoundException → HTTP 404
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> new CountryNotFoundException(countryId));
+        // DuplicateResourceException → HTTP 409
+        if (!country.getCountry().equalsIgnoreCase(updated.getCountry())
+                && countryRepository.existsByCountry(updated.getCountry())) {
+            throw new CountryAlreadyExistsException(updated.getCountry());
+        }
         country.setCountry(updated.getCountry());
         return countryRepository.save(country);
     }
 
     @Override
     public boolean deleteCountry(Integer countryId) {
+        // ResourceNotFoundException → HTTP 404
         if (!countryRepository.existsById(countryId)) {
             throw new CountryNotFoundException(countryId);
+        }
+        // InvalidOperationException → HTTP 400
+        if (cityRepository.existsByCountry_CountryId(countryId)) {
+            throw new CountryInvalidOperationException(countryId,
+                    "This Country still has Cities linked to it. Remove all Cities first before deleting the Country.");
         }
         countryRepository.deleteById(countryId);
         return true;
@@ -61,6 +80,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional(readOnly = true)
     public List<City> getCitiesByCountry(Integer countryId) {
+        // ResourceNotFoundException → HTTP 404
         if (!countryRepository.existsById(countryId)) {
             throw new CountryNotFoundException(countryId);
         }
