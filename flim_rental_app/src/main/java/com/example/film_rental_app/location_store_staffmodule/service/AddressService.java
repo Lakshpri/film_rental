@@ -13,7 +13,7 @@ public interface AddressService {
 
     Address updateAddress(Integer addressId, Address updated);
 
-    void deleteAddress(Integer addressId);
+    boolean deleteAddress(Integer addressId);
 
     List<Address> getAddressesByCity(Integer cityId);
 }

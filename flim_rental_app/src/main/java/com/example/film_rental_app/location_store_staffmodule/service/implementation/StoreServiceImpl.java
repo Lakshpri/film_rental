@@ -47,11 +47,12 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void deleteStore(Integer storeId) {
+    public boolean deleteStore(Integer storeId) {
         if (!storeRepository.existsById(storeId)) {
             throw new StoreNotFoundException(storeId);
         }
         storeRepository.deleteById(storeId);
+        return true;
     }
 }
 

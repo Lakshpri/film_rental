@@ -54,11 +54,12 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public void deleteStaff(Integer staffId) {
+    public boolean deleteStaff(Integer staffId) {
         if (!staffRepository.existsById(staffId)) {
             throw new StaffNotFoundException(staffId);
         }
         staffRepository.deleteById(staffId);
+        return true;
     }
 
     @Override
