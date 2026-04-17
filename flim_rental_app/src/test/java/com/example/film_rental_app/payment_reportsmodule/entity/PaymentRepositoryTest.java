@@ -1,4 +1,6 @@
-package com.example.film_rental_app.payment_reportsmodule;
+package com.example.film_rental_app.payment_reportsmodule.entity;
+
+import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 import jakarta.validation.ConstraintViolation;

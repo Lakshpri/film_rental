@@ -14,7 +14,7 @@ public interface PaymentService {
 
     Payment createPayment(Payment payment);
 
-    void deletePayment(Integer paymentId);
+    boolean deletePayment(Integer paymentId);
 
     List<Payment> getPaymentsByCustomer(Integer customerId);
 
