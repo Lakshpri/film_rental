@@ -14,5 +14,5 @@ public interface ActorService {
 
     Actor updateActor(Integer actorId, Actor updated);
 
-    void deleteActor(Integer actorId);
+    boolean deleteActor(Integer actorId);
 }

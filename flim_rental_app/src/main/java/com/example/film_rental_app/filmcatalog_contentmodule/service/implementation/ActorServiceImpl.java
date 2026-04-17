@@ -4,10 +4,13 @@ import com.example.film_rental_app.filmcatalog_contentmodule.entity.Actor;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorNotFoundException;
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.ActorRepository;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.ActorService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
+@Transactional
 public class ActorServiceImpl implements ActorService {
 
     private final ActorRepository actorRepository;
@@ -44,10 +47,11 @@ public class ActorServiceImpl implements ActorService {
     }
 
     @Override
-    public void deleteActor(Integer actorId) {
+    public boolean deleteActor(Integer actorId) {
         if (!actorRepository.existsById(actorId)) {
             throw new ActorNotFoundException(actorId);
         }
         actorRepository.deleteById(actorId);
+        return true;
     }
 }

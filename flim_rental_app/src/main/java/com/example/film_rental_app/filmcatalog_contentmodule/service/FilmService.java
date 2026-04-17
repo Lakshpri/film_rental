@@ -16,17 +16,17 @@ public interface FilmService {
 
     Film updateFilm(Integer filmId, Film updated);
 
-    void deleteFilm(Integer filmId);
+    boolean deleteFilm(Integer filmId);
 
     List<FilmActor> getActorsByFilm(Integer filmId);
 
     FilmActor addActorToFilm(Integer filmId, Integer actorId);
 
-    void removeActorFromFilm(Integer filmId, Integer actorId);
+    boolean removeActorFromFilm(Integer filmId, Integer actorId);
 
     List<FilmCategory> getCategoriesByFilm(Integer filmId);
 
     FilmCategory addCategoryToFilm(Integer filmId, Integer categoryId);
 
-    void removeCategoryFromFilm(Integer filmId, Integer categoryId);
+    boolean removeCategoryFromFilm(Integer filmId, Integer categoryId);
 }
