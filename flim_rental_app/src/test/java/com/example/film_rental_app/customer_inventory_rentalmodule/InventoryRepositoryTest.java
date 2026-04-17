@@ -20,14 +20,14 @@ class InventoryRepositoryTest {
 
 
 
-    // ✅ READ ALL
+    // READ ALL
     @Test
     @DisplayName("Find all")
     void findAll() {
         assertThat(inventoryRepository.findAll()).isNotNull();
     }
 
-    // ✅ DELETE
+    // DELETE
     @Test
     @DisplayName("Delete inventory")
     void delete() {
