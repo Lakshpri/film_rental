@@ -5,6 +5,7 @@ import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmActor;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmCategory;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,35 +20,32 @@ public class FilmController {
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
-
     @GetMapping
-    public List<Film> getAllFilms() {
-        return filmService.getAllFilms();
+    public ResponseEntity<List<Film>> getAllFilms() {
+        return ResponseEntity.ok(filmService.getAllFilms());
     }
-
     @GetMapping("/{filmId}")
     public ResponseEntity<Film> getFilmById(@PathVariable Integer filmId) {
         return ResponseEntity.ok(filmService.getFilmById(filmId));
     }
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
-        return filmService.createFilm(film);
+    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
+        Film saved = filmService.createFilm(film);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
     @PutMapping("/{filmId}")
     public ResponseEntity<Film> updateFilm(
             @PathVariable Integer filmId,
             @Valid @RequestBody Film updated) {
 
-        return ResponseEntity.ok(filmService.updateFilm(filmId, updated));
+        Film updatedFilm = filmService.updateFilm(filmId, updated);
+        return ResponseEntity.ok(updatedFilm);
     }
-
     @DeleteMapping("/{filmId}")
     public ResponseEntity<Void> deleteFilm(@PathVariable Integer filmId) {
         filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
-
-    // Film-Actor relationships
     @GetMapping("/{filmId}/actors")
     public ResponseEntity<List<FilmActor>> getActorsByFilm(@PathVariable Integer filmId) {
         return ResponseEntity.ok(filmService.getActorsByFilm(filmId));
@@ -56,7 +54,8 @@ public class FilmController {
     @PostMapping("/{filmId}/actors/{actorId}")
     public ResponseEntity<FilmActor> addActorToFilm(@PathVariable Integer filmId,
                                                     @PathVariable Integer actorId) {
-        return ResponseEntity.ok(filmService.addActorToFilm(filmId, actorId));
+        FilmActor result = filmService.addActorToFilm(filmId, actorId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @DeleteMapping("/{filmId}/actors/{actorId}")
@@ -65,8 +64,6 @@ public class FilmController {
         filmService.removeActorFromFilm(filmId, actorId);
         return ResponseEntity.noContent().build();
     }
-
-    // Film-Category relationships
     @GetMapping("/{filmId}/categories")
     public ResponseEntity<List<FilmCategory>> getCategoriesByFilm(@PathVariable Integer filmId) {
         return ResponseEntity.ok(filmService.getCategoriesByFilm(filmId));
@@ -75,7 +72,8 @@ public class FilmController {
     @PostMapping("/{filmId}/categories/{categoryId}")
     public ResponseEntity<FilmCategory> addCategoryToFilm(@PathVariable Integer filmId,
                                                           @PathVariable Integer categoryId) {
-        return ResponseEntity.ok(filmService.addCategoryToFilm(filmId, categoryId));
+        FilmCategory result = filmService.addCategoryToFilm(filmId, categoryId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @DeleteMapping("/{filmId}/categories/{categoryId}")
