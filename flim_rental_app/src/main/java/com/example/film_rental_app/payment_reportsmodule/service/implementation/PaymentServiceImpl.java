@@ -1,11 +1,11 @@
 package com.example.film_rental_app.payment_reportsmodule.service.implementation;
 
 
+import com.example.film_rental_app.payment_reportsmodule.service.PaymentService;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 import com.example.film_rental_app.payment_reportsmodule.exception.PaymentNotFoundException;
 import com.example.film_rental_app.payment_reportsmodule.repository.PaymentRepository;
-import com.example.film_rental_app.payment_reportsmodule.service.PaymentService;
 import com.example.film_rental_app.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +45,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void deletePayment(Integer paymentId) {
+    public boolean deletePayment(Integer paymentId) {
         if (!paymentRepository.existsById(paymentId)) {
             throw new PaymentNotFoundException(paymentId);
         }
         paymentRepository.deleteById(paymentId);
+        return true;
     }
 
     @Override
