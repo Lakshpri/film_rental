@@ -2,6 +2,7 @@ package com.example.film_rental_app.customer_inventory_rentalmodule.controller;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Customer;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,13 @@ public class CustomerController {
     }
 
     @PostMapping
-    public Customer createCustomer(@RequestBody Customer customer) {
+    public Customer createCustomer(@Valid @RequestBody Customer customer) {
         return customerService.createCustomer(customer);
     }
 
     @PutMapping("/{customerId}")
     public ResponseEntity<Customer> updateCustomer(@PathVariable Integer customerId,
-                                                   @RequestBody Customer updated) {
+                                                   @Valid @RequestBody Customer updated) {
         return ResponseEntity.ok(customerService.updateCustomer(customerId, updated));
     }
 

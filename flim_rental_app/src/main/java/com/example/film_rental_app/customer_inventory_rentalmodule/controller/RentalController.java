@@ -2,6 +2,7 @@ package com.example.film_rental_app.customer_inventory_rentalmodule.controller;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Rental;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,13 @@ public class RentalController {
     }
 
     @PostMapping
-    public Rental createRental(@RequestBody Rental rental) {
+    public Rental createRental(@Valid @RequestBody Rental rental) {
         return rentalService.createRental(rental);
     }
 
     @PutMapping("/{rentalId}")
     public ResponseEntity<Rental> updateRental(@PathVariable Integer rentalId,
-                                               @RequestBody Rental updated) {
+                                               @Valid @RequestBody Rental updated) {
         return ResponseEntity.ok(rentalService.updateRental(rentalId, updated));
     }
 
