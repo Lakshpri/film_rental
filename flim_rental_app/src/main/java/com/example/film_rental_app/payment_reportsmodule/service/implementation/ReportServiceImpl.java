@@ -1,8 +1,8 @@
 package com.example.film_rental_app.payment_reportsmodule.service.implementation;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.CustomerService;
-import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
 import com.example.film_rental_app.payment_reportsmodule.service.ReportService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -10,15 +10,8 @@ import java.util.Map;
 
 @Service
 public class ReportServiceImpl implements ReportService {
-
+    @Autowired
     private CustomerService customerService;
-    private RentalService rentalService;
-
-    public ReportServiceImpl(CustomerService customerService,
-                             RentalService rentalService) {
-        this.customerService = customerService;
-        this.rentalService = rentalService;
-    }
 
     @Override
     public Map<String, Object> getCustomerList() {

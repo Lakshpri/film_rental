@@ -1,5 +1,4 @@
 package com.example.film_rental_app.payment_reportsmodule.service.implementation;
-
 import com.example.film_rental_app.payment_reportsmodule.service.PaymentService;
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Inventory;
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Rental;
@@ -9,6 +8,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Renta
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 import com.example.film_rental_app.payment_reportsmodule.service.AnalyticsService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,21 +16,14 @@ import java.util.*;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
-
+    @Autowired
     private PaymentService paymentService;
+    @Autowired
     private CustomerService customerService;
+    @Autowired
     private RentalService rentalService;
+    @Autowired
     private InventoryService inventoryService;
-
-    public AnalyticsServiceImpl(PaymentService paymentService,
-                                CustomerService customerService,
-                                RentalService rentalService,
-                                InventoryService inventoryService) {
-        this.paymentService = paymentService;
-        this.customerService = customerService;
-        this.rentalService = rentalService;
-        this.inventoryService = inventoryService;
-    }
 
     @Override
     public Map<String, Object> getCustomerBalance(Integer customerId) {

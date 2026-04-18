@@ -1,6 +1,7 @@
 package com.example.film_rental_app.payment_reportsmodule.controller;
 
 import com.example.film_rental_app.payment_reportsmodule.service.ReportService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,12 +10,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reports")
 public class ReportsController {
-
+@Autowired
     private ReportService reportService;
-
-    public ReportsController(ReportService reportService) {
-        this.reportService = reportService;
-    }
 
     @GetMapping("/customer-list")
     public ResponseEntity<Map<String, Object>> getCustomerList() {

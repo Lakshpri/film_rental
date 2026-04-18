@@ -1,53 +1,76 @@
 package com.example.film_rental_app.payment_reportsmodule.controller;
 
-
-import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
+import com.example.film_rental_app.payment_reportsmodule.dto.request.PaymentRequestDTO;
+import com.example.film_rental_app.payment_reportsmodule.dto.response.PaymentResponseDTO;
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
-import com.example.film_rental_app.payment_reportsmodule.repository.PaymentRepository;
+import com.example.film_rental_app.payment_reportsmodule.mapper.PaymentMapper;
+import com.example.film_rental_app.payment_reportsmodule.service.PaymentService;
+import com.example.film_rental_app.customer_inventory_rentalmodule.service.CustomerService;
+import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
+import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/api/payments")
 public class PaymentController {
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private StaffService staffService;
+    @Autowired
+    private RentalService rentalService;
+    @Autowired
+    private PaymentMapper paymentMapper;
 
-    private final PaymentRepository paymentRepository;
-    private final CustomerRepository customerRepository;
 
-    public PaymentController(PaymentRepository paymentRepository, CustomerRepository customerRepository) {
-        this.paymentRepository = paymentRepository;
-        this.customerRepository = customerRepository;
+    @GetMapping
+    public ResponseEntity<List<PaymentResponseDTO>> getAllPayments() {
+        List<PaymentResponseDTO> result = paymentService.getAllPayments().stream()
+                .map(paymentMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/api/payments")
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    @GetMapping("/{paymentId}")
+    public ResponseEntity<PaymentResponseDTO> getPaymentById(@PathVariable Integer paymentId) {
+        return ResponseEntity.ok(paymentMapper.toResponseDTO(paymentService.getPaymentById(paymentId)));
     }
 
-    @GetMapping("/api/payments/{paymentId}")
-    public ResponseEntity<Payment> getPaymentById(@PathVariable Integer paymentId) {
-        return paymentRepository.findById(paymentId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{customerId}/payments")
+    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(@PathVariable Integer customerId) {
+
+        List<PaymentResponseDTO> result = paymentService.getPaymentsByCustomer(customerId)
+                .stream()
+                .map(paymentMapper::toResponseDTO)
+                .toList();
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/api/customers/{customerId}/payments")
-    public ResponseEntity<List<Payment>> getPaymentsByCustomer(@PathVariable Integer customerId) {
-        if (!customerRepository.existsById(customerId)) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(paymentRepository.findByCustomer_CustomerId(customerId));
+
+    @PostMapping
+    public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
+        Payment payment = paymentMapper.toEntity(dto);
+        payment.setCustomer(customerService.getCustomerById(dto.getCustomerId()));
+        payment.setStaff(staffService.getStaffById(dto.getStaffId()));
+        if (dto.getRentalId() != null) {
+            payment.setRental(rentalService.getRentalById(dto.getRentalId()));
+        }
+        return ResponseEntity.status(201).body(paymentMapper.toResponseDTO(paymentService.createPayment(payment)));
     }
 
-    @PostMapping("/api/payments")
-    public Payment createPayment(@Valid @RequestBody Payment payment) {
-        return paymentRepository.save(payment);
-    }
-
-    @DeleteMapping("/api/payments/{paymentId}")
+    @DeleteMapping("/{paymentId}")
     public ResponseEntity<Void> deletePayment(@PathVariable Integer paymentId) {
-        if (!paymentRepository.existsById(paymentId)) return ResponseEntity.notFound().build();
-        paymentRepository.deleteById(paymentId);
+        paymentService.deletePayment(paymentId);
         return ResponseEntity.noContent().build();
     }
 }
