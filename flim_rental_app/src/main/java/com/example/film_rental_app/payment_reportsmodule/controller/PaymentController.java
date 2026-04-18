@@ -20,16 +20,17 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
-@Autowired
+    @Autowired
     private PaymentService paymentService;
-@Autowired
+    @Autowired
     private CustomerService customerService;
-@Autowired
+    @Autowired
     private StaffService staffService;
-@Autowired
+    @Autowired
     private RentalService rentalService;
-@Autowired
+    @Autowired
     private PaymentMapper paymentMapper;
+
 
     @GetMapping
     public ResponseEntity<List<PaymentResponseDTO>> getAllPayments() {
@@ -44,29 +45,17 @@ public class PaymentController {
         return ResponseEntity.ok(paymentMapper.toResponseDTO(paymentService.getPaymentById(paymentId)));
     }
 
-    @GetMapping("/by-customer/{customerId}")
+    @GetMapping("/{customerId}/payments")
     public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(@PathVariable Integer customerId) {
-        List<PaymentResponseDTO> result = paymentService.getPaymentsByCustomer(customerId).stream()
+
+        List<PaymentResponseDTO> result = paymentService.getPaymentsByCustomer(customerId)
+                .stream()
                 .map(paymentMapper::toResponseDTO)
-                .collect(Collectors.toList());
+                .toList();
+
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/by-staff/{staffId}")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByStaff(@PathVariable Integer staffId) {
-        List<PaymentResponseDTO> result = paymentService.getPaymentsByStaff(staffId).stream()
-                .map(paymentMapper::toResponseDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/greater-than")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsGreaterThan(@RequestParam BigDecimal amount) {
-        List<PaymentResponseDTO> result = paymentService.getPaymentsGreaterThan(amount).stream()
-                .map(paymentMapper::toResponseDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
 
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
