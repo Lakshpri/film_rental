@@ -1,6 +1,8 @@
 package com.example.film_rental_app.location_store_staffmodule.service.implementation;
 
 import com.example.film_rental_app.location_store_staffmodule.entity.Store;
+import com.example.film_rental_app.location_store_staffmodule.exception.StoreAlreadyExistsException;
+import com.example.film_rental_app.location_store_staffmodule.exception.StoreInvalidOperationException;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreNotFoundException;
 import com.example.film_rental_app.location_store_staffmodule.repository.StoreRepository;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
@@ -34,6 +36,10 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public Store createStore(Store store) {
+        if (store.getAddress() != null
+                && storeRepository.existsByAddress_AddressId(store.getAddress().getAddressId())) {
+            throw new StoreAlreadyExistsException(store.getAddress().getAddressId());
+        }
         return storeRepository.save(store);
     }
 
@@ -41,8 +47,14 @@ public class StoreServiceImpl implements StoreService {
     public Store updateStore(Integer storeId, Store updated) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new StoreNotFoundException(storeId));
+        if (updated.getAddress() != null
+                && (store.getAddress() == null
+                || !store.getAddress().getAddressId().equals(updated.getAddress().getAddressId()))
+                && storeRepository.existsByAddress_AddressId(updated.getAddress().getAddressId())) {
+            throw new StoreAlreadyExistsException(updated.getAddress().getAddressId());
+        }
         if (updated.getManagerStaff() != null) store.setManagerStaff(updated.getManagerStaff());
-        if (updated.getAddress() != null) store.setAddress(updated.getAddress());
+        if (updated.getAddress()      != null) store.setAddress(updated.getAddress());
         return storeRepository.save(store);
     }
 
@@ -55,4 +67,3 @@ public class StoreServiceImpl implements StoreService {
         return true;
     }
 }
-
