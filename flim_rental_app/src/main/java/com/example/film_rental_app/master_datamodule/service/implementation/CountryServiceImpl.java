@@ -21,10 +21,6 @@ public class CountryServiceImpl implements CountryService {
     @Autowired
     private CityRepository cityRepository;
 
-    public CountryServiceImpl(CountryRepository countryRepository, CityRepository cityRepository) {
-        this.countryRepository = countryRepository;
-        this.cityRepository    = cityRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)

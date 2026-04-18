@@ -20,10 +20,6 @@ public class CategoryController {
     @Autowired
     private CategoryMapper categoryMapper;
 
-    public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
-        this.categoryService = categoryService;
-        this.categoryMapper = categoryMapper;
-    }
 
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {

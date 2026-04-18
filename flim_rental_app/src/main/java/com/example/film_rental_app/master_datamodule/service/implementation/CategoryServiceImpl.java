@@ -17,10 +17,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<Category> getAllCategories() {

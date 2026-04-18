@@ -17,9 +17,6 @@ public class LanguageServiceImpl implements LanguageService {
     @Autowired
     private LanguageRepository languageRepository;
 
-    public LanguageServiceImpl(LanguageRepository languageRepository) {
-        this.languageRepository = languageRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
