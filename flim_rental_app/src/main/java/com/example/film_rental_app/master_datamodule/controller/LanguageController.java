@@ -21,11 +21,6 @@ public class LanguageController {
     @Autowired
     private LanguageMapper languageMapper;
 
-    public LanguageController(LanguageService languageService, LanguageMapper languageMapper) {
-        this.languageService = languageService;
-        this.languageMapper = languageMapper;
-    }
-
     @GetMapping
     public ResponseEntity<List<LanguageResponseDTO>> getAllLanguages() {
         List<LanguageResponseDTO> result = languageService.getAllLanguages().stream()

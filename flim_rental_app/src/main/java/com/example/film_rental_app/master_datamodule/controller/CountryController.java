@@ -25,12 +25,6 @@ public class CountryController {
     @Autowired
     private CityMapper cityMapper;
 
-    public CountryController(CountryService countryService, CountryMapper countryMapper, CityMapper cityMapper) {
-        this.countryService = countryService;
-        this.countryMapper = countryMapper;
-        this.cityMapper = cityMapper;
-    }
-
     @GetMapping
     public ResponseEntity<List<CountryResponseDTO>> getAllCountries() {
         List<CountryResponseDTO> result = countryService.getAllCountries().stream()

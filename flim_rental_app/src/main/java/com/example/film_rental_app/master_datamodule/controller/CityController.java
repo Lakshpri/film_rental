@@ -25,11 +25,6 @@ public class CityController {
     @Autowired
     private CityMapper cityMapper;
 
-    public CityController(CityService cityService, CountryService countryService, CityMapper cityMapper) {
-        this.cityService = cityService;
-        this.countryService = countryService;
-        this.cityMapper = cityMapper;
-    }
 
     @GetMapping
     public ResponseEntity<List<CityResponseDTO>> getAllCities() {
