@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
+    boolean existsByEmail(String email);
+
     @Query("SELECT c FROM Customer c WHERE c.store.storeId = :storeId AND c.active = :active")
     List<Customer> findByStoreIdAndActiveStatus(@Param("storeId") Integer storeId,
                                                 @Param("active") boolean active);
@@ -19,4 +21,3 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
             "OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Customer> searchByName(@Param("keyword") String keyword);
 }
-

@@ -78,7 +78,6 @@ public class Rental {
     }
 
     //  Getters and Setters
-
     public Integer getRentalId() { return rentalId; }
     public void setRentalId(Integer rentalId) { this.rentalId = rentalId; }
 
