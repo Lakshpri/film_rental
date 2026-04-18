@@ -7,6 +7,7 @@ import com.example.film_rental_app.master_datamodule.exception.CountryNotFoundEx
 import com.example.film_rental_app.master_datamodule.repository.CityRepository;
 import com.example.film_rental_app.master_datamodule.repository.CountryRepository;
 import com.example.film_rental_app.master_datamodule.service.CityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,10 @@ import java.util.List;
 @Service
 @Transactional
 public class CityServiceImpl implements CityService {
-
-    private final CityRepository    cityRepository;
-    private final CountryRepository countryRepository;
+    @Autowired
+    private CityRepository    cityRepository;
+    @Autowired
+    private CountryRepository countryRepository;
 
     public CityServiceImpl(CityRepository cityRepository, CountryRepository countryRepository) {
         this.cityRepository    = cityRepository;

@@ -5,6 +5,7 @@ import com.example.film_rental_app.master_datamodule.exception.LanguageAlreadyEx
 import com.example.film_rental_app.master_datamodule.exception.LanguageNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.LanguageRepository;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +14,8 @@ import java.util.List;
 @Service
 @Transactional
 public class LanguageServiceImpl implements LanguageService {
-
-    private final LanguageRepository languageRepository;
+    @Autowired
+    private LanguageRepository languageRepository;
 
     public LanguageServiceImpl(LanguageRepository languageRepository) {
         this.languageRepository = languageRepository;

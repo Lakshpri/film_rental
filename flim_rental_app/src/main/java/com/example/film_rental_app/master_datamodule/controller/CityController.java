@@ -8,6 +8,7 @@ import com.example.film_rental_app.master_datamodule.mapper.CityMapper;
 import com.example.film_rental_app.master_datamodule.service.CityService;
 import com.example.film_rental_app.master_datamodule.service.CountryService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/cities")
 public class CityController {
-
-    private final CityService cityService;
-    private final CountryService countryService;
-    private final CityMapper cityMapper;
+    @Autowired
+    private CityService cityService;
+    @Autowired
+    private CountryService countryService;
+    @Autowired
+    private CityMapper cityMapper;
 
     public CityController(CityService cityService, CountryService countryService, CityMapper cityMapper) {
         this.cityService = cityService;
