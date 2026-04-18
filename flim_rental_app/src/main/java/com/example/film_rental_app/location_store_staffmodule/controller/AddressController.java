@@ -38,14 +38,6 @@ public class AddressController {
         return ResponseEntity.ok(addressMapper.toResponseDTO(addressService.getAddressById(addressId)));
     }
 
-    @GetMapping("/by-city/{cityId}")
-    public ResponseEntity<List<AddressResponseDTO>> getAddressesByCity(@PathVariable Integer cityId) {
-        List<AddressResponseDTO> result = addressService.getAddressesByCity(cityId).stream()
-                .map(addressMapper::toResponseDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
-
     @PostMapping
     public ResponseEntity<AddressResponseDTO> createAddress(@Valid @RequestBody AddressRequestDTO dto) {
         Address address = addressMapper.toEntity(dto);
