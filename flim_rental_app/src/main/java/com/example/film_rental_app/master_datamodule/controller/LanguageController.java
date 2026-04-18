@@ -6,6 +6,7 @@ import com.example.film_rental_app.master_datamodule.entity.Language;
 import com.example.film_rental_app.master_datamodule.mapper.LanguageMapper;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +16,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/languages")
 public class LanguageController {
-
-    private final LanguageService languageService;
-    private final LanguageMapper languageMapper;
+    @Autowired
+    private LanguageService languageService;
+    @Autowired
+    private LanguageMapper languageMapper;
 
     public LanguageController(LanguageService languageService, LanguageMapper languageMapper) {
         this.languageService = languageService;

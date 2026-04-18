@@ -5,6 +5,7 @@ import com.example.film_rental_app.master_datamodule.exception.CategoryAlreadyEx
 import com.example.film_rental_app.master_datamodule.exception.CategoryNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.CategoryRepository;
 import com.example.film_rental_app.master_datamodule.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +14,8 @@ import java.util.List;
 @Service
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
-
-    private final CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;

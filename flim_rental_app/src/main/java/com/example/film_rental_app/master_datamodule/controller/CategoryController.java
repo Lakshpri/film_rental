@@ -6,6 +6,7 @@ import com.example.film_rental_app.master_datamodule.entity.Category;
 import com.example.film_rental_app.master_datamodule.mapper.CategoryMapper;
 import com.example.film_rental_app.master_datamodule.service.CategoryService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +15,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
-
-    private final CategoryService categoryService;
-    private final CategoryMapper categoryMapper;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
         this.categoryService = categoryService;
