@@ -28,14 +28,6 @@ public class InventoryController {
     @Autowired
     private InventoryMapper inventoryMapper;
 
-    public InventoryController(InventoryService inventoryService, FilmService filmService,
-                               StoreService storeService, InventoryMapper inventoryMapper) {
-        this.inventoryService = inventoryService;
-        this.filmService = filmService;
-        this.storeService = storeService;
-        this.inventoryMapper = inventoryMapper;
-    }
-
     @GetMapping
     public ResponseEntity<List<InventoryResponseDTO>> getAllInventory() {
         List<InventoryResponseDTO> result = inventoryService.getAllInventory().stream()

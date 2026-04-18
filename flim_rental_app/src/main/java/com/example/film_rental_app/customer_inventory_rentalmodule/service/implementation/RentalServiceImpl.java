@@ -20,10 +20,6 @@ public class RentalServiceImpl implements RentalService {
     @Autowired
     private RentalRepository rentalRepository;
 
-    public RentalServiceImpl(RentalRepository rentalRepository) {
-        this.rentalRepository = rentalRepository;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<Rental> getAllRentals() {

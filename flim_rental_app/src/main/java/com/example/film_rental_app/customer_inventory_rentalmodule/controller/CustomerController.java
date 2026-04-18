@@ -30,14 +30,6 @@ public class CustomerController {
     @Autowired
     private CustomerMapper customerMapper;
 
-    public CustomerController(CustomerService customerService, StoreService storeService,
-                              AddressService addressService, CustomerMapper customerMapper) {
-        this.customerService = customerService;
-        this.storeService = storeService;
-        this.addressService = addressService;
-        this.customerMapper = customerMapper;
-    }
-
     @GetMapping
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers() {
         List<CustomerResponseDTO> result = customerService.getAllCustomers().stream()
