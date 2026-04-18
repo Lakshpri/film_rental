@@ -44,14 +44,6 @@ public class StaffController {
         return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.getStaffById(staffId)));
     }
 
-    @GetMapping("/by-store/{storeId}")
-    public ResponseEntity<List<StaffResponseDTO>> getStaffByStore(@PathVariable Integer storeId) {
-        List<StaffResponseDTO> result = staffService.getStaffByStore(storeId).stream()
-                .map(staffMapper::toResponseDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
-
     @PostMapping
     public ResponseEntity<StaffResponseDTO> createStaff(@Valid @RequestBody StaffRequestDTO dto) {
         Staff staff = staffMapper.toEntity(dto);
