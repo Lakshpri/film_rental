@@ -25,9 +25,9 @@ public class FilmCategoryId implements Serializable {
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
-   public FilmCategoryId(){
+    public FilmCategoryId(){
 
-   }
+    }
 
     public FilmCategoryId(Integer filmId, Integer categoryId) {
         this.filmId = filmId;

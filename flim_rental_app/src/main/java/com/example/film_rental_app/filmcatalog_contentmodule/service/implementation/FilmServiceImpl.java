@@ -1,18 +1,13 @@
 package com.example.film_rental_app.filmcatalog_contentmodule.service.implementation;
 
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.*;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorNotFoundException;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.FilmActorAssociationException;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.FilmCategoryAssociationException;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.FilmNotFoundException;
-import com.example.film_rental_app.filmcatalog_contentmodule.repository.ActorRepository;
-import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmActorRepository;
-import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmCategoryRepository;
-import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmRepository;
+import com.example.film_rental_app.filmcatalog_contentmodule.exception.*;
+import com.example.film_rental_app.filmcatalog_contentmodule.repository.*;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService;
 import com.example.film_rental_app.master_datamodule.entity.Category;
+import com.example.film_rental_app.master_datamodule.exception.CategoryNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.CategoryRepository;
-import com.example.film_rental_app.common.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,24 +16,16 @@ import java.util.List;
 @Service
 @Transactional
 public class FilmServiceImpl implements FilmService {
-
-    private final FilmRepository filmRepository;
-    private final ActorRepository actorRepository;
-    private final CategoryRepository categoryRepository;
-    private final FilmActorRepository filmActorRepository;
-    private final FilmCategoryRepository filmCategoryRepository;
-
-    public FilmServiceImpl(FilmRepository filmRepository,
-                           ActorRepository actorRepository,
-                           CategoryRepository categoryRepository,
-                           FilmActorRepository filmActorRepository,
-                           FilmCategoryRepository filmCategoryRepository) {
-        this.filmRepository = filmRepository;
-        this.actorRepository = actorRepository;
-        this.categoryRepository = categoryRepository;
-        this.filmActorRepository = filmActorRepository;
-        this.filmCategoryRepository = filmCategoryRepository;
-    }
+    @Autowired
+    private FilmRepository filmRepository;
+    @Autowired
+    private ActorRepository actorRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private FilmActorRepository filmActorRepository;
+    @Autowired
+    private FilmCategoryRepository filmCategoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -49,19 +36,31 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public Film getFilmById(Integer filmId) {
+        // ResourceNotFoundException → HTTP 404
         return filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
     }
 
     @Override
     public Film createFilm(Film film) {
+        // DuplicateResourceException → HTTP 409
+        if (film.getTitle() != null && filmRepository.existsByTitle(film.getTitle())) {
+            throw new FilmAlreadyExistsException(film.getTitle());
+        }
         return filmRepository.save(film);
     }
 
     @Override
     public Film updateFilm(Integer filmId, Film updated) {
+        // ResourceNotFoundException → HTTP 404
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
+        // DuplicateResourceException → HTTP 409
+        if (updated.getTitle() != null
+                && !film.getTitle().equalsIgnoreCase(updated.getTitle())
+                && filmRepository.existsByTitle(updated.getTitle())) {
+            throw new FilmAlreadyExistsException(updated.getTitle());
+        }
         film.setTitle(updated.getTitle());
         film.setDescription(updated.getDescription());
         film.setReleaseYear(updated.getReleaseYear());
@@ -78,8 +77,18 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public boolean deleteFilm(Integer filmId) {
+        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
+        }
+        // InvalidOperationException → HTTP 400
+        if (!filmActorRepository.findById_FilmId(filmId).isEmpty()) {
+            throw new FilmInvalidOperationException(filmId,
+                    "This Film still has Actors linked to it. Remove all Actor associations first.");
+        }
+        if (!filmCategoryRepository.findById_FilmId(filmId).isEmpty()) {
+            throw new FilmInvalidOperationException(filmId,
+                    "This Film still has Categories linked to it. Remove all Category associations first.");
         }
         filmRepository.deleteById(filmId);
         return true;
@@ -88,6 +97,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public List<FilmActor> getActorsByFilm(Integer filmId) {
+        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
@@ -96,11 +106,13 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmActor addActorToFilm(Integer filmId, Integer actorId) {
-        Film film = filmRepository.findById(filmId)
+        // ResourceNotFoundException → HTTP 404
+        Film  film  = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         Actor actor = actorRepository.findById(actorId)
                 .orElseThrow(() -> new ActorNotFoundException(actorId));
         FilmActorId id = new FilmActorId(actorId, filmId);
+        // DuplicateResourceException → HTTP 409
         if (filmActorRepository.existsById(id)) {
             throw new FilmActorAssociationException(filmId, actorId);
         }
@@ -114,8 +126,9 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public boolean removeActorFromFilm(Integer filmId, Integer actorId) {
         FilmActorId id = new FilmActorId(actorId, filmId);
+        // ResourceNotFoundException → HTTP 404  (specific FilmActorNotFoundException)
         if (!filmActorRepository.existsById(id)) {
-            throw new ResourceNotFoundException("FilmActor association not found for filmId: " + filmId + " and actorId: " + actorId);
+            throw new FilmActorNotFoundException(filmId, actorId);
         }
         filmActorRepository.deleteById(id);
         return true;
@@ -124,6 +137,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public List<FilmCategory> getCategoriesByFilm(Integer filmId) {
+        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
@@ -132,11 +146,13 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmCategory addCategoryToFilm(Integer filmId, Integer categoryId) {
+        // ResourceNotFoundException → HTTP 404
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", categoryId));
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
         FilmCategoryId id = new FilmCategoryId(filmId, categoryId);
+        // DuplicateResourceException → HTTP 409
         if (filmCategoryRepository.existsById(id)) {
             throw new FilmCategoryAssociationException(filmId, categoryId);
         }
@@ -150,8 +166,9 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public boolean removeCategoryFromFilm(Integer filmId, Integer categoryId) {
         FilmCategoryId id = new FilmCategoryId(filmId, categoryId);
+        // ResourceNotFoundException → HTTP 404  (specific FilmCategoryNotFoundException)
         if (!filmCategoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("FilmCategory association not found for filmId: " + filmId + " and categoryId: " + categoryId);
+            throw new FilmCategoryNotFoundException(filmId, categoryId);
         }
         filmCategoryRepository.deleteById(id);
         return true;

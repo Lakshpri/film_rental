@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface FilmActorRepository extends JpaRepository<FilmActor, FilmActorId> {
     List<FilmActor> findById_FilmId(Integer filmId);
+    List<FilmActor> findById_ActorId(Integer actorId);
     boolean existsById_FilmIdAndId_ActorId(Integer filmId, Integer actorId);
 }
