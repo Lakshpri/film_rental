@@ -7,6 +7,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.exception.Ren
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.RentalNotFoundException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.RentalRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,8 @@ import java.util.List;
 @Transactional
 public class RentalServiceImpl implements RentalService {
 
-    private final RentalRepository rentalRepository;
+    @Autowired
+    private RentalRepository rentalRepository;
 
     public RentalServiceImpl(RentalRepository rentalRepository) {
         this.rentalRepository = rentalRepository;

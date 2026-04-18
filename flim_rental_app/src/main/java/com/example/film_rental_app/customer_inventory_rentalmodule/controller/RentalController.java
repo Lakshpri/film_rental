@@ -9,6 +9,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Inven
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +21,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/rentals")
 public class RentalController {
 
-    private final RentalService rentalService;
-    private final CustomerService customerService;
-    private final InventoryService inventoryService;
-    private final StaffService staffService;
-    private final RentalMapper rentalMapper;
+    @Autowired
+    private RentalService rentalService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private InventoryService inventoryService;
+    @Autowired
+    private StaffService staffService;
+    @Autowired
+    private RentalMapper rentalMapper;
 
     public RentalController(RentalService rentalService, CustomerService customerService,
                             InventoryService inventoryService, StaffService staffService,
