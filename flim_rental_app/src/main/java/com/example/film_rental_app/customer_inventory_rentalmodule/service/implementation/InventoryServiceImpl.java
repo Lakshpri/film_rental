@@ -1,8 +1,11 @@
 package com.example.film_rental_app.customer_inventory_rentalmodule.service.implementation;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Inventory;
+import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryAlreadyExistsException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryNotFoundException;
+import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryUnavailableException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.InventoryRepository;
+import com.example.film_rental_app.customer_inventory_rentalmodule.repository.RentalRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.InventoryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +17,12 @@ import java.util.List;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private final RentalRepository    rentalRepository;
 
-    public InventoryServiceImpl(InventoryRepository inventoryRepository) {
+    public InventoryServiceImpl(InventoryRepository inventoryRepository,
+                                RentalRepository rentalRepository) {
         this.inventoryRepository = inventoryRepository;
+        this.rentalRepository    = rentalRepository;
     }
 
     @Override
@@ -28,28 +34,59 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional(readOnly = true)
     public Inventory getInventoryById(Integer inventoryId) {
+        // ResourceNotFoundException → HTTP 404
         return inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new InventoryNotFoundException(inventoryId));
     }
 
     @Override
     public Inventory createInventory(Inventory inventory) {
+        // DuplicateResourceException → HTTP 409
+        // Check if an inventory copy already exists for same Film + Store
+        if (inventory.getFilm() != null && inventory.getStore() != null) {
+            boolean alreadyExists = !inventoryRepository
+                    .findByStore_StoreIdAndFilm_FilmId(
+                            inventory.getStore().getStoreId(),
+                            inventory.getFilm().getFilmId())
+                    .isEmpty();
+            if (alreadyExists) {
+                throw new InventoryAlreadyExistsException(
+                        inventory.getFilm().getFilmId(),
+                        inventory.getStore().getStoreId());
+            }
+        }
         return inventoryRepository.save(inventory);
     }
 
     @Override
     public Inventory updateInventory(Integer inventoryId, Inventory updated) {
+        // ResourceNotFoundException → HTTP 404
         Inventory inventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new InventoryNotFoundException(inventoryId));
-        if (updated.getFilm() != null) inventory.setFilm(updated.getFilm());
+        // InvalidOperationException → HTTP 400: cannot update inventory that is currently rented
+        boolean isCurrentlyRented = rentalRepository.findAll().stream()
+                .anyMatch(r -> r.getInventory().getInventoryId().equals(inventoryId)
+                        && r.getReturnDate() == null);
+        if (isCurrentlyRented) {
+            throw new InventoryUnavailableException(inventoryId);
+        }
+        if (updated.getFilm()  != null) inventory.setFilm(updated.getFilm());
         if (updated.getStore() != null) inventory.setStore(updated.getStore());
         return inventoryRepository.save(inventory);
     }
 
     @Override
     public boolean deleteInventory(Integer inventoryId) {
+        // ResourceNotFoundException → HTTP 404
         if (!inventoryRepository.existsById(inventoryId)) {
             throw new InventoryNotFoundException(inventoryId);
+        }
+        // InvalidOperationException → HTTP 400: cannot delete inventory that is currently rented
+        boolean isCurrentlyRented = rentalRepository.findAll().stream()
+                .anyMatch(r -> r.getInventory().getInventoryId().equals(inventoryId)
+                        && r.getReturnDate() == null);
+        if (isCurrentlyRented) {
+            throw new InventoryUnavailableException(inventoryId);
         }
         inventoryRepository.deleteById(inventoryId);
         return true;

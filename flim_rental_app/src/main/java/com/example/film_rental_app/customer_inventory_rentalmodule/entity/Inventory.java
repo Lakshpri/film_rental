@@ -73,7 +73,7 @@ public class Inventory {
     public Set<Rental> getRentals() { return rentals; }
     public void setRentals(Set<Rental> rentals) { this.rentals = rentals; }
 
-    // ✅ toString (exclude relationships to avoid recursion)
+    //  toString (exclude relationships to avoid recursion)
     @Override
     public String toString() {
         return "Inventory{" +
