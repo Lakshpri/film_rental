@@ -1,5 +1,7 @@
 package com.example.film_rental_app.master_datamodule.controller;
 
+import com.example.film_rental_app.location_store_staffmodule.entity.Address;
+import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.master_datamodule.dto.request.CityRequestDTO;
 import com.example.film_rental_app.master_datamodule.dto.response.CityResponseDTO;
 import com.example.film_rental_app.master_datamodule.entity.City;
@@ -24,6 +26,8 @@ public class CityController {
     private CountryService countryService;
     @Autowired
     private CityMapper cityMapper;
+    @Autowired
+    private AddressService addressService;
 
 
     @GetMapping
@@ -63,5 +67,10 @@ public class CityController {
     public ResponseEntity<Void> deleteCity(@PathVariable Integer cityId) {
         cityService.deleteCity(cityId);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{cityId}/addresses")
+    public ResponseEntity<List<Address>> getAddressesByCity(@PathVariable Integer cityId) {
+        List<Address> addresses = addressService.getAddressesByCity(cityId);
+        return ResponseEntity.ok(addresses);
     }
 }
