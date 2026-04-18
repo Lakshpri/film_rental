@@ -21,12 +21,6 @@ public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private RentalRepository    rentalRepository;
 
-    public InventoryServiceImpl(InventoryRepository inventoryRepository,
-                                RentalRepository rentalRepository) {
-        this.inventoryRepository = inventoryRepository;
-        this.rentalRepository    = rentalRepository;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<Inventory> getAllInventory() {

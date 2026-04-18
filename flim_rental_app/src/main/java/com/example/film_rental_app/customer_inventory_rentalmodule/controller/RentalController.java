@@ -32,16 +32,6 @@ public class RentalController {
     @Autowired
     private RentalMapper rentalMapper;
 
-    public RentalController(RentalService rentalService, CustomerService customerService,
-                            InventoryService inventoryService, StaffService staffService,
-                            RentalMapper rentalMapper) {
-        this.rentalService = rentalService;
-        this.customerService = customerService;
-        this.inventoryService = inventoryService;
-        this.staffService = staffService;
-        this.rentalMapper = rentalMapper;
-    }
-
     @GetMapping
     public ResponseEntity<List<RentalResponseDTO>> getAllRentals() {
         List<RentalResponseDTO> result = rentalService.getAllRentals().stream()
