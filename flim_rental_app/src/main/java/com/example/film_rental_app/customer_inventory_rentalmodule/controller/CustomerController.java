@@ -10,6 +10,7 @@ import com.example.film_rental_app.location_store_staffmodule.entity.Store;
 import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +21,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
-    private final StoreService storeService;
-    private final AddressService addressService;
-    private final CustomerMapper customerMapper;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private StoreService storeService;
+    @Autowired
+    private AddressService addressService;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     public CustomerController(CustomerService customerService, StoreService storeService,
                               AddressService addressService, CustomerMapper customerMapper) {

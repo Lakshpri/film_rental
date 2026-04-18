@@ -7,6 +7,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.exception.Inv
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.InventoryRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.RentalRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.InventoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,10 @@ import java.util.List;
 @Service
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
-
-    private final InventoryRepository inventoryRepository;
-    private final RentalRepository    rentalRepository;
+    @Autowired
+    private InventoryRepository inventoryRepository;
+    @Autowired
+    private RentalRepository    rentalRepository;
 
     public InventoryServiceImpl(InventoryRepository inventoryRepository,
                                 RentalRepository rentalRepository) {

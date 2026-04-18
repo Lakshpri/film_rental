@@ -8,6 +8,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Inven
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +19,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/inventory")
 public class InventoryController {
 
-    private final InventoryService inventoryService;
-    private final FilmService filmService;
-    private final StoreService storeService;
-    private final InventoryMapper inventoryMapper;
+    @Autowired
+    private InventoryService inventoryService;
+    @Autowired
+    private FilmService filmService;
+    @Autowired
+    private StoreService storeService;
+    @Autowired
+    private InventoryMapper inventoryMapper;
 
     public InventoryController(InventoryService inventoryService, FilmService filmService,
                                StoreService storeService, InventoryMapper inventoryMapper) {

@@ -6,6 +6,7 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.exception.Cus
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.CustomerNotFoundException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.CustomerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +15,8 @@ import java.util.List;
 @Service
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
-
-    private final CustomerRepository customerRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     public CustomerServiceImpl(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
