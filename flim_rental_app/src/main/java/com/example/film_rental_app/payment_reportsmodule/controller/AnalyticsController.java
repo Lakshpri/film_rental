@@ -1,6 +1,7 @@
 package com.example.film_rental_app.payment_reportsmodule.controller;
 
 import com.example.film_rental_app.payment_reportsmodule.service.AnalyticsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,12 +10,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/analytics")
 public class AnalyticsController {
-
+    @Autowired
     private AnalyticsService analyticsService;
 
-    public AnalyticsController(AnalyticsService analyticsService) {
-        this.analyticsService = analyticsService;
-    }
 
     @GetMapping("/customer-balance/{customerId}")
     public ResponseEntity<Map<String, Object>> getCustomerBalance(@PathVariable Integer customerId) {
