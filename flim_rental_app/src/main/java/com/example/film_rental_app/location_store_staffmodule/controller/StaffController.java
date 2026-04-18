@@ -1,44 +1,79 @@
 package com.example.film_rental_app.location_store_staffmodule.controller;
 
+import com.example.film_rental_app.location_store_staffmodule.dto.request.StaffRequestDTO;
+import com.example.film_rental_app.location_store_staffmodule.dto.response.StaffResponseDTO;
+import com.example.film_rental_app.location_store_staffmodule.entity.Address;
 import com.example.film_rental_app.location_store_staffmodule.entity.Staff;
+import com.example.film_rental_app.location_store_staffmodule.entity.Store;
+import com.example.film_rental_app.location_store_staffmodule.mapper.StaffMapper;
+import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
+import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/staff")
 public class StaffController {
 
-    private final StaffService staffService;
+    @Autowired
+    private StaffService staffService;
+    @Autowired
+    private AddressService addressService;
+    @Autowired
+    private StoreService storeService;
+    @Autowired
+    private StaffMapper staffMapper;
 
-    public StaffController(StaffService staffService) {
-        this.staffService = staffService;
-    }
 
     @GetMapping
-    public ResponseEntity<List<Staff>> getAllStaff() {
-        return ResponseEntity.ok(staffService.getAllStaff());
+    public ResponseEntity<List<StaffResponseDTO>> getAllStaff() {
+        List<StaffResponseDTO> result = staffService.getAllStaff().stream()
+                .map(staffMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{staffId}")
-    public ResponseEntity<Staff> getStaffById(@PathVariable Integer staffId) {
-        return ResponseEntity.ok(staffService.getStaffById(staffId));
+    public ResponseEntity<StaffResponseDTO> getStaffById(@PathVariable Integer staffId) {
+        return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.getStaffById(staffId)));
+    }
+
+    @GetMapping("/by-store/{storeId}")
+    public ResponseEntity<List<StaffResponseDTO>> getStaffByStore(@PathVariable Integer storeId) {
+        List<StaffResponseDTO> result = staffService.getStaffByStore(storeId).stream()
+                .map(staffMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<Staff> createStaff(@Valid @RequestBody Staff staff) {
-        Staff created = staffService.createStaff(staff);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<StaffResponseDTO> createStaff(@Valid @RequestBody StaffRequestDTO dto) {
+        Staff staff = staffMapper.toEntity(dto);
+        Address address = addressService.getAddressById(dto.getAddressId());
+        staff.setAddress(address);
+        Store store = storeService.getStoreById(dto.getStoreId());
+        staff.setStore(store);
+        return ResponseEntity.status(201).body(staffMapper.toResponseDTO(staffService.createStaff(staff)));
     }
 
     @PutMapping("/{staffId}")
-    public ResponseEntity<Staff> updateStaff(
-            @PathVariable Integer staffId,
-            @Valid @RequestBody Staff updated) {
-        return ResponseEntity.ok(staffService.updateStaff(staffId, updated));
+    public ResponseEntity<StaffResponseDTO> updateStaff(@PathVariable Integer staffId,
+                                                        @Valid @RequestBody StaffRequestDTO dto) {
+        Staff existing = staffService.getStaffById(staffId);
+        staffMapper.updateEntity(existing, dto);
+        if (dto.getAddressId() != null) {
+            existing.setAddress(addressService.getAddressById(dto.getAddressId()));
+        }
+        if (dto.getStoreId() != null) {
+            existing.setStore(storeService.getStoreById(dto.getStoreId()));
+        }
+        return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.updateStaff(staffId, existing)));
     }
 
     @DeleteMapping("/{staffId}")

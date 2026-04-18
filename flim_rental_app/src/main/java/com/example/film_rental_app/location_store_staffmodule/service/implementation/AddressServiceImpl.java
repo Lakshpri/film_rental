@@ -6,6 +6,7 @@ import com.example.film_rental_app.location_store_staffmodule.repository.Address
 import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.master_datamodule.repository.CityRepository;
 import com.example.film_rental_app.common.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,13 +16,11 @@ import java.util.List;
 @Transactional
 public class AddressServiceImpl implements AddressService {
 
-    private final AddressRepository addressRepository;
-    private final CityRepository cityRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private CityRepository cityRepository;
 
-    public AddressServiceImpl(AddressRepository addressRepository, CityRepository cityRepository) {
-        this.addressRepository = addressRepository;
-        this.cityRepository = cityRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
