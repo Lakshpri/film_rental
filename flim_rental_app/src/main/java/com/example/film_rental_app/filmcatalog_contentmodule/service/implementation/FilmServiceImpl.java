@@ -26,6 +26,8 @@ public class FilmServiceImpl implements FilmService {
     private FilmActorRepository filmActorRepository;
     @Autowired
     private FilmCategoryRepository filmCategoryRepository;
+    @Autowired
+    private FilmTextRepository filmTextRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -36,14 +38,12 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public Film getFilmById(Integer filmId) {
-        // ResourceNotFoundException → HTTP 404
         return filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
     }
 
     @Override
     public Film createFilm(Film film) {
-        // DuplicateResourceException → HTTP 409
         if (film.getTitle() != null && filmRepository.existsByTitle(film.getTitle())) {
             throw new FilmAlreadyExistsException(film.getTitle());
         }
@@ -52,10 +52,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film updateFilm(Integer filmId, Film updated) {
-        // ResourceNotFoundException → HTTP 404
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
-        // DuplicateResourceException → HTTP 409
         if (updated.getTitle() != null
                 && !film.getTitle().equalsIgnoreCase(updated.getTitle())
                 && filmRepository.existsByTitle(updated.getTitle())) {
@@ -77,11 +75,14 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public boolean deleteFilm(Integer filmId) {
-        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
-        // InvalidOperationException → HTTP 400
+        // BUG FIX: check film_text FK before delete
+        if (filmTextRepository.existsByFilmId(filmId)) {
+            throw new FilmInvalidOperationException(filmId,
+                    "This Film has a FilmText entry linked to it. Delete the FilmText record first.");
+        }
         if (!filmActorRepository.findById_FilmId(filmId).isEmpty()) {
             throw new FilmInvalidOperationException(filmId,
                     "This Film still has Actors linked to it. Remove all Actor associations first.");
@@ -97,22 +98,20 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public List<FilmActor> getActorsByFilm(Integer filmId) {
-        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
+        // BUG FIX: repository now uses JOIN FETCH actor — no LazyInitializationException
         return filmActorRepository.findById_FilmId(filmId);
     }
 
     @Override
     public FilmActor addActorToFilm(Integer filmId, Integer actorId) {
-        // ResourceNotFoundException → HTTP 404
         Film  film  = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         Actor actor = actorRepository.findById(actorId)
                 .orElseThrow(() -> new ActorNotFoundException(actorId));
         FilmActorId id = new FilmActorId(actorId, filmId);
-        // DuplicateResourceException → HTTP 409
         if (filmActorRepository.existsById(id)) {
             throw new FilmActorAssociationException(filmId, actorId);
         }
@@ -126,7 +125,6 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public boolean removeActorFromFilm(Integer filmId, Integer actorId) {
         FilmActorId id = new FilmActorId(actorId, filmId);
-        // ResourceNotFoundException → HTTP 404  (specific FilmActorNotFoundException)
         if (!filmActorRepository.existsById(id)) {
             throw new FilmActorNotFoundException(filmId, actorId);
         }
@@ -137,7 +135,6 @@ public class FilmServiceImpl implements FilmService {
     @Override
     @Transactional(readOnly = true)
     public List<FilmCategory> getCategoriesByFilm(Integer filmId) {
-        // ResourceNotFoundException → HTTP 404
         if (!filmRepository.existsById(filmId)) {
             throw new FilmNotFoundException(filmId);
         }
@@ -146,13 +143,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmCategory addCategoryToFilm(Integer filmId, Integer categoryId) {
-        // ResourceNotFoundException → HTTP 404
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
         FilmCategoryId id = new FilmCategoryId(filmId, categoryId);
-        // DuplicateResourceException → HTTP 409
         if (filmCategoryRepository.existsById(id)) {
             throw new FilmCategoryAssociationException(filmId, categoryId);
         }
@@ -166,7 +161,6 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public boolean removeCategoryFromFilm(Integer filmId, Integer categoryId) {
         FilmCategoryId id = new FilmCategoryId(filmId, categoryId);
-        // ResourceNotFoundException → HTTP 404  (specific FilmCategoryNotFoundException)
         if (!filmCategoryRepository.existsById(id)) {
             throw new FilmCategoryNotFoundException(filmId, categoryId);
         }

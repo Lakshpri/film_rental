@@ -43,7 +43,7 @@ public class ActorServiceImpl implements ActorService {
         if (actorRepository.existsByFirstNameAndLastName(actor.getFirstName(), actor.getLastName())) {
             throw new ActorAlreadyExistsException(actor.getFirstName(), actor.getLastName());
         }
-        return actorRepository.save(actor);
+        return actorRepository.saveAndFlush(actor);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ActorServiceImpl implements ActorService {
         }
         actor.setFirstName(updated.getFirstName());
         actor.setLastName(updated.getLastName());
-        return actorRepository.save(actor);
+        return actorRepository.saveAndFlush(actor);
     }
 
     @Override
