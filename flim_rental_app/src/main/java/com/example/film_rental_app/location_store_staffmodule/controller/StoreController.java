@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -78,9 +79,13 @@ public class StoreController {
     }
 
     @DeleteMapping("/{storeId}")
-    public ResponseEntity<Void> deleteStore(@PathVariable Integer storeId) {
+    public ResponseEntity<Map<String, Object>> deleteStore(@PathVariable Integer storeId) {
+        storeService.getStoreById(storeId); // throws StoreNotFoundException (404) if not found
         storeService.deleteStore(storeId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Store with ID " + storeId + " has been successfully deleted."
+        ));
     }
 
     @GetMapping("/{storeId}/staff")

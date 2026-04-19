@@ -1,8 +1,8 @@
 package com.example.film_rental_app.location_store_staffmodule.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class AddressRequestDTO {
@@ -22,7 +22,7 @@ public class AddressRequestDTO {
     private String postalCode;
 
     @NotBlank(message = "Phone is required")
-    @Size(max = 20, message = "Phone must not exceed 20 characters")
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
 
     @NotNull(message = "City ID is required")
@@ -48,4 +48,3 @@ public class AddressRequestDTO {
     public Integer getCityId() { return cityId; }
     public void setCityId(Integer cityId) { this.cityId = cityId; }
 }
-

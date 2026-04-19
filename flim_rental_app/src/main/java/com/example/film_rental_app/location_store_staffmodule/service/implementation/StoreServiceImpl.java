@@ -2,7 +2,6 @@ package com.example.film_rental_app.location_store_staffmodule.service.implement
 
 import com.example.film_rental_app.location_store_staffmodule.entity.Store;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreAlreadyExistsException;
-import com.example.film_rental_app.location_store_staffmodule.exception.StoreInvalidOperationException;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreNotFoundException;
 import com.example.film_rental_app.location_store_staffmodule.repository.StoreRepository;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
@@ -60,9 +59,8 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public boolean deleteStore(Integer storeId) {
-        if (!storeRepository.existsById(storeId)) {
-            throw new StoreNotFoundException(storeId);
-        }
+        storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException(storeId));
         storeRepository.deleteById(storeId);
         return true;
     }
