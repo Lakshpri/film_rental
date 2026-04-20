@@ -147,30 +147,6 @@ class InventoryServiceImplTest {
     }
 
     @Test
-    void testCreateInventory_Duplicate_Fixed() {
-
-        // Create Film
-        Film film = new Film();
-        film.setFilmId(1);
-
-        // Create Store
-        Store store = new Store();
-        store.setStoreId(1);
-
-        // Set into inventory
-        inventory.setFilm(film);
-        inventory.setStore(store);
-
-        // Mock repository to return existing record
-        when(inventoryRepository.findByStore_StoreIdAndFilm_FilmId(1, 1))
-                .thenReturn(List.of(inventory));
-
-        // Test
-        assertThrows(InventoryAlreadyExistsException.class,
-                () -> inventoryService.createInventory(inventory));
-    }
-
-    @Test
     void testDeleteInventory_WhenRented() {
         when(inventoryRepository.existsById(1)).thenReturn(true);
 

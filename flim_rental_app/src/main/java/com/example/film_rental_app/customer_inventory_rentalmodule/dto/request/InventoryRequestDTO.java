@@ -1,13 +1,16 @@
 package com.example.film_rental_app.customer_inventory_rentalmodule.dto.request;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class InventoryRequestDTO {
 
     @NotNull(message = "Film ID is required")
+    @Positive(message = "Film ID must be a number greater than zero (e.g. 1, 2, 3)")
     private Integer filmId;
 
     @NotNull(message = "Store ID is required")
+    @Positive(message = "Store ID must be a number greater than zero (e.g. 1, 2, 3)")
     private Integer storeId;
 
     public InventoryRequestDTO() {}

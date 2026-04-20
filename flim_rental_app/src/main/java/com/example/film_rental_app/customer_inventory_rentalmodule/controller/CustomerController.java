@@ -11,28 +11,25 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Renta
 import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
+@Validated
 public class CustomerController {
 
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private StoreService storeService;
-    @Autowired
-    private AddressService addressService;
-    @Autowired
-    private CustomerMapper customerMapper;
-    @Autowired
-    private RentalService rentalService;
-    @Autowired
-    private RentalMapper rentalMapper;
+    @Autowired private CustomerService customerService;
+    @Autowired private StoreService storeService;
+    @Autowired private AddressService addressService;
+    @Autowired private CustomerMapper customerMapper;
+    @Autowired private RentalService rentalService;
+    @Autowired private RentalMapper rentalMapper;
 
     // GET /api/customers
     @GetMapping
@@ -44,23 +41,26 @@ public class CustomerController {
     }
 
     // GET /api/customers/{customerId}
+    // @Positive rejects 0 and negatives → @Validated + GlobalExceptionHandler returns 400
+    // customerService.getCustomerById throws CustomerNotFoundException (404) if ID not found
     @GetMapping("/{customerId}")
-    public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable Integer customerId) {
+    public ResponseEntity<CustomerResponseDTO> getCustomerById(
+            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
         return ResponseEntity.ok(
-                customerMapper.toResponseDTO(
-                        customerService.getCustomerById(customerId)
-                )
+                customerMapper.toResponseDTO(customerService.getCustomerById(customerId))
         );
     }
 
     // GET /api/customers/{customerId}/rentals
+    // First verifies the customer exists (throws 404 if not) then returns their rentals
     @GetMapping("/{customerId}/rentals")
-    public ResponseEntity<List<RentalResponseDTO>> getCustomerRentals(@PathVariable Integer customerId) {
-
+    public ResponseEntity<List<RentalResponseDTO>> getCustomerRentals(
+            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
+        // This throws CustomerNotFoundException (404) if customer does not exist
+        customerService.getCustomerById(customerId);
         List<RentalResponseDTO> result = rentalService.getRentalsByCustomer(customerId).stream()
                 .map(rentalMapper::toResponseDTO)
                 .toList();
-
         return ResponseEntity.ok(result);
     }
 
@@ -68,40 +68,28 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO dto) {
         Customer customer = customerMapper.toEntity(dto);
-
         customer.setStore(storeService.getStoreById(dto.getStoreId()));
         customer.setAddress(addressService.getAddressById(dto.getAddressId()));
-
         return ResponseEntity.status(201)
-                .body(customerMapper.toResponseDTO(
-                        customerService.createCustomer(customer)
-                ));
+                .body(customerMapper.toResponseDTO(customerService.createCustomer(customer)));
     }
 
     // PUT /api/customers/{customerId}
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerResponseDTO> updateCustomer(
-            @PathVariable Integer customerId,
+            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId,
             @Valid @RequestBody CustomerRequestDTO dto) {
         Customer existing = customerService.getCustomerById(customerId);
         customerMapper.updateEntity(existing, dto);
-
-        if (dto.getStoreId() != null) {
-            existing.setStore(storeService.getStoreById(dto.getStoreId()));
-        }
-        if (dto.getAddressId() != null) {
-            existing.setAddress(addressService.getAddressById(dto.getAddressId()));
-        }
-        return ResponseEntity.ok(
-                customerMapper.toResponseDTO(
-                        customerService.updateCustomer(customerId, existing)
-                )
-        );
+        if (dto.getStoreId() != null) existing.setStore(storeService.getStoreById(dto.getStoreId()));
+        if (dto.getAddressId() != null) existing.setAddress(addressService.getAddressById(dto.getAddressId()));
+        return ResponseEntity.ok(customerMapper.toResponseDTO(customerService.updateCustomer(customerId, existing)));
     }
 
     // DELETE /api/customers/{customerId}
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer customerId) {
+    public ResponseEntity<Void> deleteCustomer(
+            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
