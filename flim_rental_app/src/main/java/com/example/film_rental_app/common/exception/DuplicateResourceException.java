@@ -5,14 +5,7 @@ public class DuplicateResourceException extends RuntimeException {
     private final String resourceName;
 
     public DuplicateResourceException(String resourceName, String field, Object value) {
-        super(String.format(
-                "[409 - DUPLICATE RESOURCE]\n" +
-                        "  Resource : %s\n" +
-                        "  Field    : %s\n" +
-                        "  Value    : %s\n" +
-                        "  Problem  : A %s record with %s = '%s' already exists in the system.\n" +
-                        "  Fix      : Choose a different value for '%s', or update the existing record instead of creating a new one.",
-                resourceName, field, value, resourceName, field, value, field));
+        super("A " + resourceName + " with " + field + " '" + value + "' already exists. Please use a different value.");
         this.resourceName = resourceName;
     }
 
@@ -21,7 +14,5 @@ public class DuplicateResourceException extends RuntimeException {
         this.resourceName = null;
     }
 
-    public String getResourceName() {
-        return resourceName;
-    }
+    public String getResourceName() { return resourceName; }
 }

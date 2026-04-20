@@ -6,14 +6,7 @@ public class ResourceNotFoundException extends RuntimeException {
     private final Object resourceId;
 
     public ResourceNotFoundException(String resourceName, Object resourceId) {
-        super(String.format(
-                "[404 - RESOURCE NOT FOUND]\n" +
-                        "  Resource : %s\n" +
-                        "  ID Given : %s\n" +
-                        "  Problem  : No %s record was found with the given ID.\n" +
-                        "  Fix      : Make sure the ID is correct and the record actually exists. " +
-                        "Use the GET-all endpoint to browse available IDs.",
-                resourceName, resourceId, resourceName));
+        super("No " + resourceName + " was found with ID " + resourceId + ". Please check the ID and try again.");
         this.resourceName = resourceName;
         this.resourceId = resourceId;
     }
@@ -26,4 +19,4 @@ public class ResourceNotFoundException extends RuntimeException {
 
     public String getResourceName() { return resourceName; }
     public Object getResourceId()   { return resourceId; }
-    }
+}
