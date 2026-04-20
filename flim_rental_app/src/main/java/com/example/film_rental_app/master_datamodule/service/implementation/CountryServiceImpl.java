@@ -68,7 +68,7 @@ public class CountryServiceImpl implements CountryService {
         // InvalidOperationException → HTTP 400
         if (cityRepository.existsByCountry_CountryId(countryId)) {
             throw new CountryInvalidOperationException(countryId,
-                    "This Country still has Cities linked to it. Remove all Cities first before deleting the Country.");
+                    "This country still has cities under it. Please delete all cities in this country first, then try deleting the country.");
         }
         countryRepository.deleteById(countryId);
         return true;

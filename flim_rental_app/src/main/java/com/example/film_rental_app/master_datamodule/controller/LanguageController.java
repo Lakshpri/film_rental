@@ -6,14 +6,19 @@ import com.example.film_rental_app.master_datamodule.entity.Language;
 import com.example.film_rental_app.master_datamodule.mapper.LanguageMapper;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 @RequestMapping("/api/languages")
 public class LanguageController {
     @Autowired
@@ -30,7 +35,7 @@ public class LanguageController {
     }
 
     @GetMapping("/{languageId}")
-    public ResponseEntity<LanguageResponseDTO> getLanguageById(@PathVariable Integer languageId) {
+    public ResponseEntity<LanguageResponseDTO> getLanguageById(@PathVariable @Positive(message = "Language ID must be a positive number") Integer languageId) {
         return ResponseEntity.ok(languageMapper.toResponseDTO(languageService.getLanguageById(languageId)));
     }
 
@@ -41,7 +46,7 @@ public class LanguageController {
     }
 
     @PutMapping("/{languageId}")
-    public ResponseEntity<LanguageResponseDTO> updateLanguage(@PathVariable Integer languageId,
+    public ResponseEntity<LanguageResponseDTO> updateLanguage(@PathVariable @Positive(message = "Language ID must be a positive number") Integer languageId,
                                                               @Valid @RequestBody LanguageRequestDTO dto) {
         Language existing = languageService.getLanguageById(languageId);
         languageMapper.updateEntity(existing, dto);
@@ -49,8 +54,16 @@ public class LanguageController {
     }
 
     @DeleteMapping("/{languageId}")
-    public ResponseEntity<Void> deleteLanguage(@PathVariable Integer languageId) {
-        languageService.deleteLanguage(languageId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, Object>> deleteLanguage(
+            @PathVariable @Positive(message = "Language ID must be a positive number") Integer languageId) {
+
+        boolean deleted = languageService.deleteLanguage(languageId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", deleted);
+        response.put("message", "Language deleted successfully");
+        response.put("languageId", languageId);
+
+        return ResponseEntity.ok(response);
     }
 }
