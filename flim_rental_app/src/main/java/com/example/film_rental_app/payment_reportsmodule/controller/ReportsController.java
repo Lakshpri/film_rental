@@ -4,13 +4,15 @@ import com.example.film_rental_app.payment_reportsmodule.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Map;
 
 @RestController
+@Validated
 @RequestMapping("/api/reports")
 public class ReportsController {
-@Autowired
+    @Autowired
     private ReportService reportService;
 
     @GetMapping("/customer-list")

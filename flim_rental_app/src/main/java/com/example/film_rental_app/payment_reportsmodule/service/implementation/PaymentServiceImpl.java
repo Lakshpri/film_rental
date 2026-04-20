@@ -18,11 +18,9 @@ import java.util.List;
 @Service
 @Transactional
 public class PaymentServiceImpl implements PaymentService {
-    @Autowired
-    private PaymentRepository  paymentRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
 
+    @Autowired private PaymentRepository  paymentRepository;
+    @Autowired private CustomerRepository customerRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -33,21 +31,20 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(readOnly = true)
     public Payment getPaymentById(Integer paymentId) {
-        // ResourceNotFoundException → HTTP 404
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
     }
 
     @Override
     public Payment createPayment(Payment payment) {
-        // InvalidOperationException → HTTP 400: amount must be positive
+        // Amount must be greater than zero (0.01 minimum enforced by DTO too — double safety)
         if (payment.getAmount() == null || payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new PaymentInvalidOperationException(
-                    "Payment amount must be greater than zero. You provided: "
+                    "The payment amount must be greater than zero. You entered: "
                             + payment.getAmount()
-                            + ". Please enter a valid positive amount.");
+                            + ". Please enter a valid amount greater than zero (e.g. 4.99).");
         }
-        // DuplicateResourceException → HTTP 409: a payment for this rental already exists
+        // Each rental can only be paid once
         if (payment.getRental() != null
                 && paymentRepository.existsByRental_RentalId(payment.getRental().getRentalId())) {
             throw new PaymentAlreadyExistsException(payment.getRental().getRentalId());
@@ -57,21 +54,21 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public boolean deletePayment(Integer paymentId) {
-        // ResourceNotFoundException → HTTP 404: payment must exist first
+        // First check if the payment even exists — throw 404 if not
         if (!paymentRepository.existsById(paymentId)) {
             throw new PaymentNotFoundException(paymentId);
         }
-        // InvalidOperationException → HTTP 400: payments are financial records, deletion is not allowed
+        // Payment records are permanent — deletion is never allowed
         throw new PaymentInvalidOperationException(
-                "Payment records are permanent financial entries and cannot be deleted. "
-                        + "Payment ID = " + paymentId + " was found, but deletion is not permitted by business rules. "
-                        + "If this payment was made in error, please contact the system administrator.");
+                "Payment records cannot be deleted as they are permanent financial records. "
+                        + "Payment ID " + paymentId + " exists but cannot be removed. "
+                        + "If this payment was made by mistake, please contact the system administrator.");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsByCustomer(Integer customerId) {
-        // ResourceNotFoundException → HTTP 404: customer must exist
+        // Throw 404 if customer does not exist — no empty list
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(customerId);
         }
@@ -87,11 +84,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsGreaterThan(BigDecimal amount) {
-        // InvalidOperationException → HTTP 400: filter amount must be non-negative
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new PaymentInvalidOperationException(
-                    "The filter amount must be zero or a positive number. You provided: "
-                            + amount + ". Negative amounts are not valid for this filter.");
+                    "The amount you entered for filtering must be zero or a positive number. You entered: "
+                            + amount + ". Negative amounts cannot be used here.");
         }
         return paymentRepository.findByAmountGreaterThan(amount);
     }

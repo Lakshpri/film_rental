@@ -9,29 +9,27 @@ import com.example.film_rental_app.customer_inventory_rentalmodule.service.Custo
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.RentalService;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payments")
+@Validated
 public class PaymentController {
-    @Autowired
-    private PaymentService paymentService;
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private StaffService staffService;
-    @Autowired
-    private RentalService rentalService;
-    @Autowired
-    private PaymentMapper paymentMapper;
 
+    @Autowired private PaymentService paymentService;
+    @Autowired private CustomerService customerService;
+    @Autowired private StaffService staffService;
+    @Autowired private RentalService rentalService;
+    @Autowired private PaymentMapper paymentMapper;
 
+    // GET /api/payments
     @GetMapping
     public ResponseEntity<List<PaymentResponseDTO>> getAllPayments() {
         List<PaymentResponseDTO> result = paymentService.getAllPayments().stream()
@@ -40,23 +38,26 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
+    // GET /api/payments/{paymentId}
     @GetMapping("/{paymentId}")
-    public ResponseEntity<PaymentResponseDTO> getPaymentById(@PathVariable Integer paymentId) {
+    public ResponseEntity<PaymentResponseDTO> getPaymentById(
+            @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
         return ResponseEntity.ok(paymentMapper.toResponseDTO(paymentService.getPaymentById(paymentId)));
     }
 
-    @GetMapping("/{customerId}/payments")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(@PathVariable Integer customerId) {
-
+    // GET /api/payments/customer/{customerId}
+    // FIXED: was /{customerId}/payments — ambiguous with /{paymentId}, now clearly separated
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(
+            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
         List<PaymentResponseDTO> result = paymentService.getPaymentsByCustomer(customerId)
                 .stream()
                 .map(paymentMapper::toResponseDTO)
                 .toList();
-
         return ResponseEntity.ok(result);
     }
 
-
+    // POST /api/payments
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
         Payment payment = paymentMapper.toEntity(dto);
@@ -68,9 +69,15 @@ public class PaymentController {
         return ResponseEntity.status(201).body(paymentMapper.toResponseDTO(paymentService.createPayment(payment)));
     }
 
+    // DELETE /api/payments/{paymentId}
+    // Payment deletion is intentionally blocked — service always throws 400
     @DeleteMapping("/{paymentId}")
-    public ResponseEntity<Void> deletePayment(@PathVariable Integer paymentId) {
+    public ResponseEntity<PaymentResponseDTO> deletePayment(
+            @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
+
+        Payment payment = paymentService.getPaymentById(paymentId);
+        PaymentResponseDTO dto = paymentMapper.toResponseDTO(payment);
         paymentService.deletePayment(paymentId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(dto);
     }
 }
