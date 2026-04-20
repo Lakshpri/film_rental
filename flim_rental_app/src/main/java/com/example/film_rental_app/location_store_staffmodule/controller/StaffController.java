@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,7 +30,6 @@ public class StaffController {
     private StoreService storeService;
     @Autowired
     private StaffMapper staffMapper;
-
 
     @GetMapping
     public ResponseEntity<List<StaffResponseDTO>> getAllStaff() {
@@ -69,8 +69,11 @@ public class StaffController {
     }
 
     @DeleteMapping("/{staffId}")
-    public ResponseEntity<Void> deleteStaff(@PathVariable Integer staffId) {
+    public ResponseEntity<Map<String, Object>> deleteStaff(@PathVariable Integer staffId) {
         staffService.deleteStaff(staffId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Staff with ID " + staffId + " has been successfully deleted."
+        ));
     }
 }

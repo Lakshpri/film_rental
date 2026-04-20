@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -59,8 +60,11 @@ public class AddressController {
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Integer addressId) {
+    public ResponseEntity<Map<String, Object>> deleteAddress(@PathVariable Integer addressId) {
         addressService.deleteAddress(addressId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Address with ID " + addressId + " has been successfully deleted."
+        ));
     }
 }
