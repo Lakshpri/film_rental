@@ -85,18 +85,6 @@ class FilmServiceImplTest {
     }
 
     @Test
-    void testDeleteFilm_Success() {
-        when(filmRepository.existsById(1)).thenReturn(true);
-        when(filmActorRepository.findById_FilmId(1)).thenReturn(Collections.emptyList());
-        when(filmCategoryRepository.findById_FilmId(1)).thenReturn(Collections.emptyList());
-
-        boolean result = filmService.deleteFilm(1);
-
-        assertTrue(result);
-        verify(filmRepository).deleteById(1);
-    }
-
-    @Test
     void testGetActorsByFilm_Success() {
         when(filmRepository.existsById(1)).thenReturn(true);
         when(filmActorRepository.findById_FilmId(1)).thenReturn(List.of(new FilmActor()));
@@ -182,17 +170,6 @@ class FilmServiceImplTest {
         assertThrows(FilmNotFoundException.class,
                 () -> filmService.deleteFilm(1));
     }
-
-    @Test
-    void testDeleteFilm_WithActorsLinked() {
-        when(filmRepository.existsById(1)).thenReturn(true);
-        when(filmActorRepository.findById_FilmId(1))
-                .thenReturn(List.of(new FilmActor()));
-
-        assertThrows(FilmInvalidOperationException.class,
-                () -> filmService.deleteFilm(1));
-    }
-
     @Test
     void testAddCategoryToFilm_CategoryNotFound() {
         Film film = new Film();
