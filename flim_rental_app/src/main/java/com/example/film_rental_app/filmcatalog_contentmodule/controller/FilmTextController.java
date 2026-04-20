@@ -6,8 +6,10 @@ import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmText;
 import com.example.film_rental_app.filmcatalog_contentmodule.mapper.FilmTextMapper;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmTextService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/film-texts")
+@Validated
 public class FilmTextController {
 
     @Autowired
@@ -31,7 +34,8 @@ public class FilmTextController {
     }
 
     @GetMapping("/{filmId}")
-    public ResponseEntity<FilmTextResponseDTO> getFilmTextById(@PathVariable Integer filmId) {
+    public ResponseEntity<FilmTextResponseDTO> getFilmTextById(
+            @PathVariable @Positive(message = "Film ID must be a positive number") Integer filmId) {
         return ResponseEntity.ok(filmTextMapper.toResponseDTO(filmTextService.getFilmTextById(filmId)));
     }
 
@@ -42,15 +46,17 @@ public class FilmTextController {
     }
 
     @PutMapping("/{filmId}")
-    public ResponseEntity<FilmTextResponseDTO> updateFilmText(@PathVariable Integer filmId,
-                                                              @Valid @RequestBody FilmTextRequestDTO dto) {
+    public ResponseEntity<FilmTextResponseDTO> updateFilmText(
+            @PathVariable @Positive(message = "Film ID must be a positive number") Integer filmId,
+            @Valid @RequestBody FilmTextRequestDTO dto) {
         FilmText existing = filmTextService.getFilmTextById(filmId);
         filmTextMapper.updateEntity(existing, dto);
         return ResponseEntity.ok(filmTextMapper.toResponseDTO(filmTextService.updateFilmText(filmId, existing)));
     }
 
     @DeleteMapping("/{filmId}")
-    public ResponseEntity<Void> deleteFilmText(@PathVariable Integer filmId) {
+    public ResponseEntity<Void> deleteFilmText(
+            @PathVariable @Positive(message = "Film ID must be a positive number") Integer filmId) {
         filmTextService.deleteFilmText(filmId);
         return ResponseEntity.noContent().build();
     }

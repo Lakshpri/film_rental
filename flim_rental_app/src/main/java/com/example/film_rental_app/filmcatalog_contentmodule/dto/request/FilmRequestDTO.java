@@ -3,36 +3,42 @@ package com.example.film_rental_app.filmcatalog_contentmodule.dto.request;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.Film;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
 public class FilmRequestDTO {
 
-    @NotBlank(message = "Title is required")
-    @Size(max = 128, message = "Title must not exceed 128 characters")
+    @NotBlank(message = "Film title is required")
+    @Size(max = 128, message = "Film title must not exceed 128 characters")
     private String title;
 
     private String description;
 
+    @Min(value = 1888, message = "Release year cannot be before 1888 (the first film ever made)")
+    @Max(value = 2100, message = "Release year seems too far in the future. Please enter a valid year")
     private Short releaseYear;
 
     @NotNull(message = "Language ID is required")
+    @Positive(message = "Language ID must be a number greater than zero (e.g. 1, 2, 3)")
     private Integer languageId;
 
+    @Positive(message = "Original Language ID must be a number greater than zero (e.g. 1, 2, 3)")
     private Integer originalLanguageId;
 
     @Min(value = 1, message = "Rental duration must be at least 1 day")
     private Short rentalDuration = 3;
 
-    @DecimalMin(value = "0.00", message = "Rental rate must be non-negative")
+    @DecimalMin(value = "0.00", message = "Rental rate must be zero or more")
     private BigDecimal rentalRate = new BigDecimal("4.99");
 
     private Short length;
 
-    @DecimalMin(value = "0.00", message = "Replacement cost must be non-negative")
+    @DecimalMin(value = "0.00", message = "Replacement cost must be zero or more")
     private BigDecimal replacementCost = new BigDecimal("19.99");
 
     private Film.Rating rating = Film.Rating.G;

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface FilmCategoryRepository extends JpaRepository<FilmCategory, FilmCategoryId> {
     List<FilmCategory> findById_FilmId(Integer filmId);
+    List<FilmCategory> findById_CategoryId(Integer categoryId);
 }

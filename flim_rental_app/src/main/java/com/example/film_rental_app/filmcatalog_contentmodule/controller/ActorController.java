@@ -6,14 +6,18 @@ import com.example.film_rental_app.filmcatalog_contentmodule.entity.Actor;
 import com.example.film_rental_app.filmcatalog_contentmodule.mapper.ActorMapper;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.ActorService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 @RequestMapping("/api/actors")
 public class ActorController {
     @Autowired
@@ -31,7 +35,7 @@ public class ActorController {
     }
 
     @GetMapping("/{actorId}")
-    public ResponseEntity<ActorResponseDTO> getActorById(@PathVariable Integer actorId) {
+    public ResponseEntity<ActorResponseDTO> getActorById(@PathVariable @Positive(message = "Actor ID must be a positive number") Integer actorId) {
         return ResponseEntity.ok(actorMapper.toResponseDTO(actorService.getActorById(actorId)));
     }
 
@@ -42,7 +46,7 @@ public class ActorController {
     }
 
     @PutMapping("/{actorId}")
-    public ResponseEntity<ActorResponseDTO> updateActor(@PathVariable Integer actorId,
+    public ResponseEntity<ActorResponseDTO> updateActor(@PathVariable @Positive(message = "Actor ID must be a positive number") Integer actorId,
                                                         @Valid @RequestBody ActorRequestDTO dto) {
         Actor existing = actorService.getActorById(actorId);
         actorMapper.updateEntity(existing, dto);
@@ -50,8 +54,15 @@ public class ActorController {
     }
 
     @DeleteMapping("/{actorId}")
-    public ResponseEntity<Void> deleteActor(@PathVariable Integer actorId) {
+    public ResponseEntity<Map<String, Object>> deleteActor(
+            @PathVariable @Positive(message = "Actor ID must be a positive number") Integer actorId) {
+
+        actorService.getActorById(actorId); // throws ActorNotFoundException (404) if not found
         actorService.deleteActor(actorId);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Actor with ID " + actorId + " has been successfully deleted."
+        ));
     }
 }
