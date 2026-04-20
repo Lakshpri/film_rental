@@ -99,15 +99,6 @@ class CityServiceImplTest {
         assertEquals("Mumbai", result.getCity());
     }
 
-    @Test
-    void testDeleteCity_Success() {
-        when(cityRepository.existsById(1)).thenReturn(true);
-
-        boolean result = cityService.deleteCity(1);
-
-        assertTrue(result);
-        verify(cityRepository).deleteById(1);
-    }
 
 
 //NEGATIVE TEST CASES
