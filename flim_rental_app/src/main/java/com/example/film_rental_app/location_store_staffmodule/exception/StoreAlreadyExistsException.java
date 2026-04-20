@@ -4,7 +4,7 @@ import com.example.film_rental_app.common.exception.DuplicateResourceException;
 
 public class StoreAlreadyExistsException extends DuplicateResourceException {
     public StoreAlreadyExistsException(Integer addressId) {
-        super("Store", "addressId", addressId);
+        super("A store already exists at this address (Address ID: " + addressId + "). Each address can only have one store.");
     }
     public StoreAlreadyExistsException(String field, Object value) {
         super("Store", field, value);

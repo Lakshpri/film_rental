@@ -4,7 +4,7 @@ import com.example.film_rental_app.common.exception.InvalidOperationException;
 
 public class AddressInvalidOperationException extends InvalidOperationException {
     public AddressInvalidOperationException(Integer addressId, String reason) {
-        super("Cannot perform this operation on Address with ID = " + addressId + ". Reason: " + reason);
+        super(reason);
     }
     public AddressInvalidOperationException(String message) {
         super(message);

@@ -10,8 +10,10 @@ import com.example.film_rental_app.location_store_staffmodule.service.AddressSer
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,16 +22,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/staff")
+@Validated
 public class StaffController {
 
-    @Autowired
-    private StaffService staffService;
-    @Autowired
-    private AddressService addressService;
-    @Autowired
-    private StoreService storeService;
-    @Autowired
-    private StaffMapper staffMapper;
+    @Autowired private StaffService staffService;
+    @Autowired private AddressService addressService;
+    @Autowired private StoreService storeService;
+    @Autowired private StaffMapper staffMapper;
 
     @GetMapping
     public ResponseEntity<List<StaffResponseDTO>> getAllStaff() {
@@ -40,7 +39,8 @@ public class StaffController {
     }
 
     @GetMapping("/{staffId}")
-    public ResponseEntity<StaffResponseDTO> getStaffById(@PathVariable Integer staffId) {
+    public ResponseEntity<StaffResponseDTO> getStaffById(
+            @PathVariable @Positive(message = "Staff ID must be a positive number") Integer staffId) {
         return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.getStaffById(staffId)));
     }
 
@@ -55,16 +55,12 @@ public class StaffController {
     }
 
     @PutMapping("/{staffId}")
-    public ResponseEntity<StaffResponseDTO> updateStaff(@PathVariable Integer staffId,
-                                                        @Valid @RequestBody StaffRequestDTO dto) {
+    public ResponseEntity<StaffResponseDTO> updateStaff(
+            @PathVariable @Positive(message = "Staff ID must be a positive number") Integer staffId, @Valid @RequestBody StaffRequestDTO dto) {
         Staff existing = staffService.getStaffById(staffId);
         staffMapper.updateEntity(existing, dto);
-        if (dto.getAddressId() != null) {
-            existing.setAddress(addressService.getAddressById(dto.getAddressId()));
-        }
-        if (dto.getStoreId() != null) {
-            existing.setStore(storeService.getStoreById(dto.getStoreId()));
-        }
+        if (dto.getAddressId() != null) existing.setAddress(addressService.getAddressById(dto.getAddressId()));
+        if (dto.getStoreId() != null) existing.setStore(storeService.getStoreById(dto.getStoreId()));
         return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.updateStaff(staffId, existing)));
     }
 
