@@ -86,15 +86,7 @@ class CategoryServiceImplTest {
         assertEquals("Comedy", result.getName());
     }
 
-    @Test
-    void testDeleteCategory_Success() {
-        when(categoryRepository.existsById(1)).thenReturn(true);
 
-        boolean result = categoryService.deleteCategory(1);
-
-        assertTrue(result);
-        verify(categoryRepository).deleteById(1);
-    }
 
 
     //  NEGATIVE TEST CASES

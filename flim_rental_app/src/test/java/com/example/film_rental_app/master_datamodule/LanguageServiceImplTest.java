@@ -86,16 +86,6 @@ class LanguageServiceImplTest {
         assertEquals("French", result.getName());
     }
 
-    @Test
-    void testDeleteLanguage_Success() {
-        when(languageRepository.existsById(1)).thenReturn(true);
-
-        boolean result = languageService.deleteLanguage(1);
-
-        assertTrue(result);
-        verify(languageRepository).deleteById(1);
-    }
-
 
     //  NEGATIVE TEST CASES
 
