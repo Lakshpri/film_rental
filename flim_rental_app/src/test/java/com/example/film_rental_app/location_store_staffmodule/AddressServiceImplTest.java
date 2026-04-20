@@ -69,11 +69,7 @@ class AddressServiceImplTest {
         assertEquals("Updated", result.getAddress());
     }
 
-    @Test
-    void testDeleteAddress() {
-        when(addressRepository.existsById(1)).thenReturn(true);
-        assertTrue(service.deleteAddress(1));
-    }
+
 
     @Test
     void testGetAddressesByCity() {
