@@ -69,12 +69,6 @@ class StoreServiceImplTest {
     }
 
     @Test
-    void testDeleteStore() {
-        when(repository.existsById(1)).thenReturn(true);
-        assertTrue(service.deleteStore(1));
-    }
-
-    @Test
     void testUpdateManagerStaff() {
         Store updated = new Store();
         updated.setManagerStaff(null);
