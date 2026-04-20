@@ -8,22 +8,24 @@ import com.example.film_rental_app.location_store_staffmodule.service.AddressSer
 import com.example.film_rental_app.master_datamodule.entity.City;
 import com.example.film_rental_app.master_datamodule.service.CityService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/addresses")
+@Validated
 public class AddressController {
 
-    @Autowired
-    private AddressService addressService;
-    @Autowired
-    private CityService cityService;
-    @Autowired
-    private AddressMapper addressMapper;
+    @Autowired private AddressService addressService;
+    @Autowired private CityService cityService;
+    @Autowired private AddressMapper addressMapper;
 
     @GetMapping
     public ResponseEntity<List<AddressResponseDTO>> getAllAddresses() {
@@ -34,7 +36,8 @@ public class AddressController {
     }
 
     @GetMapping("/{addressId}")
-    public ResponseEntity<AddressResponseDTO> getAddressById(@PathVariable Integer addressId) {
+    public ResponseEntity<AddressResponseDTO> getAddressById(
+            @PathVariable @Positive(message = "Address ID must be a positive number") Integer addressId) {
         return ResponseEntity.ok(addressMapper.toResponseDTO(addressService.getAddressById(addressId)));
     }
 
@@ -47,8 +50,8 @@ public class AddressController {
     }
 
     @PutMapping("/{addressId}")
-    public ResponseEntity<AddressResponseDTO> updateAddress(@PathVariable Integer addressId,
-                                                            @Valid @RequestBody AddressRequestDTO dto) {
+    public ResponseEntity<AddressResponseDTO> updateAddress(
+            @PathVariable @Positive(message = "Address ID must be a positive number") Integer addressId, @Valid @RequestBody AddressRequestDTO dto) {
         Address existing = addressService.getAddressById(addressId);
         addressMapper.updateEntity(existing, dto);
         if (dto.getCityId() != null) {
@@ -59,8 +62,11 @@ public class AddressController {
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Integer addressId) {
+    public ResponseEntity<Map<String, Object>> deleteAddress(@PathVariable Integer addressId) {
         addressService.deleteAddress(addressId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Address with ID " + addressId + " has been successfully deleted."
+        ));
     }
 }

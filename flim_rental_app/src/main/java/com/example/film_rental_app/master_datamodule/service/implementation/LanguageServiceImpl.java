@@ -1,7 +1,9 @@
 package com.example.film_rental_app.master_datamodule.service.implementation;
 
+import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmRepository;
 import com.example.film_rental_app.master_datamodule.entity.Language;
 import com.example.film_rental_app.master_datamodule.exception.LanguageAlreadyExistsException;
+import com.example.film_rental_app.master_datamodule.exception.LanguageInvalidOperationException;
 import com.example.film_rental_app.master_datamodule.exception.LanguageNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.LanguageRepository;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
@@ -14,9 +16,9 @@ import java.util.List;
 @Service
 @Transactional
 public class LanguageServiceImpl implements LanguageService {
-    @Autowired
-    private LanguageRepository languageRepository;
 
+    @Autowired private LanguageRepository languageRepository;
+    @Autowired private FilmRepository filmRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -27,14 +29,12 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     @Transactional(readOnly = true)
     public Language getLanguageById(Integer languageId) {
-        // ResourceNotFoundException → HTTP 404
         return languageRepository.findById(languageId)
                 .orElseThrow(() -> new LanguageNotFoundException(languageId));
     }
 
     @Override
     public Language createLanguage(Language language) {
-        // DuplicateResourceException → HTTP 409
         if (languageRepository.existsByName(language.getName())) {
             throw new LanguageAlreadyExistsException(language.getName());
         }
@@ -43,10 +43,8 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public Language updateLanguage(Integer languageId, Language updated) {
-        // ResourceNotFoundException → HTTP 404
         Language language = languageRepository.findById(languageId)
                 .orElseThrow(() -> new LanguageNotFoundException(languageId));
-        // DuplicateResourceException → HTTP 409
         if (!language.getName().equalsIgnoreCase(updated.getName())
                 && languageRepository.existsByName(updated.getName())) {
             throw new LanguageAlreadyExistsException(updated.getName());
@@ -57,13 +55,14 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public boolean deleteLanguage(Integer languageId) {
-        // ResourceNotFoundException → HTTP 404
         if (!languageRepository.existsById(languageId)) {
             throw new LanguageNotFoundException(languageId);
         }
-        // InvalidOperationException → HTTP 400
-        // Guard: cannot delete a Language that is still in use by Films
-        // (add film language check here if FilmRepository is injected in future)
+        if (filmRepository.existsByLanguage_LanguageId(languageId)) {
+            throw new LanguageInvalidOperationException(languageId,
+                    "This language is still being used by one or more films. "
+                            + "Please update those films to use a different language before deleting this one.");
+        }
         languageRepository.deleteById(languageId);
         return true;
     }

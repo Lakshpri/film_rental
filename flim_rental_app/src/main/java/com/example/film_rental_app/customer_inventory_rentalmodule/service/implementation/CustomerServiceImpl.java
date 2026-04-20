@@ -48,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
         // DuplicateResourceException → HTTP 409
         if (updated.getEmail() != null
-                && !customer.getEmail().equalsIgnoreCase(updated.getEmail())
+                && (customer.getEmail() == null || !customer.getEmail().equalsIgnoreCase(updated.getEmail()))
                 && customerRepository.existsByEmail(updated.getEmail())) {
             throw new CustomerAlreadyExistsException(updated.getEmail());
         }
@@ -69,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
         // InvalidOperationException → HTTP 400
         if (customer.isActive()) {
             throw new CustomerInvalidOperationException(customerId,
-                    "You cannot delete an active Customer. Deactivate the customer account first before deleting it.");
+                    "To delete this customer, you must first deactivate their account. Go to Edit Customer and turn off the Active status, then try deleting again.");
         }
         customerRepository.deleteById(customerId);
         return true;

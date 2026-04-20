@@ -2,6 +2,7 @@ package com.example.film_rental_app.customer_inventory_rentalmodule;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.*;
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.*;
+import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.RentalRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.implementation.RentalServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,9 @@ class RentalServiceImplTest {
 
     @Mock
     private RentalRepository rentalRepository;
+    @Mock
+    private CustomerRepository customerRepository;
+
 
     private Rental rental;
     private Inventory inventory;
@@ -100,10 +104,18 @@ class RentalServiceImplTest {
 
     @Test
     void testGetRentalsByCustomer() {
+        Customer customer = new Customer();
+        customer.setCustomerId(1);
+
+        Rental rental = new Rental();
+        rental.setCustomer(customer);
+
+        when(customerRepository.existsById(1)).thenReturn(true);
         when(rentalRepository.findByCustomer_CustomerId(1)).thenReturn(List.of(rental));
 
         List<Rental> result = rentalService.getRentalsByCustomer(1);
 
+        assertNotNull(result);
         assertEquals(1, result.size());
     }
 

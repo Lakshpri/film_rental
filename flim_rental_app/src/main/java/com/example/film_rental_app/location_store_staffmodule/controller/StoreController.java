@@ -15,31 +15,28 @@ import com.example.film_rental_app.location_store_staffmodule.service.AddressSer
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/stores")
+@Validated
 public class StoreController {
 
-    @Autowired
-    private StoreService storeService;
-    @Autowired
-    private StaffService staffService;
-    @Autowired
-    private AddressService addressService;
-    @Autowired
-    private InventoryService inventoryService;
-    @Autowired
-    private StoreMapper storeMapper;
-    @Autowired
-    private StaffMapper staffMapper;
-    @Autowired
-    private InventoryMapper inventoryMapper;
+    @Autowired private StoreService storeService;
+    @Autowired private StaffService staffService;
+    @Autowired private AddressService addressService;
+    @Autowired private InventoryService inventoryService;
+    @Autowired private StoreMapper storeMapper;
+    @Autowired private StaffMapper staffMapper;
+    @Autowired private InventoryMapper inventoryMapper;
 
     @GetMapping
     public ResponseEntity<List<StoreResponseDTO>> getAllStores() {
@@ -50,7 +47,8 @@ public class StoreController {
     }
 
     @GetMapping("/{storeId}")
-    public ResponseEntity<StoreResponseDTO> getStoreById(@PathVariable Integer storeId) {
+    public ResponseEntity<StoreResponseDTO> getStoreById(
+            @PathVariable @Positive(message = "Store ID must be a positive number") Integer storeId) {
         return ResponseEntity.ok(storeMapper.toResponseDTO(storeService.getStoreById(storeId)));
     }
 
@@ -65,26 +63,28 @@ public class StoreController {
     }
 
     @PutMapping("/{storeId}")
-    public ResponseEntity<StoreResponseDTO> updateStore(@PathVariable Integer storeId,
-                                                        @Valid @RequestBody StoreRequestDTO dto) {
+    public ResponseEntity<StoreResponseDTO> updateStore(
+            @PathVariable @Positive(message = "Store ID must be a positive number") Integer storeId,
+            @Valid @RequestBody StoreRequestDTO dto) {
         Store existing = storeService.getStoreById(storeId);
-        if (dto.getManagerStaffId() != null) {
-            existing.setManagerStaff(staffService.getStaffById(dto.getManagerStaffId()));
-        }
-        if (dto.getAddressId() != null) {
-            existing.setAddress(addressService.getAddressById(dto.getAddressId()));
-        }
+        if (dto.getManagerStaffId() != null) existing.setManagerStaff(staffService.getStaffById(dto.getManagerStaffId()));
+        if (dto.getAddressId() != null) existing.setAddress(addressService.getAddressById(dto.getAddressId()));
         return ResponseEntity.ok(storeMapper.toResponseDTO(storeService.updateStore(storeId, existing)));
     }
 
     @DeleteMapping("/{storeId}")
-    public ResponseEntity<Void> deleteStore(@PathVariable Integer storeId) {
+    public ResponseEntity<Map<String, Object>> deleteStore(@PathVariable Integer storeId) {
+        storeService.getStoreById(storeId); // throws StoreNotFoundException (404) if not found
         storeService.deleteStore(storeId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of(
+                "status", 200,
+                "message", "Store with ID " + storeId + " has been successfully deleted."
+        ));
     }
 
     @GetMapping("/{storeId}/staff")
-    public ResponseEntity<List<StaffResponseDTO>> getStaffByStore(@PathVariable Integer storeId) {
+    public ResponseEntity<List<StaffResponseDTO>> getStaffByStore(
+            @PathVariable @Positive(message = "Store ID must be a positive number") Integer storeId) {
         storeService.getStoreById(storeId);
         List<StaffResponseDTO> result = staffService.getStaffByStore(storeId).stream()
                 .map(staffMapper::toResponseDTO)
@@ -93,7 +93,8 @@ public class StoreController {
     }
 
     @GetMapping("/{storeId}/inventory")
-    public ResponseEntity<List<InventoryResponseDTO>> getInventoryByStore(@PathVariable Integer storeId) {
+    public ResponseEntity<List<InventoryResponseDTO>> getInventoryByStore(
+            @PathVariable @Positive(message = "Store ID must be a positive number") Integer storeId) {
         storeService.getStoreById(storeId);
         List<InventoryResponseDTO> result = inventoryService.getInventoryByStore(storeId).stream()
                 .map(inventoryMapper::toResponseDTO)

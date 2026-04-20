@@ -111,12 +111,16 @@
          this.inventories = inventories;
      }
 
-     //  toString (exclude relationships to avoid recursion)
      @Override
      public String toString() {
          return "Store{" +
                  "storeId=" + storeId +
                  ", lastUpdate=" + lastUpdate +
+                 ", managerStaff=" + managerStaff +
+                 ", address=" + address +
+                 ", staffList=" + staffList +
+                 ", customers=" + customers +
+                 ", inventories=" + inventories +
                  '}';
      }
  }

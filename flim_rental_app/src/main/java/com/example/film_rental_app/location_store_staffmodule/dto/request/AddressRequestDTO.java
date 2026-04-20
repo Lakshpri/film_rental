@@ -1,8 +1,9 @@
 package com.example.film_rental_app.location_store_staffmodule.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public class AddressRequestDTO {
@@ -11,7 +12,7 @@ public class AddressRequestDTO {
     @Size(max = 50, message = "Address must not exceed 50 characters")
     private String address;
 
-    @Size(max = 50, message = "Address2 must not exceed 50 characters")
+    @Size(max = 50, message = "Address line 2 must not exceed 50 characters")
     private String address2;
 
     @NotBlank(message = "District is required")
@@ -19,13 +20,16 @@ public class AddressRequestDTO {
     private String district;
 
     @Size(max = 10, message = "Postal code must not exceed 10 characters")
+    @Pattern(regexp = "^[0-9\\-\\s]*$", message = "Postal code must contain numbers only (e.g. 600002)")
     private String postalCode;
 
-    @NotBlank(message = "Phone is required")
-    @Size(max = 20, message = "Phone must not exceed 20 characters")
+    @NotBlank(message = "Phone number is required")
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Pattern(regexp = "^[0-9+\\-\\s()]*$", message = "Phone number must contain numbers only (e.g. 9840012345)")
     private String phone;
 
     @NotNull(message = "City ID is required")
+    @Positive(message = "City ID must be a number greater than zero (e.g. 1, 2, 3)")
     private Integer cityId;
 
     public AddressRequestDTO() {}
@@ -48,4 +52,3 @@ public class AddressRequestDTO {
     public Integer getCityId() { return cityId; }
     public void setCityId(Integer cityId) { this.cityId = cityId; }
 }
-

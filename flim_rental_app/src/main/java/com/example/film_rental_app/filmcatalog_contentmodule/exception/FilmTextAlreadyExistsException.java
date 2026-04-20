@@ -4,6 +4,6 @@ import com.example.film_rental_app.common.exception.DuplicateResourceException;
 
 public class FilmTextAlreadyExistsException extends DuplicateResourceException {
     public FilmTextAlreadyExistsException(Integer filmId) {
-        super("FilmText already exists for filmId: " + filmId);
+        super("A description entry already exists for Film ID " + filmId + ". Each film can only have one description entry.");
     }
 }

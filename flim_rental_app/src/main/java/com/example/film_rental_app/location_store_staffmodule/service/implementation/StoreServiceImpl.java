@@ -1,11 +1,15 @@
 package com.example.film_rental_app.location_store_staffmodule.service.implementation;
 
+import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
+import com.example.film_rental_app.customer_inventory_rentalmodule.repository.InventoryRepository;
 import com.example.film_rental_app.location_store_staffmodule.entity.Store;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreAlreadyExistsException;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreInvalidOperationException;
 import com.example.film_rental_app.location_store_staffmodule.exception.StoreNotFoundException;
+import com.example.film_rental_app.location_store_staffmodule.repository.StaffRepository;
 import com.example.film_rental_app.location_store_staffmodule.repository.StoreRepository;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +19,10 @@ import java.util.List;
 @Transactional
 public class StoreServiceImpl implements StoreService {
 
-    private final StoreRepository storeRepository;
-
-    public StoreServiceImpl(StoreRepository storeRepository) {
-        this.storeRepository = storeRepository;
-    }
+    @Autowired private StoreRepository     storeRepository;
+    @Autowired private CustomerRepository  customerRepository;
+    @Autowired private StaffRepository     staffRepository;
+    @Autowired private InventoryRepository inventoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -62,6 +65,24 @@ public class StoreServiceImpl implements StoreService {
     public boolean deleteStore(Integer storeId) {
         if (!storeRepository.existsById(storeId)) {
             throw new StoreNotFoundException(storeId);
+        }
+        // Block if customers are registered to this store
+        if (customerRepository.existsByStore_StoreId(storeId)) {
+            throw new StoreInvalidOperationException(storeId,
+                    "This store still has customers registered to it. "
+                            + "Please reassign all customers to another store before deleting this one.");
+        }
+        // Block if staff members belong to this store
+        if (staffRepository.existsByStore_StoreId(storeId)) {
+            throw new StoreInvalidOperationException(storeId,
+                    "This store still has staff members assigned to it. "
+                            + "Please reassign all staff to another store before deleting this one.");
+        }
+        // Block if inventory items exist in this store
+        if (!inventoryRepository.findByStore_StoreId(storeId).isEmpty()) {
+            throw new StoreInvalidOperationException(storeId,
+                    "This store still has inventory items. "
+                            + "Please remove all inventory from this store before deleting it.");
         }
         storeRepository.deleteById(storeId);
         return true;

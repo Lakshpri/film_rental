@@ -10,4 +10,6 @@ import java.util.List;
 public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<Staff> findByStore_StoreId(Integer storeId);
     boolean existsByUsername(String username);
+    boolean existsByAddress_AddressId(Integer addressId);
+    boolean existsByStore_StoreId(Integer storeId);
 }

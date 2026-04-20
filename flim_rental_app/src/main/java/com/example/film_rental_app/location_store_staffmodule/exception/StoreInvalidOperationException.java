@@ -4,7 +4,7 @@ import com.example.film_rental_app.common.exception.InvalidOperationException;
 
 public class StoreInvalidOperationException extends InvalidOperationException {
     public StoreInvalidOperationException(Integer storeId, String reason) {
-        super("Cannot perform this operation on Store with ID = " + storeId + ". Reason: " + reason);
+        super(reason);
     }
     public StoreInvalidOperationException(String message) {
         super(message);

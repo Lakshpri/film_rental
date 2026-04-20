@@ -71,7 +71,7 @@ public class StaffServiceImpl implements StaffService {
                 .orElseThrow(() -> new StaffNotFoundException(staffId));
         if (staff.isActive()) {
             throw new StaffInvalidOperationException(staffId,
-                    "You cannot delete an active Staff member. Deactivate them first before deletion.");
+                    "To delete this staff member, you must first set them as inactive. Go to Edit Staff and turn off the Active status, then try deleting again.");
         }
         staffRepository.deleteById(staffId);
         return true;

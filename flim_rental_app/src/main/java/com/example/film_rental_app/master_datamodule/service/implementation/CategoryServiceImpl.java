@@ -1,7 +1,9 @@
 package com.example.film_rental_app.master_datamodule.service.implementation;
 
+import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmCategoryRepository;
 import com.example.film_rental_app.master_datamodule.entity.Category;
 import com.example.film_rental_app.master_datamodule.exception.CategoryAlreadyExistsException;
+import com.example.film_rental_app.master_datamodule.exception.CategoryInvalidOperationException;
 import com.example.film_rental_app.master_datamodule.exception.CategoryNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.CategoryRepository;
 import com.example.film_rental_app.master_datamodule.service.CategoryService;
@@ -14,8 +16,9 @@ import java.util.List;
 @Service
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private FilmCategoryRepository filmCategoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -26,14 +29,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public Category getCategoryById(Integer categoryId) {
-        // ResourceNotFoundException → HTTP 404
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 
     @Override
     public Category createCategory(Category category) {
-        // DuplicateResourceException → HTTP 409
         if (categoryRepository.existsByName(category.getName())) {
             throw new CategoryAlreadyExistsException(category.getName());
         }
@@ -42,10 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(Integer categoryId, Category updated) {
-        // ResourceNotFoundException → HTTP 404
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
-        // DuplicateResourceException → HTTP 409
         if (!category.getName().equalsIgnoreCase(updated.getName())
                 && categoryRepository.existsByName(updated.getName())) {
             throw new CategoryAlreadyExistsException(updated.getName());
@@ -56,12 +55,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public boolean deleteCategory(Integer categoryId) {
-        // ResourceNotFoundException → HTTP 404
         if (!categoryRepository.existsById(categoryId)) {
             throw new CategoryNotFoundException(categoryId);
         }
-        // InvalidOperationException → HTTP 400
-        // Guard: cannot delete a Category that is still linked to Films
+        if (!filmCategoryRepository.findById_CategoryId(categoryId).isEmpty()) {
+            throw new CategoryInvalidOperationException(categoryId,
+                    "This category is still assigned to one or more films. "
+                            + "Please remove it from all films before deleting this category.");
+        }
         categoryRepository.deleteById(categoryId);
         return true;
     }

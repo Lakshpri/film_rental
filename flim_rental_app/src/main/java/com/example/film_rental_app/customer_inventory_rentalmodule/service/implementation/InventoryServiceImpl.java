@@ -37,20 +37,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public Inventory createInventory(Inventory inventory) {
-        // DuplicateResourceException → HTTP 409
-        // Check if an inventory copy already exists for same Film + Store
-        if (inventory.getFilm() != null && inventory.getStore() != null) {
-            boolean alreadyExists = !inventoryRepository
-                    .findByStore_StoreIdAndFilm_FilmId(
-                            inventory.getStore().getStoreId(),
-                            inventory.getFilm().getFilmId())
-                    .isEmpty();
-            if (alreadyExists) {
-                throw new InventoryAlreadyExistsException(
-                        inventory.getFilm().getFilmId(),
-                        inventory.getStore().getStoreId());
-            }
-        }
+        // A store can have multiple copies of the same film — no duplicate block here
         return inventoryRepository.save(inventory);
     }
 

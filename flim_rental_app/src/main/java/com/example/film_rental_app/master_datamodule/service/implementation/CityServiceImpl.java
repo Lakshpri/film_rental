@@ -1,7 +1,9 @@
 package com.example.film_rental_app.master_datamodule.service.implementation;
 
+import com.example.film_rental_app.location_store_staffmodule.repository.AddressRepository;
 import com.example.film_rental_app.master_datamodule.entity.City;
 import com.example.film_rental_app.master_datamodule.exception.CityAlreadyExistsException;
+import com.example.film_rental_app.master_datamodule.exception.CityInvalidOperationException;
 import com.example.film_rental_app.master_datamodule.exception.CityNotFoundException;
 import com.example.film_rental_app.master_datamodule.exception.CountryNotFoundException;
 import com.example.film_rental_app.master_datamodule.repository.CityRepository;
@@ -16,11 +18,10 @@ import java.util.List;
 @Service
 @Transactional
 public class CityServiceImpl implements CityService {
-    @Autowired
-    private CityRepository    cityRepository;
-    @Autowired
-    private CountryRepository countryRepository;
 
+    @Autowired private CityRepository    cityRepository;
+    @Autowired private CountryRepository countryRepository;
+    @Autowired private AddressRepository addressRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,18 +32,15 @@ public class CityServiceImpl implements CityService {
     @Override
     @Transactional(readOnly = true)
     public City getCityById(Integer cityId) {
-        // ResourceNotFoundException → HTTP 404
         return cityRepository.findById(cityId)
                 .orElseThrow(() -> new CityNotFoundException(cityId));
     }
 
     @Override
     public City createCity(City city) {
-        // ResourceNotFoundException → HTTP 404 (parent country must exist)
         if (city.getCountry() != null && !countryRepository.existsById(city.getCountry().getCountryId())) {
             throw new CountryNotFoundException(city.getCountry().getCountryId());
         }
-        // DuplicateResourceException → HTTP 409
         if (city.getCountry() != null
                 && cityRepository.existsByCityAndCountry_CountryId(city.getCity(), city.getCountry().getCountryId())) {
             throw new CityAlreadyExistsException(city.getCity(), city.getCountry().getCountryId());
@@ -52,10 +50,8 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City updateCity(Integer cityId, City updated) {
-        // ResourceNotFoundException → HTTP 404
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new CityNotFoundException(cityId));
-        // DuplicateResourceException → HTTP 409
         Integer countryId = updated.getCountry() != null ? updated.getCountry().getCountryId()
                 : (city.getCountry() != null ? city.getCountry().getCountryId() : null);
         if (countryId != null && !city.getCity().equalsIgnoreCase(updated.getCity())
@@ -69,12 +65,14 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public boolean deleteCity(Integer cityId) {
-        // ResourceNotFoundException → HTTP 404
         if (!cityRepository.existsById(cityId)) {
             throw new CityNotFoundException(cityId);
         }
-        // InvalidOperationException → HTTP 400
-        // (guard: if addresses reference this city, deletion should be blocked)
+        if (addressRepository.existsByCity_CityId(cityId)) {
+            throw new CityInvalidOperationException(cityId,
+                    "This city still has addresses linked to it. "
+                            + "Please remove all addresses in this city before deleting it.");
+        }
         cityRepository.deleteById(cityId);
         return true;
     }
@@ -82,7 +80,6 @@ public class CityServiceImpl implements CityService {
     @Override
     @Transactional(readOnly = true)
     public List<City> getCitiesByCountry(Integer countryId) {
-        // ResourceNotFoundException → HTTP 404
         if (!countryRepository.existsById(countryId)) {
             throw new CountryNotFoundException(countryId);
         }
