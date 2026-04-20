@@ -88,7 +88,7 @@ public class CustomerController {
 
     // DELETE /api/customers/{customerId}
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Void> deleteCustomer(
+    public ResponseEntity<String> deleteCustomer(
             @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();

@@ -50,9 +50,9 @@ public class InventoryController {
     }
 
     @DeleteMapping("/{inventoryId}")
-    public ResponseEntity<Void> deleteInventory(
+    public ResponseEntity<Boolean> deleteInventory(
             @PathVariable @Positive(message = "Inventory ID must be a positive number") Integer inventoryId) {
-        inventoryService.deleteInventory(inventoryId);
-        return ResponseEntity.noContent().build();
+        boolean deleted = inventoryService.deleteInventory(inventoryId);
+        return ResponseEntity.ok(deleted);
     }
 }
