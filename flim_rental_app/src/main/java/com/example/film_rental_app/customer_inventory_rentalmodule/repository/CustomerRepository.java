@@ -12,6 +12,8 @@ import java.util.List;
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     boolean existsByEmail(String email);
+    boolean existsByAddress_AddressId(Integer addressId);
+    boolean existsByStore_StoreId(Integer storeId);
 
     @Query("SELECT c FROM Customer c WHERE c.store.storeId = :storeId AND c.active = :active")
     List<Customer> findByStoreIdAndActiveStatus(@Param("storeId") Integer storeId,
