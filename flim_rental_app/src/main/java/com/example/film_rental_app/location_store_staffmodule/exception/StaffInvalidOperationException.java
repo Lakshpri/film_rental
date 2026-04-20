@@ -4,7 +4,7 @@ import com.example.film_rental_app.common.exception.InvalidOperationException;
 
 public class StaffInvalidOperationException extends InvalidOperationException {
     public StaffInvalidOperationException(Integer staffId, String reason) {
-        super("Cannot perform this operation on Staff with ID = " + staffId + ". Reason: " + reason);
+        super(reason);
     }
     public StaffInvalidOperationException(String message) {
         super(message);

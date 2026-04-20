@@ -30,20 +30,16 @@ public class StaffServiceImpl implements StaffService {
     @Override
     @Transactional(readOnly = true)
     public Staff getStaffById(Integer staffId) {
+        // ResourceNotFoundException → HTTP 404
         return staffRepository.findById(staffId)
                 .orElseThrow(() -> new StaffNotFoundException(staffId));
     }
 
     @Override
     public Staff createStaff(Staff staff) {
-        // Check username uniqueness
+        // DuplicateResourceException → HTTP 409
         if (staffRepository.existsByUsername(staff.getUsername())) {
             throw new StaffAlreadyExistsException(staff.getUsername());
-        }
-        // FIX 4: Check email uniqueness on create
-        if (staff.getEmail() != null && !staff.getEmail().isBlank()
-                && staffRepository.existsByEmail(staff.getEmail())) {
-            throw new StaffAlreadyExistsException("email", staff.getEmail());
         }
         return staffRepository.save(staff);
     }
@@ -55,11 +51,6 @@ public class StaffServiceImpl implements StaffService {
         if (!staff.getUsername().equalsIgnoreCase(updated.getUsername())
                 && staffRepository.existsByUsername(updated.getUsername())) {
             throw new StaffAlreadyExistsException(updated.getUsername());
-        }
-        // FIX 4: Check email uniqueness on update (exclude current staff)
-        if (updated.getEmail() != null && !updated.getEmail().isBlank()
-                && staffRepository.existsByEmailAndStaffIdNot(updated.getEmail(), staffId)) {
-            throw new StaffAlreadyExistsException("email", updated.getEmail());
         }
         staff.setFirstName(updated.getFirstName());
         staff.setLastName(updated.getLastName());
@@ -75,11 +66,12 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public boolean deleteStaff(Integer staffId) {
+        // ResourceNotFoundException → HTTP 404
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new StaffNotFoundException(staffId));
         if (staff.isActive()) {
             throw new StaffInvalidOperationException(staffId,
-                    "You cannot delete an active Staff member. Deactivate them first before deletion.");
+                    "To delete this staff member, you must first set them as inactive. Go to Edit Staff and turn off the Active status, then try deleting again.");
         }
         staffRepository.deleteById(staffId);
         return true;
