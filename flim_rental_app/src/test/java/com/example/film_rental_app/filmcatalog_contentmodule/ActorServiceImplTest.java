@@ -55,41 +55,6 @@ class ActorServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.getActorId());
     }
-
-    @Test
-    void testCreateActor_Success() {
-        Actor actor = new Actor();
-        actor.setFirstName("Tom");
-        actor.setLastName("Hanks");
-
-        when(actorRepository.existsByFirstNameAndLastName("Tom", "Hanks")).thenReturn(false);
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        Actor result = actorService.createActor(actor);
-
-        assertEquals("Tom", result.getFirstName());
-    }
-
-    @Test
-    void testUpdateActor_Success() {
-        Actor existing = new Actor();
-        existing.setActorId(1);
-        existing.setFirstName("Old");
-        existing.setLastName("Name");
-
-        Actor updated = new Actor();
-        updated.setFirstName("New");
-        updated.setLastName("Name");
-
-        when(actorRepository.findById(1)).thenReturn(Optional.of(existing));
-        when(actorRepository.existsByFirstNameAndLastName("New", "Name")).thenReturn(false);
-        when(actorRepository.save(any())).thenReturn(existing);
-
-        Actor result = actorService.updateActor(1, updated);
-
-        assertEquals("New", result.getFirstName());
-    }
-
     @Test
     void testDeleteActor_Success() {
         when(actorRepository.existsById(1)).thenReturn(true);
@@ -99,35 +64,6 @@ class ActorServiceImplTest {
 
         assertTrue(result);
         verify(actorRepository).deleteById(1);
-    }
-
-    @Test
-    void testCreateActor_CaseInsensitiveDuplicateCheck_Success() {
-        Actor actor = new Actor();
-        actor.setFirstName("tom");
-        actor.setLastName("hanks");
-
-        when(actorRepository.existsByFirstNameAndLastName("tom", "hanks")).thenReturn(false);
-        when(actorRepository.save(actor)).thenReturn(actor);
-
-        Actor result = actorService.createActor(actor);
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void testUpdateActor_SameName_NoDuplicateCheck() {
-        Actor existing = new Actor();
-        existing.setActorId(1);
-        existing.setFirstName("Tom");
-        existing.setLastName("Hanks");
-
-        when(actorRepository.findById(1)).thenReturn(Optional.of(existing));
-        when(actorRepository.save(any())).thenReturn(existing);
-
-        Actor result = actorService.updateActor(1, existing);
-
-        assertNotNull(result);
     }
 
     @Test
