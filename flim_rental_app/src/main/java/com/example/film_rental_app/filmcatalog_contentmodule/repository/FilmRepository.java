@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FilmRepository extends JpaRepository<Film, Integer> {
     boolean existsByTitle(String title);
+    boolean existsByLanguage_LanguageId(Integer languageId);
 }
