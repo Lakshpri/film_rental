@@ -2,10 +2,12 @@ package com.example.film_rental_app.payment_reportsmodule.service.implementation
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.CustomerNotFoundException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
+import com.example.film_rental_app.payment_reportsmodule.dto.response.PaymentResponseDTO;
 import com.example.film_rental_app.payment_reportsmodule.entity.Payment;
 import com.example.film_rental_app.payment_reportsmodule.exception.PaymentAlreadyExistsException;
 import com.example.film_rental_app.payment_reportsmodule.exception.PaymentInvalidOperationException;
 import com.example.film_rental_app.payment_reportsmodule.exception.PaymentNotFoundException;
+import com.example.film_rental_app.payment_reportsmodule.mapper.PaymentMapper;
 import com.example.film_rental_app.payment_reportsmodule.repository.PaymentRepository;
 import com.example.film_rental_app.payment_reportsmodule.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired private PaymentRepository  paymentRepository;
     @Autowired private CustomerRepository customerRepository;
+    @Autowired private PaymentMapper      paymentMapper; // ✅ needed for mapping before delete
 
     @Override
     @Transactional(readOnly = true)
@@ -37,14 +40,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment createPayment(Payment payment) {
-        // Amount must be greater than zero (0.01 minimum enforced by DTO too — double safety)
         if (payment.getAmount() == null || payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new PaymentInvalidOperationException(
                     "The payment amount must be greater than zero. You entered: "
                             + payment.getAmount()
                             + ". Please enter a valid amount greater than zero (e.g. 4.99).");
         }
-        // Each rental can only be paid once
         if (payment.getRental() != null
                 && paymentRepository.existsByRental_RentalId(payment.getRental().getRentalId())) {
             throw new PaymentAlreadyExistsException(payment.getRental().getRentalId());
@@ -53,20 +54,23 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public boolean deletePayment(Integer paymentId) {
-        // Check if payment exists — throw 404 if not
-        if (!paymentRepository.existsById(paymentId)) {
-            throw new PaymentNotFoundException(paymentId);
-        }
-        // ✅ Actually delete now
+    // ✅ Return type changed from boolean to PaymentResponseDTO
+    public PaymentResponseDTO deletePayment(Integer paymentId) {
+        // Fetch first — throw 404 if not found
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(paymentId));
+
+        // ✅ Map to DTO BEFORE deleting — once deleted, data is gone
+        PaymentResponseDTO response = paymentMapper.toResponseDTO(payment);
+
         paymentRepository.deleteById(paymentId);
-        return true;
+
+        return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsByCustomer(Integer customerId) {
-        // Throw 404 if customer does not exist — no empty list
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(customerId);
         }

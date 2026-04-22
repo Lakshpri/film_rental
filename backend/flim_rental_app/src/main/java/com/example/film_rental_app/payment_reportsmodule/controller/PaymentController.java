@@ -46,7 +46,6 @@ public class PaymentController {
     }
 
     // GET /api/payments/customer/{customerId}
-    // FIXED: was /{customerId}/payments — ambiguous with /{paymentId}, now clearly separated
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(
             @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
@@ -71,11 +70,11 @@ public class PaymentController {
 
     // DELETE /api/payments/{paymentId}
     @DeleteMapping("/{paymentId}")
-    public ResponseEntity<Void> deletePayment(
+    public ResponseEntity<PaymentResponseDTO> deletePayment(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
 
-        paymentService.deletePayment(paymentId);
-        // ✅ Return 204 No Content — standard for successful deletes
-        return ResponseEntity.noContent().build();
+        // ✅ Returns the deleted payment's data with 200 OK
+        PaymentResponseDTO deleted = paymentService.deletePayment(paymentId);
+        return ResponseEntity.ok(deleted);
     }
 }
