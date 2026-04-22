@@ -32,31 +32,31 @@ public class SecurityConfig {
         PasswordEncoder enc = passwordEncoder();
 
         UserDetails master = User.builder()
-                .username("admin")
+                .username("padmaprabha")
                 .password(enc.encode("1234"))
                 .roles("MASTER_DATA")
                 .build();
 
         UserDetails staff = User.builder()
-                .username("staff")
+                .username("madhumita")
                 .password(enc.encode("1234"))
                 .roles("LOCATION_STAFF")
                 .build();
 
         UserDetails customer = User.builder()
-                .username("customer")
+                .username("subbalakshmi")
                 .password(enc.encode("1234"))
                 .roles("CUSTOMER_RENTAL")
                 .build();
 
         UserDetails film = User.builder()
-                .username("film")
+                .username("krishnaprakash")
                 .password(enc.encode("1234"))
                 .roles("FILM_CATALOG")
                 .build();
 
         UserDetails reports = User.builder()
-                .username("reports")
+                .username("lakshmipriya")
                 .password(enc.encode("1234"))
                 .roles("PAYMENT_REPORTS")
                 .build();
@@ -86,7 +86,13 @@ public class SecurityConfig {
                                 "/api/staff/**")
                         .hasRole("LOCATION_STAFF")
 
-                        // CUSTOMER + RENTALS
+                        // FIX: /api/customers/{customerId}/payments must be checked
+                        // BEFORE the broad /api/customers/** rule so PAYMENT_REPORTS
+                        // can access it. More specific rules must come first in Spring Security.
+                        .requestMatchers("/api/customers/*/payments")
+                        .hasAnyRole("CUSTOMER_RENTAL", "PAYMENT_REPORTS")
+
+                        // CUSTOMER + RENTALS (broad rule comes AFTER the specific one above)
                         .requestMatchers("/api/customers/**", "/api/rentals/**",
                                 "/api/inventory/**")
                         .hasRole("CUSTOMER_RENTAL")
@@ -101,7 +107,7 @@ public class SecurityConfig {
                                 "/api/analytics/**")
                         .hasRole("PAYMENT_REPORTS")
 
-                        // SWAGGER (IMPORTANT)
+                        // SWAGGER
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
