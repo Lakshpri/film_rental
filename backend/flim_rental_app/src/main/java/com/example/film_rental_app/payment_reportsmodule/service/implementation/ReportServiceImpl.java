@@ -7,16 +7,17 @@ import com.example.film_rental_app.filmcatalog_contentmodule.mapper.FilmMapper;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.ActorService;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmService;
 import com.example.film_rental_app.location_store_staffmodule.mapper.StaffMapper;
-import com.example.film_rental_app.location_store_staffmodule.mapper.StoreMapper;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
-import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
-import com.example.film_rental_app.master_datamodule.mapper.CategoryMapper;
-import com.example.film_rental_app.master_datamodule.service.CategoryService;
+import com.example.film_rental_app.payment_reportsmodule.dto.SalesByCategoryDTO;
+import com.example.film_rental_app.payment_reportsmodule.dto.SalesByStoreDTO;
+import com.example.film_rental_app.payment_reportsmodule.repository.PaymentRepository;
 import com.example.film_rental_app.payment_reportsmodule.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -31,14 +32,11 @@ public class ReportServiceImpl implements ReportService {
     @Autowired private StaffService staffService;
     @Autowired private StaffMapper  staffMapper;
 
-    @Autowired private StoreService storeService;
-    @Autowired private StoreMapper  storeMapper;
-
-    @Autowired private CategoryService categoryService;
-    @Autowired private CategoryMapper  categoryMapper;
-
     @Autowired private ActorService actorService;
     @Autowired private ActorMapper  actorMapper;
+
+    // ✅ Use PaymentRepository directly for aggregation queries
+    @Autowired private PaymentRepository paymentRepository;
 
     @Override
     public Map<String, Object> getCustomerList() {
@@ -72,8 +70,15 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Map<String, Object> getSalesByStore() {
-        var stores = storeService.getAllStores()
-                .stream().map(storeMapper::toResponseDTO).toList();
+        // ✅ Real aggregation: Payment -> Staff -> Store
+        List<Object[]> rows = paymentRepository.findSalesByStore();
+
+        List<SalesByStoreDTO> stores = rows.stream().map(row -> new SalesByStoreDTO(
+                (Integer)    row[0],   // storeId
+                (Long)       row[1],   // totalPayments
+                (BigDecimal) row[2]    // totalRevenue
+        )).toList();
+
         Map<String, Object> map = new HashMap<>();
         map.put("totalCount", stores.size());
         map.put("stores", stores);
@@ -82,8 +87,15 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Map<String, Object> getSalesByCategory() {
-        var categories = categoryService.getAllCategories()
-                .stream().map(categoryMapper::toResponseDTO).toList();
+        // ✅ Real aggregation: Payment -> Rental -> Inventory -> Film -> FilmCategory -> Category
+        List<Object[]> rows = paymentRepository.findSalesByCategory();
+
+        List<SalesByCategoryDTO> categories = rows.stream().map(row -> new SalesByCategoryDTO(
+                (String)     row[0],   // categoryName
+                (Long)       row[1],   // totalPayments
+                (BigDecimal) row[2]    // totalRevenue
+        )).toList();
+
         Map<String, Object> map = new HashMap<>();
         map.put("totalCount", categories.size());
         map.put("categories", categories);
