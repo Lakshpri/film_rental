@@ -86,11 +86,6 @@ public class SecurityConfig {
                                 "/api/staff/**")
                         .hasRole("LOCATION_STAFF")
 
-                        // FIX: /api/customers/{customerId}/payments must be checked
-                        // BEFORE the broad /api/customers/** rule so PAYMENT_REPORTS
-                        // can access it. More specific rules must come first in Spring Security.
-                        .requestMatchers("/api/customers/*/payments")
-                        .hasAnyRole("CUSTOMER_RENTAL", "PAYMENT_REPORTS")
 
                         // CUSTOMER + RENTALS (broad rule comes AFTER the specific one above)
                         .requestMatchers("/api/customers/**", "/api/rentals/**",
