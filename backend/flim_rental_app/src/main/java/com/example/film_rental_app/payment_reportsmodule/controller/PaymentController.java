@@ -46,7 +46,6 @@ public class PaymentController {
     }
 
     // GET /api/payments/customer/{customerId}
-    // FIXED: was /{customerId}/payments — ambiguous with /{paymentId}, now clearly separated
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(
             @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
@@ -70,14 +69,12 @@ public class PaymentController {
     }
 
     // DELETE /api/payments/{paymentId}
-    // Payment deletion is intentionally blocked — service always throws 400
     @DeleteMapping("/{paymentId}")
     public ResponseEntity<PaymentResponseDTO> deletePayment(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
 
-        Payment payment = paymentService.getPaymentById(paymentId);
-        PaymentResponseDTO dto = paymentMapper.toResponseDTO(payment);
-        paymentService.deletePayment(paymentId);
-        return ResponseEntity.ok(dto);
+        // ✅ Returns the deleted payment's data with 200 OK
+        PaymentResponseDTO deleted = paymentService.deletePayment(paymentId);
+        return ResponseEntity.ok(deleted);
     }
 }
