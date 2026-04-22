@@ -70,14 +70,12 @@ public class PaymentController {
     }
 
     // DELETE /api/payments/{paymentId}
-    // Payment deletion is intentionally blocked — service always throws 400
     @DeleteMapping("/{paymentId}")
-    public ResponseEntity<PaymentResponseDTO> deletePayment(
+    public ResponseEntity<Void> deletePayment(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
 
-        Payment payment = paymentService.getPaymentById(paymentId);
-        PaymentResponseDTO dto = paymentMapper.toResponseDTO(payment);
         paymentService.deletePayment(paymentId);
-        return ResponseEntity.ok(dto);
+        // ✅ Return 204 No Content — standard for successful deletes
+        return ResponseEntity.noContent().build();
     }
 }

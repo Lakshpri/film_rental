@@ -54,15 +54,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public boolean deletePayment(Integer paymentId) {
-        // First check if the payment even exists — throw 404 if not
+        // Check if payment exists — throw 404 if not
         if (!paymentRepository.existsById(paymentId)) {
             throw new PaymentNotFoundException(paymentId);
         }
-        // Payment records are permanent — deletion is never allowed
-        throw new PaymentInvalidOperationException(
-                "Payment records cannot be deleted as they are permanent financial records. "
-                        + "Payment ID " + paymentId + " exists but cannot be removed. "
-                        + "If this payment was made by mistake, please contact the system administrator.");
+        // ✅ Actually delete now
+        paymentRepository.deleteById(paymentId);
+        return true;
     }
 
     @Override
