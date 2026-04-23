@@ -1,0 +1,84 @@
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px"><span class="topbar-title">Countries</span><span class="topbar-badge">Master Data Module</span></div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Add Country</button>
+</div>
+<div class="page-content">
+  <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+  <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+  <div *ngIf="loading" class="loading">Loading Countries...</div>
+    <div class="search-bar">
+    <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
+    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <div class="search-bar">
+  <input class="search-input"
+         type="text"
+         placeholder="Search Cities by Country ID or Name..."
+         (input)="searchCities($any($event.target).value)" />
+</div>
+  </div>
+
+<div *ngIf="!loading && filteredCities.length === 0" class="table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Country</th><th>Last Update</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of pagedItems">
+        <td>{{ item.countryId }}</td>
+        <td>{{ item.country }}</td>
+        <td>{{ item.lastUpdate | date:'short' }}</td>
+        <td>
+          <button class="btn btn-sm" (click)="openEdit(item)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="filteredCities.length > 0" class="table-wrap" style="margin-top:20px">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>City</th>
+        <th>Country</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let city of filteredCities">
+        <td>{{ city.cityId }}</td>
+        <td>{{ city.city }}</td>
+        <td>{{ city.countryName }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+  <div class="pagination">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="pagination-info">
+        Showing {{ (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}
+      </span>
+      <select class="page-size-select" (change)="changePageSize(+$any($event.target).value)">
+        <option value="10">10 / page</option>
+        <option value="25">25 / page</option>
+        <option value="50">50 / page</option>
+        <option value="100">100 / page</option>
+      </select>
+    </div>
+    <div class="pagination-controls">
+      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&#171;</button>
+      <button class="page-btn" (click)="goToPage(currentPage-1)" [disabled]="currentPage === 1">&#8249;</button>
+      <button class="page-btn" *ngFor="let p of pageNumbers"
+        [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage+1)" [disabled]="currentPage === totalPages">&#8250;</button>
+      <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&#187;</button>
+    </div>
+  </div>
+  </div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">{{ editItem ? 'Edit' : 'Create' }} Country</span><button class="modal-close" (click)="closeModal()">&#10005;</button></div>
+    <div class="form-group"><label class="form-label">Country Name *</label><input class="form-control" [(ngModel)]="formData.country" placeholder="e.g. India" /></div>
+    <div class="modal-footer"><button class="btn" (click)="closeModal()">Cancel</button><button class="btn btn-primary" (click)="save()">{{ editItem ? 'Update' : 'Create' }}</button></div>
+  </div>
+</div>
