@@ -1,0 +1,42 @@
+<div class="splash-container">
+  <div class="splash-header">
+    <div class="splash-logo">🎬</div>
+    <h1 class="splash-title">Film Rental</h1>
+    <p class="splash-subtitle">Admin Management System</p>
+    <div class="splash-divider"></div>
+    <p class="splash-instruction">Select your name to log in</p>
+  </div>
+
+  <div class="team-grid">
+    <div
+      *ngFor="let member of auth.teamMembers"
+      class="member-card"
+      [style.--member-color]="member.color"
+      (click)="selectMember(member)">
+
+      <div class="member-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color + '44'">
+        <span class="avatar-initials" [style.color]="member.color">
+          {{ member.displayName.split(' ')[0][0] }}{{ member.displayName.split(' ')[1] ? member.displayName.split(' ')[1][0] : '' }}
+        </span>
+      </div>
+
+      <div class="member-name">{{ member.displayName }}</div>
+      <div class="member-module" [style.color]="member.color">{{ member.module }}</div>
+
+      <div class="member-endpoints">
+        <span class="endpoint-dot" [style.background]="member.color"></span>
+        {{ member.entities.length }} entities
+      </div>
+
+      <div class="member-arrow" [style.color]="member.color">→</div>
+    </div>
+  </div>
+
+  <div class="splash-footer">
+    <span>Film Rental Management System</span>
+    <span class="dot">·</span>
+    <span>Spring Boot + Angular</span>
+    <span class="dot">·</span>
+    <span>PostgreSQL</span>
+  </div>
+</div>
