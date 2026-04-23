@@ -1,0 +1,242 @@
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="topbar-title">Payments</span>
+    <span class="topbar-badge">Payment &amp; Reports Module</span>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Add Payment</button>
+</div>
+ 
+<div class="page-content">
+  <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+  <div *ngIf="error && !showModal" class="alert alert-error">{{ error }}</div>
+ 
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TOP ROW: TWO SEARCH BARS SIDE BY SIDE                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div style="display:flex;gap:16px;margin-bottom:16px;">
+ 
+    <!-- LEFT: Search by Payment ID — GET /api/payments/{paymentId} -->
+    <div class="table-wrap" style="flex:1;padding:16px 18px">
+      <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px">
+        🔍 Search by Payment ID
+        <span style="font-size:11px;color:var(--text-dim);font-weight:400;margin-left:6px">
+          GET /api/payments/{{ '{' }}paymentId{{ '}' }}
+        </span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input
+          class="form-control"
+          type="number"
+          min="1"
+          style="width:180px"
+          [(ngModel)]="paymentIdInput"
+          placeholder="Enter Payment ID..."
+          (keydown.enter)="searchByPaymentId()" />
+        <button class="btn btn-primary btn-sm" (click)="searchByPaymentId()" [disabled]="paymentIdLoading">
+          {{ paymentIdLoading ? 'Searching...' : 'Search' }}
+        </button>
+        <button class="btn btn-sm" *ngIf="showPaymentIdResult || paymentIdError" (click)="clearPaymentIdSearch()">
+          Clear
+        </button>
+      </div>
+ 
+      <!-- Error -->
+      <div *ngIf="paymentIdError" style="margin-top:10px;font-size:12px;color:var(--red)">
+        {{ paymentIdError }}
+      </div>
+ 
+      <!-- Result row -->
+      <div *ngIf="showPaymentIdResult && paymentIdResult" style="margin-top:12px;overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th *ngFor="let k of resultKeys(paymentIdResult)">{{ k }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td *ngFor="let k of resultKeys(paymentIdResult)">
+                <ng-container *ngIf="isSimple(paymentIdResult[k]); else objTpl2">
+                  {{ paymentIdResult[k] }}
+                </ng-container>
+                <ng-template #objTpl2><span class="badge badge-blue">object</span></ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+ 
+    <!-- RIGHT: Search by Customer ID — GET /api/customers/{customerId}/payments -->
+    <div class="table-wrap" style="flex:1;padding:16px 18px">
+      <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px">
+        🔍 Search by Customer ID
+        <span style="font-size:11px;color:var(--text-dim);font-weight:400;margin-left:6px">
+          GET /api/customers/{{ '{' }}customerId{{ '}' }}/payments
+        </span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input
+          class="form-control"
+          type="number"
+          min="1"
+          style="width:180px"
+          [(ngModel)]="customerIdInput"
+          placeholder="Enter Customer ID..."
+          (keydown.enter)="searchByCustomerId()" />
+        <button class="btn btn-primary btn-sm" (click)="searchByCustomerId()" [disabled]="customerIdLoading">
+          {{ customerIdLoading ? 'Searching...' : 'Search' }}
+        </button>
+        <button class="btn btn-sm" *ngIf="showCustomerPayments || customerIdError" (click)="clearCustomerIdSearch()">
+          Clear
+        </button>
+      </div>
+ 
+      <!-- Error -->
+      <div *ngIf="customerIdError" style="margin-top:10px;font-size:12px;color:var(--red)">
+        {{ customerIdError }}
+      </div>
+ 
+      <!-- Results table -->
+      <div *ngIf="showCustomerPayments" style="margin-top:12px;overflow-x:auto">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">
+          {{ customerPayments.length }} payment(s) found for Customer ID {{ customerIdInput }}
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th *ngFor="let k of customerPayments.length ? keys(customerPayments[0]) : []">{{ k }}</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of customerPaymentsPagedItems">
+              <td *ngFor="let k of keys(item)">
+                <ng-container *ngIf="isSimple(item[k]); else objTplC">{{ item[k] }}</ng-container>
+                <ng-template #objTplC><span class="badge badge-blue">object</span></ng-template>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="customerPaymentsPagedItems.length === 0">
+              <td colspan="10" style="text-align:center;color:var(--text-dim);padding:20px">No payments found.</td>
+            </tr>
+          </tbody>
+        </table>
+ 
+        <!-- Customer payments pagination -->
+        <div class="pagination" *ngIf="customerPayments.length > pageSize">
+          <span class="pagination-info">
+            Showing {{ (customerPaymentsPage-1)*pageSize + 1 }}–{{ customerPaymentsPage*pageSize > customerPaymentsFiltered.length ? customerPaymentsFiltered.length : customerPaymentsPage*pageSize }} of {{ customerPaymentsFiltered.length }}
+          </span>
+          <div class="pagination-controls">
+            <button class="page-btn" (click)="goToCustomerPage(1)" [disabled]="customerPaymentsPage === 1">&#171;</button>
+            <button class="page-btn" (click)="goToCustomerPage(customerPaymentsPage-1)" [disabled]="customerPaymentsPage === 1">&#8249;</button>
+            <button class="page-btn" *ngFor="let p of customerPageNumbers"
+              [class.active]="p === customerPaymentsPage" (click)="goToCustomerPage(p)">{{ p }}</button>
+            <button class="page-btn" (click)="goToCustomerPage(customerPaymentsPage+1)" [disabled]="customerPaymentsPage === customerPaymentsTotalPages">&#8250;</button>
+            <button class="page-btn" (click)="goToCustomerPage(customerPaymentsTotalPages)" [disabled]="customerPaymentsPage === customerPaymentsTotalPages">&#187;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+  <!-- END TOP ROW -->
+ 
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ALL PAYMENTS TABLE — GET /api/payments                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px">
+    All Payments
+    <span style="font-size:11px;color:var(--text-dim);font-weight:400;margin-left:6px">
+      GET /api/payments — {{ filteredItems.length }} records
+    </span>
+  </div>
+ 
+  <div *ngIf="loading" class="loading">Loading Payments...</div>
+ 
+  <div *ngIf="!loading" class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th *ngFor="let k of items.length ? keys(items[0]) : []">{{ k }}</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of pagedItems">
+          <td *ngFor="let k of keys(item)">
+            <ng-container *ngIf="isSimple(item[k]); else objTpl">{{ item[k] }}</ng-container>
+            <ng-template #objTpl><span class="badge badge-blue">object</span></ng-template>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="items.length === 0">
+          <td colspan="10" style="text-align:center;color:var(--text-dim);padding:30px">No Payments found.</td>
+        </tr>
+      </tbody>
+    </table>
+ 
+    <div class="pagination">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="pagination-info">
+          Showing {{ filteredItems.length === 0 ? 0 : (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}
+        </span>
+        <select class="page-size-select" (change)="changePageSize(+$any($event.target).value)">
+          <option value="10">10 / page</option>
+          <option value="25">25 / page</option>
+          <option value="50">50 / page</option>
+          <option value="100">100 / page</option>
+        </select>
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&#171;</button>
+        <button class="page-btn" (click)="goToPage(currentPage-1)" [disabled]="currentPage === 1">&#8249;</button>
+        <button class="page-btn" *ngFor="let p of pageNumbers"
+          [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage+1)" [disabled]="currentPage === totalPages">&#8250;</button>
+        <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&#187;</button>
+      </div>
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- ── Create Modal ──────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Create Payment</span>
+      <button class="modal-close" (click)="closeModal()">&#10005;</button>
+    </div>
+    <div *ngIf="error" class="alert alert-error" style="margin-bottom:12px;font-size:12px">{{ error }}</div>
+    <div class="form-group">
+      <label class="form-label">Customer ID *</label>
+      <input class="form-control" type="number" min="1" [(ngModel)]="formData.customerId" placeholder="e.g. 1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Staff ID *</label>
+      <input class="form-control" type="number" min="1" [(ngModel)]="formData.staffId" placeholder="e.g. 1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rental ID <span style="color:var(--text-dim);font-size:11px">(optional)</span></label>
+      <input class="form-control" type="number" min="1" [(ngModel)]="formData.rentalId" placeholder="Leave blank if none" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount *</label>
+      <input class="form-control" type="number" step="0.01" min="0.01" [(ngModel)]="formData.amount" placeholder="e.g. 4.99" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Date *</label>
+      <input class="form-control" type="datetime-local" [(ngModel)]="formData.paymentDate" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">Create</button>
+    </div>
+  </div>
+</div>
