@@ -1,0 +1,59 @@
+<div class="login-page">
+  <button class="back-btn" (click)="goBack()">← Back</button>
+
+  <div class="login-card" *ngIf="member">
+    <div class="login-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color + '55'">
+      <span [style.color]="member.color" style="font-size:32px;font-weight:600">
+        {{ member.displayName.split(' ')[0][0] }}{{ member.displayName.split(' ')[1] ? member.displayName.split(' ')[1][0] : '' }}
+      </span>
+    </div>
+
+    <h2 class="login-name">{{ member.displayName }}</h2>
+    <div class="login-module" [style.color]="member.color">{{ member.module }}</div>
+
+    <div class="login-divider"></div>
+
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <div class="username-display">{{ member.username }}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="position:relative">
+          <input
+            class="form-control login-input"
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            placeholder="Enter password"
+            (keydown)="onKeydown($event)"
+            autofocus />
+          <button type="button" class="show-password-btn" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-error" style="font-size:12px">{{ error }}</div>
+
+      <!-- Entity preview using entities instead of endpoints -->
+      <div class="endpoint-preview">
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px">Your Module Entities</div>
+        <div class="preview-tags">
+          <span
+            *ngFor="let entity of member.entities"
+            class="preview-tag"
+            [style.border-color]="member.color + '55'"
+            [style.color]="member.color">
+            {{ entity.icon }} {{ entity.label }}
+          </span>
+        </div>
+      </div>
+
+      <button class="login-btn" [style.background]="member.color" (click)="login()" [disabled]="loading">
+        {{ loading ? 'Logging in...' : 'Login →' }}
+      </button>
+    </div>
+  </div>
+</div>
