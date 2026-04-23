@@ -1,7 +1,7 @@
 import { formatBackendError } from '../../../../shared/error-utils';
 import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
-import { StaffService } from '../../service/staff.service';
-import { StoreService } from '../../../store/service/store.service';
+import { StaffService } from '../service/staff.service';
+import { StoreService } from '../../store/service/store.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
