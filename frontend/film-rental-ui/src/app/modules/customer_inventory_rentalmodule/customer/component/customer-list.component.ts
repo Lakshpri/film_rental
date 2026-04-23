@@ -2,7 +2,7 @@ import { formatBackendError } from '../../../../shared/error-utils';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CustomerService } from '../service/customer.service';
+import { CustomerService } from '../service/cutomer.service';
 
 @Component({
   standalone: true,
