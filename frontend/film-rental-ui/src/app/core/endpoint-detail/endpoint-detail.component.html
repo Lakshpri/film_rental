@@ -1,0 +1,79 @@
++<div class="ep-detail-page" *ngIf="entity">
+
+  <!-- Header -->
+  <div class="ep-detail-header" [style.border-bottom-color]="memberColor + '44'">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="back-btn-inline" (click)="goBack()">← Back</button>
+      <div style="font-size:28px">{{ entity.icon }}</div>
+      <div>
+        <div style="font-size:18px;font-weight:600;color:var(--text-primary)">{{ entity.label }}</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px">{{ entity.description }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--text-dim);font-family:monospace;background:var(--bg-card);padding:4px 10px;border-radius:6px;border:1px solid var(--border)">
+        {{ entity.apiBase }}
+      </span>
+      <button class="btn btn-primary btn-sm" [style.background]="memberColor" [style.border-color]="memberColor" (click)="goToCrud(entity.endpoints[0])">
+        Open CRUD →
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="ep-detail-content">
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:13px;color:var(--text-dim)">
+        {{ entity.endpoints.length }} API endpoints — click any endpoint to go to the CRUD interface
+      </div>
+    </div>
+
+    <!-- Endpoint list -->
+    <div class="ep-list">
+      <div
+        *ngFor="let ep of entity.endpoints; let i = index"
+        class="ep-row"
+        (click)="goToCrud(ep)"
+        [class.ep-row-sub]="ep.isSubRoute">
+
+        <!-- Method badge -->
+        <div class="ep-method-badge"
+          [style.color]="getMethodColor(ep.method)"
+          [style.background]="getMethodBg(ep.method)"
+          [style.border-color]="getMethodColor(ep.method) + '44'">
+          {{ ep.method }}
+        </div>
+
+        <!-- Path -->
+        <div class="ep-row-path">
+          <span class="ep-path-text">{{ ep.path }}</span>
+          <span *ngIf="ep.isSubRoute" class="sub-route-tag">sub-route</span>
+        </div>
+
+        <!-- Description -->
+        <div class="ep-row-desc">{{ ep.description }}</div>
+
+        <!-- Go button -->
+        <div class="ep-row-action" [style.color]="memberColor">
+          → Open
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="ep-legend">
+      <div *ngFor="let m of ['GET','POST','PUT','DELETE']" class="legend-item">
+        <span class="ep-method-badge"
+          [style.color]="getMethodColor(m)"
+          [style.background]="getMethodBg(m)"
+          [style.border-color]="getMethodColor(m) + '44'">
+          {{ m }}
+        </span>
+        <span style="font-size:11px;color:var(--text-dim)">
+          {{ m === 'GET' ? 'Read' : m === 'POST' ? 'Create' : m === 'PUT' ? 'Update' : 'Delete' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

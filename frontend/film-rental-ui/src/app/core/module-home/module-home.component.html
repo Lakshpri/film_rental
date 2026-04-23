@@ -1,0 +1,69 @@
+<div class="module-home-page" *ngIf="auth.currentMember as member">
+
+  <div class="mh-header" [style.border-bottom-color]="member.color + '44'">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="mh-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color + '44'">
+        <span [style.color]="member.color" style="font-size:20px;font-weight:600">
+          {{ member.displayName.split(' ')[0][0] }}{{ member.displayName.split(' ')[1] ? member.displayName.split(' ')[1][0] : '' }}
+        </span>
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:600;color:var(--text-primary)">Welcome, {{ member.displayName.split(' ')[0] }}!</div>
+        <div style="font-size:12px;margin-top:2px" [style.color]="member.color">{{ member.module }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="badge badge-green" style="font-size:11px">● Authenticated</span>
+      <button class="btn btn-sm btn-danger" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="mh-content">
+    <div class="mh-section-title">
+      <div>
+        <h2 style="font-size:22px;font-weight:600;color:var(--text-primary)">Your Module Endpoints</h2>
+        <p style="font-size:13px;color:var(--text-dim);margin-top:4px">
+          Click any entity to view all its API endpoints. Then click an endpoint to open the CRUD interface.
+        </p>
+      </div>
+      <div class="mh-module-badge" [style.background]="member.color + '15'" [style.border-color]="member.color + '44'">
+        <span [style.color]="member.color">{{ member.module }}</span>
+      </div>
+    </div>
+
+    <!-- Entity Cards -->
+    <div class="endpoint-cards">
+      <div
+        *ngFor="let entity of member.entities; let i = index"
+        class="endpoint-card"
+        [style.border-color]="member.color + '33'"
+        (click)="goToEntity(entity)">
+
+        <div class="ep-number" [style.color]="member.color" [style.background]="member.color + '15'">{{ i + 1 }}</div>
+        <div class="ep-icon">{{ entity.icon }}</div>
+        <div class="ep-label">{{ entity.label }}</div>
+        <div class="ep-desc">{{ entity.description }}</div>
+
+        <div class="ep-api" style="margin-top:auto">
+          <span class="method-badge method-crud">CRUD</span>
+          <span class="ep-path">{{ entity.apiBase }}</span>
+          <span style="margin-left:auto;font-size:11px;color:var(--text-dim)">
+            {{ entity.endpoints.length }} endpoints
+          </span>
+        </div>
+
+        <div class="ep-go" [style.color]="member.color">View Endpoints →</div>
+      </div>
+    </div>
+
+    <!-- Security info -->
+    <div class="mh-info-box" [style.border-color]="member.color + '33'" [style.background]="member.color + '08'">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px" [style.color]="member.color">🔒 Spring Security Active</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.7">
+        Logged in as <strong style="color:var(--text-primary)">{{ member.username }}</strong>
+        · Role: <strong style="color:var(--text-primary)">ROLE_{{ member.role }}</strong>
+        · Other modules return <span style="color:var(--red)">403 Forbidden</span>
+      </div>
+    </div>
+  </div>
+</div>
