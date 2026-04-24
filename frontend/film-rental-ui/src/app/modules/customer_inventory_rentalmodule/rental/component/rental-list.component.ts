@@ -142,6 +142,7 @@ export class RentalListComponent implements OnInit {
     if (!isNaN(Number(this.searchTerm))) {
       const id = Number(this.searchTerm);
       this.loading = true;
+      this.error = '';
       this.svc.getById(id).subscribe({
         next: (res: any) => {
           this.filteredItems = res ? [res] : [];
@@ -150,7 +151,8 @@ export class RentalListComponent implements OnInit {
           this.loading = false;
           this.cdr.detectChanges();
         },
-        error: () => {
+        error: (e: any) => {
+          this.error = formatBackendError(e); // BACKEND MESSAGE
           this.filteredItems = [];
           this.currentPage = 1;
           this.paginate();
@@ -207,16 +209,13 @@ export class RentalListComponent implements OnInit {
       next: (data: any[]) => {
         this.isCustomerSearch = true;   // ← SET FLAG: show customerId column
         this.filteredItems = data;
-        this.items = data;
         this.currentPage = 1;
         this.paginate();
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        this.customerSearchError = e.status === 404
-          ? `No rentals found for Customer ID ${id}.`
-          : formatBackendError(e);
+        this.customerSearchError = formatBackendError(e);
         this.filteredItems = [];
         this.paginate();
         this.loading = false;
