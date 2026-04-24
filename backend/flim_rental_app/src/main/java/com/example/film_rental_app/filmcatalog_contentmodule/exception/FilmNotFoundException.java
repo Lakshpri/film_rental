@@ -8,7 +8,4 @@ public class FilmNotFoundException extends ResourceNotFoundException {
     public FilmNotFoundException(Integer filmId) {
         super("Film", filmId);
     }
-    public FilmNotFoundException(String message) {
-        super(message);
-    }
 }

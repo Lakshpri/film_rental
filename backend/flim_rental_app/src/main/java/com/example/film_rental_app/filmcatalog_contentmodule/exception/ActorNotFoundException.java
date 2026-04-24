@@ -8,7 +8,4 @@ public class ActorNotFoundException extends ResourceNotFoundException {
     public ActorNotFoundException(Integer actorId) {
         super("Actor", actorId);
     }
-    public ActorNotFoundException(String message) {
-        super(message);
-    }
 }

@@ -8,7 +8,4 @@ public class ActorAlreadyExistsException extends DuplicateResourceException {
     public ActorAlreadyExistsException(String firstName, String lastName) {
         super("Actor", "name", firstName + " " + lastName);
     }
-    public ActorAlreadyExistsException(String field, Object value) {
-        super("Actor", field, value);
-    }
 }
