@@ -6,7 +6,4 @@ public class CityInvalidOperationException extends InvalidOperationException {
     public CityInvalidOperationException(Integer cityId, String reason) {
         super(reason);
     }
-    public CityInvalidOperationException(String message) {
-        super(message);
-    }
 }

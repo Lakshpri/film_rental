@@ -6,7 +6,4 @@ public class LanguageInvalidOperationException extends InvalidOperationException
     public LanguageInvalidOperationException(Integer languageId, String reason) {
         super(reason);
     }
-    public LanguageInvalidOperationException(String message) {
-        super(message);
-    }
 }

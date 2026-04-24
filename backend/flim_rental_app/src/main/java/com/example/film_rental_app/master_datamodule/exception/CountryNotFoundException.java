@@ -6,7 +6,4 @@ public class CountryNotFoundException extends ResourceNotFoundException {
     public CountryNotFoundException(Integer countryId) {
         super("Country", countryId);
     }
-    public CountryNotFoundException(String message) {
-        super(message);
-    }
 }

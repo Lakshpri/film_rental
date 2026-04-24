@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
             body.put("looking for", ex.getResourceName() + " with ID " + ex.getResourceId());
         }
         body.put("message",    ex.getMessage());
-        body.put("suggestion", "Double-check the ID you entered. You can view all available records using the list screen.");
+        body.put("suggestion", "Double-check the ID you entered.");
         return response(body, HttpStatus.NOT_FOUND);
     }
 

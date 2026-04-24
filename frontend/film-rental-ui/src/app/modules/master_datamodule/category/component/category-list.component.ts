@@ -55,20 +55,35 @@ export class CategoryListComponent implements OnInit {
     if (!confirm('Delete this Category?')) return;
     this.error = '';
     this.svc.delete(item.categoryId).subscribe({
-      next: () => { this.successMsg = 'Category deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
+      next: () => {
+        this.successMsg = 'Category deleted!'; this.load();
+        setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
+      },
       error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
   search(term: string): void {
     this.searchTerm = term.trim();
-    if (!this.searchTerm) { this.filteredItems = [...this.items]; this.currentPage = 1; this.paginate(); return; }
+    this.error = ''; 
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items]; this.currentPage = 1; this.paginate(); return;
+    }
+
     if (!isNaN(Number(this.searchTerm))) {
       const id = Number(this.searchTerm);
       this.loading = true;
       this.svc.getById(id).subscribe({
-        next: (res: any) => { this.filteredItems = res ? [res] : []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
-        error: () => { this.filteredItems = []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); }
+        next: (res: any) => {
+          this.filteredItems = res ? [res] : [];
+          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+        },
+        error: (e: any) => {
+          this.error = formatBackendError(e);
+          this.filteredItems = [];
+          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+        }
       });
     } else {
       const lower = this.searchTerm.toLowerCase();

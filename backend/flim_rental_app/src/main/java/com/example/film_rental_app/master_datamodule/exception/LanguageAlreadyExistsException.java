@@ -6,7 +6,4 @@ public class LanguageAlreadyExistsException extends DuplicateResourceException {
     public LanguageAlreadyExistsException(String languageName) {
         super("Language", "name", languageName);
     }
-    public LanguageAlreadyExistsException(String field, Object value) {
-        super("Language", field, value);
-    }
 }

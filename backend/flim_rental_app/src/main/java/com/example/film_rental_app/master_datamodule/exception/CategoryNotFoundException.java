@@ -6,7 +6,4 @@ public class CategoryNotFoundException extends ResourceNotFoundException {
     public CategoryNotFoundException(Integer categoryId) {
         super("Category", categoryId);
     }
-    public CategoryNotFoundException(String message) {
-        super(message);
-    }
 }

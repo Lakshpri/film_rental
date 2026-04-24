@@ -8,6 +8,7 @@ import com.example.film_rental_app.master_datamodule.exception.LanguageNotFoundE
 import com.example.film_rental_app.master_datamodule.repository.LanguageRepository;
 import com.example.film_rental_app.master_datamodule.service.LanguageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     @Transactional(readOnly = true)
     public List<Language> getAllLanguages() {
-        return languageRepository.findAll();
+        return languageRepository.findAll(Sort.by("languageId"));
     }
 
     @Override
