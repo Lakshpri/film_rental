@@ -8,7 +8,4 @@ public class StaffNotFoundException extends ResourceNotFoundException {
         super("Staff", staffId);
     }
 
-    public StaffNotFoundException(String message) {
-        super(message);
-    }
 }

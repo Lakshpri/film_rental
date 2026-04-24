@@ -118,9 +118,9 @@ export class AddressListComponent {
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
   validate(): boolean {
-    if (!this.formData.address?.trim()) { this.modalError = 'Address line 1 is required.'; return false; }
-    if (!this.formData.cityId || this.formData.cityId <= 0) { this.modalError = 'A valid City ID is required.'; return false; }
-    if (this.formData.phone && !/^[0-9\-\+\s\(\)]{6,20}$/.test(this.formData.phone)) { this.modalError = 'Phone number format is invalid.'; return false; }
+    if (!this.formData.address?.trim()) { this.modalError = 'Address line 1 is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.cityId || this.formData.cityId <= 0) { this.modalError = 'A valid City ID is required.'; this.cdr.detectChanges(); return false; }
+    if (this.formData.phone && !/^[0-9\-\+\s\(\)]{6,20}$/.test(this.formData.phone)) { this.modalError = 'Phone number format is invalid.'; this.cdr.detectChanges(); return false; }
     return true;
   }
 
@@ -133,7 +133,7 @@ export class AddressListComponent {
         this.successMsg = `Address ${this.editItem ? 'updated' : 'created'}!`;
         this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (e: any) => { this.modalError = formatBackendError(e); }
+      error: (e: any) => { this.modalError = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -142,7 +142,7 @@ export class AddressListComponent {
     this.error = '';
     this.svc.delete(item.addressId).subscribe({
       next: () => { this.successMsg = 'Address deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 

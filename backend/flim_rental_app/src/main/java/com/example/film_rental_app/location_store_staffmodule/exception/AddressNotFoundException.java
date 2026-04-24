@@ -8,7 +8,4 @@ public class AddressNotFoundException extends ResourceNotFoundException {
         super("Address", addressId);
     }
 
-    public AddressNotFoundException(String message) {
-        super(message);
-    }
 }

@@ -6,7 +6,4 @@ public class StoreInvalidOperationException extends InvalidOperationException {
     public StoreInvalidOperationException(Integer storeId, String reason) {
         super(reason);
     }
-    public StoreInvalidOperationException(String message) {
-        super(message);
-    }
 }

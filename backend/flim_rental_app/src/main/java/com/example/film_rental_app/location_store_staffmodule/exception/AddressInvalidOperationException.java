@@ -6,7 +6,4 @@ public class AddressInvalidOperationException extends InvalidOperationException 
     public AddressInvalidOperationException(Integer addressId, String reason) {
         super(reason);
     }
-    public AddressInvalidOperationException(String message) {
-        super(message);
-    }
 }

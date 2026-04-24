@@ -139,15 +139,15 @@ export class StaffListComponent {
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
   validate(): boolean {
-    if (!this.formData.firstName?.trim())  { this.modalError = 'First name is required.'; return false; }
-    if (!this.formData.lastName?.trim())   { this.modalError = 'Last name is required.'; return false; }
-    if (!this.formData.email?.trim())      { this.modalError = 'Email is required.'; return false; }
+    if (!this.formData.firstName?.trim())  { this.modalError = 'First name is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.lastName?.trim())   { this.modalError = 'Last name is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.email?.trim())      { this.modalError = 'Email is required.'; this.cdr.detectChanges(); return false; }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.formData.email)) { this.modalError = 'Please enter a valid email address.'; return false; }
-    if (!this.formData.username?.trim())   { this.modalError = 'Username is required.'; return false; }
-    if (!this.editItem && !this.formData.password?.trim()) { this.modalError = 'Password is required when creating a staff member.'; return false; }
-    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; return false; }
-    if (!this.formData.storeId   || this.formData.storeId   <= 0) { this.modalError = 'A valid Store ID is required.'; return false; }
+    if (!emailRegex.test(this.formData.email)) { this.modalError = 'Please enter a valid email address.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.username?.trim())   { this.modalError = 'Username is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.editItem && !this.formData.password?.trim()) { this.modalError = 'Password is required when creating a staff member.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.storeId   || this.formData.storeId   <= 0) { this.modalError = 'A valid Store ID is required.'; this.cdr.detectChanges(); return false; }
     return true;
   }
 
@@ -160,7 +160,7 @@ export class StaffListComponent {
         this.successMsg = `Staff ${this.editItem ? 'updated' : 'created'}!`;
         this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (e: any) => { this.modalError = formatBackendError(e); }
+      error: (e: any) => { this.modalError = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
