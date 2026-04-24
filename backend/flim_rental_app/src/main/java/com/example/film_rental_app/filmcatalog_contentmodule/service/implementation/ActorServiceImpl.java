@@ -7,6 +7,7 @@ import com.example.film_rental_app.filmcatalog_contentmodule.repository.ActorRep
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmActorRepository;
 import com.example.film_rental_app.filmcatalog_contentmodule.service.ActorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class ActorServiceImpl implements ActorService {
     @Override
     @Transactional(readOnly = true)
     public List<Actor> getAllActors() {
-        return actorRepository.findAll();
+        return actorRepository.findAll(Sort.by("actorId"));
     }
 
     @Override
