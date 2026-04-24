@@ -6,7 +6,4 @@ public class CountryInvalidOperationException extends InvalidOperationException 
     public CountryInvalidOperationException(Integer countryId, String reason) {
         super(reason);
     }
-    public CountryInvalidOperationException(String message) {
-        super(message);
-    }
 }

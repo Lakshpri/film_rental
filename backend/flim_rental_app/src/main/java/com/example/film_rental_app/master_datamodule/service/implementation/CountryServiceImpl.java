@@ -9,6 +9,7 @@ import com.example.film_rental_app.master_datamodule.repository.CityRepository;
 import com.example.film_rental_app.master_datamodule.repository.CountryRepository;
 import com.example.film_rental_app.master_datamodule.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional(readOnly = true)
     public List<Country> getAllCountries() {
-        return countryRepository.findAll();
+        return countryRepository.findAll(Sort.by("countryId"));
     }
 
     @Override

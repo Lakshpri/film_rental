@@ -6,7 +6,4 @@ public class CategoryInvalidOperationException extends InvalidOperationException
     public CategoryInvalidOperationException(Integer categoryId, String reason) {
         super(reason);
     }
-    public CategoryInvalidOperationException(String message) {
-        super(message);
-    }
 }

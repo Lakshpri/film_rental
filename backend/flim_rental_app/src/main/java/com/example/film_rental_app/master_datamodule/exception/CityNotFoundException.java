@@ -6,7 +6,4 @@ public class CityNotFoundException extends ResourceNotFoundException {
     public CityNotFoundException(Integer cityId) {
         super("City", cityId);
     }
-    public CityNotFoundException(String message) {
-        super(message);
-    }
 }

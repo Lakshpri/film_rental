@@ -6,7 +6,4 @@ public class CategoryAlreadyExistsException extends DuplicateResourceException {
     public CategoryAlreadyExistsException(String categoryName) {
         super("Category", "name", categoryName);
     }
-    public CategoryAlreadyExistsException(String field, Object value) {
-        super("Category", field, value);
-    }
 }

@@ -67,29 +67,37 @@ export class CountryListComponent implements OnInit {
     });
   }
 
-  search(term: string): void {
-    this.searchTerm = term.trim();
-    if (!this.searchTerm) {
-      this.filteredItems = [...this.items];
-      this.currentPage = 1;
-      this.paginate();
-      return;
-    }
-    if (!isNaN(Number(this.searchTerm))) {
-      const id = Number(this.searchTerm);
-      this.loading = true;
-      this.svc.getById(id).subscribe({
-        next: (res: any) => { this.filteredItems = res ? [res] : []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
-        error: () => { this.filteredItems = []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); }
-      });
-    } else {
-      const lower = this.searchTerm.toLowerCase();
-      this.filteredItems = this.items.filter(item => item.country?.toLowerCase().includes(lower));
-      this.currentPage = 1;
-      this.paginate();
-    }
+ search(term: string): void {
+  this.searchTerm = term.trim();
+  this.error = '';
+
+  if (!this.searchTerm) {
+    this.filteredItems = [...this.items];
+    this.currentPage = 1;
+    this.paginate();
+    return;
   }
 
+  if (!isNaN(Number(this.searchTerm))) {
+    const id = Number(this.searchTerm);
+    this.loading = true;
+    this.svc.getById(id).subscribe({
+      next: (res: any) => {
+        this.filteredItems = res ? [res] : [];
+        this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        this.error = formatBackendError(e);
+        this.filteredItems = [];
+        this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+      }
+    });
+  } else {
+    const lower = this.searchTerm.toLowerCase();
+    this.filteredItems = this.items.filter(item => item.country?.toLowerCase().includes(lower));
+    this.currentPage = 1; this.paginate();
+  }
+}
   searchCities(term: string): void {
     const value = term.trim();
     if (!value) { this.filteredCities = []; return; }

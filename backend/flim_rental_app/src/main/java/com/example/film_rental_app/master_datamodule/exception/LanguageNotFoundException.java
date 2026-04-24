@@ -6,7 +6,4 @@ public class LanguageNotFoundException extends ResourceNotFoundException {
     public LanguageNotFoundException(Integer languageId) {
         super("Language", languageId);
     }
-    public LanguageNotFoundException(String message) {
-        super(message);
-    }
 }

@@ -60,23 +60,37 @@ export class LanguageListComponent implements OnInit {
     });
   }
 
-  search(term: string): void {
-    this.searchTerm = term.trim();
-    if (!this.searchTerm) { this.filteredItems = [...this.items]; this.currentPage = 1; this.paginate(); return; }
-    if (!isNaN(Number(this.searchTerm))) {
-      const id = Number(this.searchTerm);
-      this.loading = true;
-      this.svc.getById(id).subscribe({
-        next: (res: any) => { this.filteredItems = res ? [res] : []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
-        error: () => { this.filteredItems = []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); }
-      });
-    } else {
-      const lower = this.searchTerm.toLowerCase();
-      this.filteredItems = this.items.filter(item => item.name?.toLowerCase().includes(lower));
-      this.currentPage = 1; this.paginate();
-    }
+search(term: string): void {
+  this.searchTerm = term.trim();
+  this.error = '';
+
+  if (!this.searchTerm) {
+    this.filteredItems = [...this.items];
+    this.currentPage = 1;
+    this.paginate();
+    return;
   }
 
+  if (!isNaN(Number(this.searchTerm))) {
+    const id = Number(this.searchTerm);
+    this.loading = true;
+    this.svc.getById(id).subscribe({
+      next: (res: any) => {
+        this.filteredItems = res ? [res] : [];
+        this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        this.error = formatBackendError(e);
+        this.filteredItems = [];
+        this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
+      }
+    });
+  } else {
+    const lower = this.searchTerm.toLowerCase();
+    this.filteredItems = this.items.filter(item => item.name?.toLowerCase().includes(lower));
+    this.currentPage = 1; this.paginate();
+  }
+}
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
