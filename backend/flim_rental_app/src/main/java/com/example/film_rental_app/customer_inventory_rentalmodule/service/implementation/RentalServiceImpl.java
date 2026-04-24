@@ -96,10 +96,14 @@ public class RentalServiceImpl implements RentalService {
     @Override
     @Transactional(readOnly = true)
     public List<Rental> getRentalsByCustomer(Integer customerId) {
-        // Verify customer exists first — throws 404 if not found (returns [] no more)
+        // Verify customer exists first — throws 404 if not found
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(customerId);
         }
-        return rentalRepository.findByCustomer_CustomerId(customerId);
+        List<Rental> rentals = rentalRepository.findByCustomer_CustomerId(customerId);
+        if (rentals.isEmpty()) {
+            throw new RentalNotFoundException(customerId);
+        }
+        return rentals;
     }
 }
