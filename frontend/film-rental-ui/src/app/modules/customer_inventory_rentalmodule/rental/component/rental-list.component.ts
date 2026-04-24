@@ -118,14 +118,16 @@ export class RentalListComponent implements OnInit {
     return val === null || val === undefined || typeof val !== 'object';
   }
 
-  // ← UPDATED: shows customerId column only during customer search
   keys(item: any): string[] {
-    const allKeys = Object.keys(item);
-    if (this.isCustomerSearch) {
-      return allKeys.slice(0, 7);   // includes customerId
-    }
-    return allKeys.slice(0, 6);     // normal view — no customerId
-  }
+  return [
+    'rentalId',
+    'rentalDate',
+    'inventoryId',
+    'customerId', 
+    'staffId',
+    'returnDate'
+  ];
+}
 
   search(term: string): void {
     this.searchTerm = term.trim();
