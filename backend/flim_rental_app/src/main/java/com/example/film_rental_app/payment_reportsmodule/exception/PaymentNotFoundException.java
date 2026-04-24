@@ -12,7 +12,5 @@ public class PaymentNotFoundException extends ResourceNotFoundException {
         super("Payment with ID " + paymentId + " was not found.");
     }
 
-    public PaymentNotFoundException(String message) {
-        super(message);
-    }
+
 }
