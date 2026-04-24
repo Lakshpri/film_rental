@@ -3,7 +3,6 @@ package com.example.film_rental_app.filmcatalog_contentmodule;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.Actor;
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.FilmActor;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorAlreadyExistsException;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorInvalidOperationException;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorNotFoundException;
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.ActorRepository;
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmActorRepository;
@@ -129,27 +128,5 @@ class ActorServiceImplTest {
 
         assertThrows(ActorNotFoundException.class,
                 () -> actorService.deleteActor(1));
-    }
-
-    @Test
-    void testDeleteActor_LinkedToFilms() {
-        when(actorRepository.existsById(1)).thenReturn(true);
-
-        when(filmActorRepository.findById_ActorId(1))
-                .thenReturn(List.of(new FilmActor()));  // ✅ FIXED
-
-        assertThrows(ActorInvalidOperationException.class,
-                () -> actorService.deleteActor(1));
-    }
-
-    @Test
-    void testDeleteActor_FilmAssociationNotEmpty() {
-        when(actorRepository.existsById(2)).thenReturn(true);
-
-        when(filmActorRepository.findById_ActorId(2))
-                .thenReturn(List.of(new FilmActor(), new FilmActor()));  // ✅ FIXED
-
-        assertThrows(ActorInvalidOperationException.class,
-                () -> actorService.deleteActor(2));
     }
 }

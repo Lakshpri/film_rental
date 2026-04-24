@@ -8,7 +8,4 @@ public class FilmAlreadyExistsException extends DuplicateResourceException {
     public FilmAlreadyExistsException(String title) {
         super("Film", "title", title);
     }
-    public FilmAlreadyExistsException(String field, Object value) {
-        super("Film", field, value);
-    }
 }
