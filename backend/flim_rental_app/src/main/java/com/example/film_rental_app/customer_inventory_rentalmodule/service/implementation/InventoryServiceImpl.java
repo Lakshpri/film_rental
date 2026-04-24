@@ -1,7 +1,6 @@
 package com.example.film_rental_app.customer_inventory_rentalmodule.service.implementation;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.Inventory;
-import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryAlreadyExistsException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryNotFoundException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.exception.InventoryUnavailableException;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.InventoryRepository;

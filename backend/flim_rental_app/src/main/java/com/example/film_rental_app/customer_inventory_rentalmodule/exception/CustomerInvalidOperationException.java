@@ -6,7 +6,4 @@ public class CustomerInvalidOperationException extends InvalidOperationException
     public CustomerInvalidOperationException(Integer customerId, String reason) {
         super(reason);
     }
-    public CustomerInvalidOperationException(String message) {
-        super(message);
-    }
 }

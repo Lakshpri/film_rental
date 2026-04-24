@@ -15,13 +15,14 @@
   </div>
 <div *ngIf="!loading" class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Store</th><th>Status</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Address ID</th><th>Store</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td style="color:var(--text-dim)">{{ item.customerId }}</td>
           <td>{{ item.firstName }}</td>
           <td style="font-weight:500;color:var(--text-primary)">{{ item.lastName }}</td>
           <td style="color:#60a5fa">{{ item.email }}</td>
+          <td>{{ item.addressId }}</td>
           <td>{{ item.storeId }}</td>
           <td><span class="badge" [ngClass]="item.active ? 'badge-green' : 'badge-red'">{{ item.active ? 'Active' : 'Inactive' }}</span></td>
           <td>
@@ -29,7 +30,7 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px">No Customers found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="8" style="text-align:center;color:var(--text-dim);padding:30px">No Customers found.</td></tr>
       </tbody>
     </table>
   <div class="pagination">
