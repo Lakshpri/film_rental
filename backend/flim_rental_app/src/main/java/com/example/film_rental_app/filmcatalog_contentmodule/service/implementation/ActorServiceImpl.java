@@ -2,7 +2,6 @@ package com.example.film_rental_app.filmcatalog_contentmodule.service.implementa
 
 import com.example.film_rental_app.filmcatalog_contentmodule.entity.Actor;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorAlreadyExistsException;
-import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorInvalidOperationException;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.ActorNotFoundException;
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.ActorRepository;
 import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmActorRepository;
@@ -20,8 +19,6 @@ public class ActorServiceImpl implements ActorService {
     private ActorRepository actorRepository;
     @Autowired
     private FilmActorRepository filmActorRepository;
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -64,17 +61,15 @@ public class ActorServiceImpl implements ActorService {
 
     @Override
     public boolean deleteActor(Integer actorId) {
-        // ResourceNotFoundException → HTTP 404
-        if (!actorRepository.existsById(actorId)) {
-            throw new ActorNotFoundException(actorId);
-        }
-        // InvalidOperationException → HTTP 400
-        if (!filmActorRepository.findById_ActorId(actorId).isEmpty()) {
-            throw new ActorInvalidOperationException(actorId,
-                    "This Actor is still linked to one or more Films. "
-                            + "Remove all Film-Actor associations first before deleting the Actor.");
-        }
-        actorRepository.deleteById(actorId);
+        Actor actor = actorRepository.findById(actorId)
+                .orElseThrow(() -> new ActorNotFoundException(actorId));
+
+        // Auto-delete all film_actor relationships for this actor first
+        filmActorRepository.deleteByActorId(actorId);
+        filmActorRepository.flush();
+
+        // Now safe to delete the actor
+        actorRepository.delete(actor);
         return true;
     }
 }

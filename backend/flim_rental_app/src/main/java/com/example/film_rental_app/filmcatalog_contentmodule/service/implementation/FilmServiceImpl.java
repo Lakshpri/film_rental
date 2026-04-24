@@ -75,23 +75,23 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public boolean deleteFilm(Integer filmId) {
-        if (!filmRepository.existsById(filmId)) {
-            throw new FilmNotFoundException(filmId);
-        }
-        // BUG FIX: check film_text FK before delete
-        if (filmTextRepository.existsByFilmId(filmId)) {
-            throw new FilmInvalidOperationException(filmId,
-                    "This Film has a FilmText entry linked to it. Delete the FilmText record first.");
-        }
-        if (!filmActorRepository.findById_FilmId(filmId).isEmpty()) {
-            throw new FilmInvalidOperationException(filmId,
-                    "This Film still has Actors linked to it. Remove all Actor associations first.");
-        }
-        if (!filmCategoryRepository.findById_FilmId(filmId).isEmpty()) {
-            throw new FilmInvalidOperationException(filmId,
-                    "This Film still has Categories linked to it. Remove all Category associations first.");
-        }
-        filmRepository.deleteById(filmId);
+        Film film = filmRepository.findById(filmId)
+                .orElseThrow(() -> new FilmNotFoundException(filmId));
+
+        // Step 1: delete film_text rows first (FK references film.film_id)
+        filmTextRepository.deleteByFilmId(filmId);
+        filmTextRepository.flush();
+
+        // Step 2: delete film_actor rows (FK references film.film_id)
+        filmActorRepository.deleteByFilmId(filmId);
+        filmActorRepository.flush();
+
+        // Step 3: delete film_category rows (FK references film.film_id)
+        filmCategoryRepository.deleteByFilmId(filmId);
+        filmCategoryRepository.flush();
+
+        // Step 4: delete the film itself — all FK constraints already cleared
+        filmRepository.delete(film);
         return true;
     }
 
