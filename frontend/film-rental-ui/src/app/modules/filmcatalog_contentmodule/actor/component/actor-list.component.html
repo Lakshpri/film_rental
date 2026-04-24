@@ -9,11 +9,11 @@
   <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
   <div *ngIf="error" class="alert alert-error">{{ error }}</div>
   <div *ngIf="loading" class="loading">Loading Actors...</div>
-    <div class="search-bar">
+  <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
     <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
-<div *ngIf="!loading" class="table-wrap">
+  <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Last Update</th><th>Actions</th></tr></thead>
       <tbody>
@@ -30,42 +30,52 @@
         <tr *ngIf="items.length === 0"><td colspan="5" style="text-align:center;color:var(--text-dim);padding:30px">No Actors found.</td></tr>
       </tbody>
     </table>
-  <div class="pagination">
-    <div style="display:flex;align-items:center;gap:12px">
-      <span class="pagination-info">
-        Showing {{ (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}
-      </span>
-      <select class="page-size-select" (change)="changePageSize(+$any($event.target).value)">
-        <option value="10">10 / page</option>
-        <option value="25">25 / page</option>
-        <option value="50">50 / page</option>
-        <option value="100">100 / page</option>
-      </select>
+    <div class="pagination">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="pagination-info">
+          Showing {{ (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}
+        </span>
+        <select class="page-size-select" (change)="changePageSize(+$any($event.target).value)">
+          <option value="10">10 / page</option>
+          <option value="25">25 / page</option>
+          <option value="50">50 / page</option>
+          <option value="100">100 / page</option>
+        </select>
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&#171;</button>
+        <button class="page-btn" (click)="goToPage(currentPage-1)" [disabled]="currentPage === 1">&#8249;</button>
+        <button class="page-btn" *ngFor="let p of pageNumbers"
+          [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage+1)" [disabled]="currentPage === totalPages">&#8250;</button>
+        <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&#187;</button>
+      </div>
     </div>
-    <div class="pagination-controls">
-      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&#171;</button>
-      <button class="page-btn" (click)="goToPage(currentPage-1)" [disabled]="currentPage === 1">&#8249;</button>
-      <button class="page-btn" *ngFor="let p of pageNumbers"
-        [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
-      <button class="page-btn" (click)="goToPage(currentPage+1)" [disabled]="currentPage === totalPages">&#8250;</button>
-      <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&#187;</button>
-    </div>
-  </div>
   </div>
 </div>
+
+<!-- Add / Edit Actor Modal -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">{{ editItem ? 'Edit' : 'Create' }} Actor</span>
       <button class="modal-close" (click)="closeModal()">&#10005;</button>
     </div>
+
+    <!-- ERROR BANNER — always visible right below header -->
+    <div *ngIf="modalError" class="alert alert-error" style="margin:0 0 12px 0;border-radius:6px;">
+      <strong>{{ modalError }}</strong>
+    </div>
+
     <div class="form-group">
       <label class="form-label">First Name *</label>
-      <input class="form-control" [(ngModel)]="formData.firstName" placeholder="e.g. Kamal" />
+      <input class="form-control" [class.input-error]="formErrors['firstName']" [(ngModel)]="formData.firstName" placeholder="e.g. Kamal" />
+      <span *ngIf="formErrors['firstName']" class="field-error">{{ formErrors['firstName'] }}</span>
     </div>
     <div class="form-group">
       <label class="form-label">Last Name *</label>
-      <input class="form-control" [(ngModel)]="formData.lastName" placeholder="e.g. Haasan" />
+      <input class="form-control" [class.input-error]="formErrors['lastName']" [(ngModel)]="formData.lastName" placeholder="e.g. Haasan" />
+      <span *ngIf="formErrors['lastName']" class="field-error">{{ formErrors['lastName'] }}</span>
     </div>
     <div class="modal-footer">
       <button class="btn" (click)="closeModal()">Cancel</button>

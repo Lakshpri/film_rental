@@ -8,6 +8,7 @@ import com.example.film_rental_app.filmcatalog_contentmodule.repository.FilmText
 import com.example.film_rental_app.filmcatalog_contentmodule.service.FilmTextService;
 import com.example.film_rental_app.filmcatalog_contentmodule.exception.FilmNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class FilmTextServiceImpl implements FilmTextService {
     @Override
     @Transactional(readOnly = true)
     public List<FilmText> getAllFilmTexts() {
-        return filmTextRepository.findAll();
+        return filmTextRepository.findAll(Sort.by("filmId"));
     }
 
     @Override

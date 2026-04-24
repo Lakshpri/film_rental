@@ -13,6 +13,7 @@ export class ActorListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
+  modalError = ''; formErrors: { [key: string]: string } = {};
 
   constructor(private svc: ActorService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
@@ -26,25 +27,43 @@ export class ActorListComponent implements OnInit {
     });
   }
 
-  openCreate(): void { this.editItem = null; this.formData = { firstName: '', lastName: '' }; this.error = ''; this.showModal = true; }
-  openEdit(item: any): void { this.editItem = item; this.formData = { firstName: item.firstName, lastName: item.lastName }; this.error = ''; this.showModal = true; }
-  closeModal(): void { this.showModal = false; this.error = ''; }
+  openCreate(): void { this.editItem = null; this.formData = { firstName: '', lastName: '' }; this.modalError = ''; this.formErrors = {}; this.showModal = true; }
+  openEdit(item: any): void { this.editItem = item; this.formData = { firstName: item.firstName, lastName: item.lastName }; this.modalError = ''; this.formErrors = {}; this.showModal = true; }
+  closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
 
   validate(): boolean {
-    if (!this.formData.firstName?.trim()) { this.error = 'First name is required.'; return false; }
-    if (!this.formData.lastName?.trim()) { this.error = 'Last name is required.'; return false; }
-    if (/\d/.test(this.formData.firstName) || /\d/.test(this.formData.lastName)) { this.error = 'Names must not contain numbers.'; return false; }
+    this.formErrors = {};
+    this.modalError = '';
+    if (!this.formData.firstName?.trim()) { this.formErrors['firstName'] = 'First name is required.'; }
+    else if (/\d/.test(this.formData.firstName)) { this.formErrors['firstName'] = 'First name must not contain numbers.'; }
+    if (!this.formData.lastName?.trim()) { this.formErrors['lastName'] = 'Last name is required.'; }
+    else if (/\d/.test(this.formData.lastName)) { this.formErrors['lastName'] = 'Last name must not contain numbers.'; }
+    if (Object.keys(this.formErrors).length > 0) {
+      this.modalError = 'Please fix the highlighted fields and try again.';
+      return false;
+    }
     return true;
   }
 
+  parseBackendError(e: any): void {
+    const err = e.error;
+    if (err?.fields && typeof err.fields === 'object') {
+      this.formErrors = { ...err.fields };
+      this.modalError = err.error || err.message || 'Some fields have invalid values.';
+    } else {
+      this.modalError = err?.message || err?.error || err?.reason || e.message || 'Operation failed.';
+    }
+  }
+
   save(): void {
-    this.error = '';
+    this.modalError = '';
+    this.formErrors = {};
     if (!this.validate()) return;
     const payload = { firstName: this.formData.firstName.trim(), lastName: this.formData.lastName.trim() };
     const call = this.editItem ? this.svc.update(this.editItem.actorId, payload) : this.svc.create(payload);
     call.subscribe({
       next: () => { this.successMsg = `Actor ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.message || e.error?.error || e.message || 'Operation failed'; }
+      error: (e: any) => { this.parseBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -53,38 +72,59 @@ export class ActorListComponent implements OnInit {
     this.error = '';
     this.svc.delete(item.actorId).subscribe({
       next: () => { this.successMsg = 'Actor deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.message || e.error?.error || 'Delete failed'; }
+      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
     });
   }
 
-  search(term: string): void {
-    this.searchTerm = term;
-    const trimmed = term.trim();
-    const numId = Number(trimmed);
+ search(term: string): void {
+  this.searchTerm = term.trim();
+  this.error = '';
 
-    if (trimmed !== '' && !isNaN(numId) && Number.isInteger(numId) && numId > 0) {
-      // Numeric input — fetch by ID from API, then also filter by name locally
-      this.loading = true;
-      this.svc.getById(numId).subscribe({
-        next: (item: any) => {
-          this.filteredItems = [item];
-          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
-        },
-        error: () => {
-          this.filteredItems = this.items.filter(i =>
-            JSON.stringify(i).toLowerCase().includes(trimmed.toLowerCase())
-          );
-          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
-        }
-      });
-    } else {
-      // Text input — filter locally by name
-      this.filteredItems = this.items.filter(item =>
-        JSON.stringify(item).toLowerCase().includes(trimmed.toLowerCase())
-      );
-      this.currentPage = 1; this.paginate();
-    }
+  // ✅ If empty → reset
+  if (!this.searchTerm) {
+    this.filteredItems = [...this.items];
+    this.currentPage = 1;
+    this.paginate();
+    return;
   }
+
+  // ✅ If numeric → search by ID (API)
+  if (!isNaN(Number(this.searchTerm))) {
+    const id = Number(this.searchTerm);
+    this.loading = true;
+
+    this.svc.getById(id).subscribe({
+      next: (res: any) => {
+        this.filteredItems = res ? [res] : [];
+        this.currentPage = 1;
+        this.paginate();
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        // ✅ Show backend error
+        this.error = e.error?.message || e.error?.error || e.message || 'Actor not found';
+        this.filteredItems = [];
+        this.currentPage = 1;
+        this.paginate();
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+
+  } else {
+    // ✅ Text search → filter by name (clean, not JSON)
+    const lower = this.searchTerm.toLowerCase();
+
+    this.filteredItems = this.items.filter(item =>
+      item.firstName?.toLowerCase().includes(lower) ||
+      item.lastName?.toLowerCase().includes(lower)
+    );
+
+    this.currentPage = 1;
+    this.paginate();
+  }
+}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
