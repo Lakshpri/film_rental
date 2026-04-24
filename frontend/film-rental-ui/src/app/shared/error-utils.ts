@@ -20,7 +20,7 @@ export function formatBackendError(e: any): string {
     parts.push('Field errors — ' + fieldMsgs);
   }
 
-  if (err.suggestion) parts.push('💡 ' + err.suggestion);
+  if (err.suggestion) parts.push( err.suggestion);
 
   return parts.filter(Boolean).join('  |  ') || 'Operation failed.';
 }

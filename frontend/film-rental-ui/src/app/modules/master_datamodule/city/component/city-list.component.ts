@@ -19,8 +19,7 @@ export class CityListComponent implements OnInit {
   ngOnInit(): void { setTimeout(() => this.load()); }
 
   load(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading = true; this.error = '';
     this.svc.getAll().subscribe({
       next: (d: any[]) => { this.items = d; this.filteredItems = d; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
       error: (e: any) => { this.error = formatBackendError(e); this.loading = false; this.cdr.detectChanges(); }
@@ -32,8 +31,8 @@ export class CityListComponent implements OnInit {
   closeModal(): void { this.showModal = false; this.error = ''; }
 
   validate(): boolean {
-    if (!this.formData.city?.trim()) { this.error = 'City name is required.'; return false; }
-    if (!this.formData.countryId || this.formData.countryId <= 0) { this.error = 'A valid Country ID is required.'; return false; }
+    if (!this.formData.city?.trim()) { this.error = 'City name is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.countryId || this.formData.countryId <= 0) { this.error = 'A valid Country ID is required.'; this.cdr.detectChanges(); return false; }
     return true;
   }
 
@@ -42,8 +41,12 @@ export class CityListComponent implements OnInit {
     if (!this.validate()) return;
     const call = this.editItem ? this.svc.update(this.editItem.cityId, this.formData) : this.svc.create(this.formData);
     call.subscribe({
-      next: () => { this.successMsg = `City ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      next: () => {
+        this.successMsg = `City ${this.editItem ? 'updated' : 'created'}!`;
+        this.closeModal(); this.load();
+        setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
+      },
+      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -51,58 +54,27 @@ export class CityListComponent implements OnInit {
     if (!confirm('Delete this City?')) return;
     this.error = '';
     this.svc.delete(item.cityId).subscribe({
-      next: () => { this.successMsg = 'City deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      next: () => { this.successMsg = 'City deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
+      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
-search(term: string): void {
-  this.searchTerm = term.trim();
-
-  // If empty → reset
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    if (!this.searchTerm) { this.filteredItems = [...this.items]; this.currentPage = 1; this.paginate(); return; }
+    if (!isNaN(Number(this.searchTerm))) {
+      const id = Number(this.searchTerm);
+      this.loading = true;
+      this.svc.getById(id).subscribe({
+        next: (res: any) => { this.filteredItems = res ? [res] : []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
+        error: () => { this.filteredItems = []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); }
+      });
+    } else {
+      const lower = this.searchTerm.toLowerCase();
+      this.filteredItems = this.items.filter(item => item.city?.toLowerCase().includes(lower));
+      this.currentPage = 1; this.paginate();
+    }
   }
-
-  // 👉 If it's a NUMBER → call API by ID
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
-
-    this.loading = true;
-    this.svc.getById(id).subscribe({
-      next: (res: any) => {
-        // Wrap single result into array for table
-        this.filteredItems = res ? [res] : [];
-        this.currentPage = 1;
-        this.paginate();
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        // If not found → empty list
-        this.filteredItems = [];
-        this.currentPage = 1;
-        this.paginate();
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
-
-  } else {
-    // 👉 If TEXT → filter locally by name
-    const lower = this.searchTerm.toLowerCase();
-
-    this.filteredItems = this.items.filter(item =>
-      item.city?.toLowerCase().includes(lower)
-    );
-
-    this.currentPage = 1;
-    this.paginate();
-  }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));

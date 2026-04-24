@@ -15,7 +15,8 @@ export class CountryListComponent implements OnInit {
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   cities: any[] = [];
-filteredCities: any[] = [];
+  filteredCities: any[] = [];
+
   constructor(private svc: CountryService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
 
@@ -39,11 +40,21 @@ filteredCities: any[] = [];
 
   save(): void {
     this.error = '';
-    if (!this.validate()) return;
-    const call = this.editItem ? this.svc.update(this.editItem.countryId, { country: this.formData.country.trim() }) : this.svc.create({ country: this.formData.country.trim() });
+    if (!this.validate()) { this.cdr.detectChanges(); return; }
+    const call = this.editItem
+      ? this.svc.update(this.editItem.countryId, { country: this.formData.country.trim() })
+      : this.svc.create({ country: this.formData.country.trim() });
     call.subscribe({
-      next: () => { this.successMsg = `Country ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      next: () => {
+        this.successMsg = `Country ${this.editItem ? 'updated' : 'created'}!`;
+        this.closeModal();
+        this.load();
+        setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
+      },
+      error: (e: any) => {
+        this.error = formatBackendError(e);
+        this.cdr.detectChanges(); // ← THIS was the missing line
+      }
     });
   }
 
@@ -51,121 +62,56 @@ filteredCities: any[] = [];
     if (!confirm('Delete this Country?')) return;
     this.error = '';
     this.svc.delete(item.countryId).subscribe({
-      next: () => { this.successMsg = 'Country deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      next: () => { this.successMsg = 'Country deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
+      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
-search(term: string): void {
-  this.searchTerm = term.trim();
-
-  // If empty → reset
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
-
-  //  If it's a NUMBER → call API by ID
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
-
-    this.loading = true;
-    this.svc.getById(id).subscribe({
-      next: (res: any) => {
-        // Wrap single result into array for table
-        this.filteredItems = res ? [res] : [];
-        this.currentPage = 1;
-        this.paginate();
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        // If not found → empty list
-        this.filteredItems = [];
-        this.currentPage = 1;
-        this.paginate();
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
-
-  } else {
-    //  If TEXT → filter locally by name
-    const lower = this.searchTerm.toLowerCase();
-
-    this.filteredItems = this.items.filter(item =>
-      item.country?.toLowerCase().includes(lower)
-    );
-
-    this.currentPage = 1;
-    this.paginate();
-  }
-}
-searchCities(term: string): void {
-  const value = term.trim();
-
-  // Reset if empty
-  if (!value) {
-    this.filteredCities = [];
-    return;
-  }
-
-
-if (!isNaN(Number(value))) {
-  const id = Number(value);
-
-  console.log(' Searching cities by ID:', id);   
-
-  this.loading = true;
-  this.svc.getCitiesByCountryId(id).subscribe({
-    next: (res: any[]) => {
-      console.log(' Cities API response:', res);
-
-      this.filteredCities = res || [];
-      this.loading = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.log(' Cities API error:', err);     
-
-      this.filteredCities = [];
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  });
-}else {
-   
-    const lower = value.toLowerCase();
-
-const foundCountry = this.items.find(c =>
-  c.country?.toLowerCase().includes(lower)
-);
-
-console.log(' Found country:', foundCountry); 
-
-    if (!foundCountry) {
-      this.filteredCities = [];
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
       return;
     }
-
-    this.loading = true;
-    this.svc.getCitiesByCountryId(foundCountry.countryId).subscribe({
-      next: (res: any[]) => {
-        this.filteredCities = res || [];
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.filteredCities = [];
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
+    if (!isNaN(Number(this.searchTerm))) {
+      const id = Number(this.searchTerm);
+      this.loading = true;
+      this.svc.getById(id).subscribe({
+        next: (res: any) => { this.filteredItems = res ? [res] : []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
+        error: () => { this.filteredItems = []; this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges(); }
+      });
+    } else {
+      const lower = this.searchTerm.toLowerCase();
+      this.filteredItems = this.items.filter(item => item.country?.toLowerCase().includes(lower));
+      this.currentPage = 1;
+      this.paginate();
+    }
   }
 
-}
+  searchCities(term: string): void {
+    const value = term.trim();
+    if (!value) { this.filteredCities = []; return; }
+    if (!isNaN(Number(value))) {
+      const id = Number(value);
+      this.loading = true;
+      this.svc.getCitiesByCountryId(id).subscribe({
+        next: (res: any[]) => { this.filteredCities = res || []; this.loading = false; this.cdr.detectChanges(); },
+        error: () => { this.filteredCities = []; this.loading = false; this.cdr.detectChanges(); }
+      });
+    } else {
+      const lower = value.toLowerCase();
+      const foundCountry = this.items.find(c => c.country?.toLowerCase().includes(lower));
+      if (!foundCountry) { this.filteredCities = []; return; }
+      this.loading = true;
+      this.svc.getCitiesByCountryId(foundCountry.countryId).subscribe({
+        next: (res: any[]) => { this.filteredCities = res || []; this.loading = false; this.cdr.detectChanges(); },
+        error: () => { this.filteredCities = []; this.loading = false; this.cdr.detectChanges(); }
+      });
+    }
+  }
+
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
@@ -183,5 +129,4 @@ console.log(' Found country:', foundCountry);
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   }
-  
 }
