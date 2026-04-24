@@ -37,9 +37,11 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Staff createStaff(Staff staff) {
-        // DuplicateResourceException → HTTP 409
         if (staffRepository.existsByUsername(staff.getUsername())) {
             throw new StaffAlreadyExistsException(staff.getUsername());
+        }
+        if (staff.getEmail() != null && staffRepository.existsByEmail(staff.getEmail())) {
+            throw new StaffAlreadyExistsException("email", staff.getEmail());
         }
         return staffRepository.save(staff);
     }
@@ -51,6 +53,11 @@ public class StaffServiceImpl implements StaffService {
         if (!staff.getUsername().equalsIgnoreCase(updated.getUsername())
                 && staffRepository.existsByUsername(updated.getUsername())) {
             throw new StaffAlreadyExistsException(updated.getUsername());
+        }
+        if (staff.getEmail() != null
+                && !staff.getEmail().equalsIgnoreCase(updated.getEmail())
+                && staffRepository.existsByEmail(updated.getEmail())) {
+            throw new StaffAlreadyExistsException("email", updated.getEmail());
         }
         staff.setFirstName(updated.getFirstName());
         staff.setLastName(updated.getLastName());

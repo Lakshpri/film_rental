@@ -67,8 +67,8 @@ export class StoreListComponent {
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
   validate(): boolean {
-    if (!this.formData.managerStaffId || this.formData.managerStaffId <= 0) { this.modalError = 'A valid Manager Staff ID is required.'; return false; }
-    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; return false; }
+    if (!this.formData.managerStaffId || this.formData.managerStaffId <= 0) { this.modalError = 'A valid Manager Staff ID is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false; }
     return true;
   }
 
@@ -78,7 +78,7 @@ export class StoreListComponent {
     const call = this.editItem ? this.svc.update(this.editItem.storeId, this.formData) : this.svc.create(this.formData);
     call.subscribe({
       next: () => { this.successMsg = `Store ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.modalError = formatBackendError(e); }
+      error: (e: any) => { this.modalError = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -87,7 +87,7 @@ export class StoreListComponent {
     this.error = '';
     this.svc.delete(item.storeId).subscribe({
       next: () => { this.successMsg = 'Store deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); }
+      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 

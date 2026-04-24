@@ -8,7 +8,4 @@ public class StoreNotFoundException extends ResourceNotFoundException {
         super("Store", storeId);
     }
 
-    public StoreNotFoundException(String message) {
-        super(message);
-    }
 }

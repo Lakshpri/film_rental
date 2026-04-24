@@ -6,7 +6,4 @@ public class StaffInvalidOperationException extends InvalidOperationException {
     public StaffInvalidOperationException(Integer staffId, String reason) {
         super(reason);
     }
-    public StaffInvalidOperationException(String message) {
-        super(message);
-    }
 }

@@ -2,6 +2,7 @@ package com.example.film_rental_app.location_store_staffmodule.service.implement
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.location_store_staffmodule.entity.Address;
+import com.example.film_rental_app.location_store_staffmodule.exception.AddressAlreadyExistsException;
 import com.example.film_rental_app.location_store_staffmodule.exception.AddressInvalidOperationException;
 import com.example.film_rental_app.location_store_staffmodule.exception.AddressNotFoundException;
 import com.example.film_rental_app.location_store_staffmodule.repository.AddressRepository;
@@ -41,6 +42,9 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address createAddress(Address address) {
+        if (addressRepository.existsByAddress(address.getAddress())) {
+            throw new AddressAlreadyExistsException(address.getAddress());
+        }
         return addressRepository.save(address);
     }
 

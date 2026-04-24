@@ -6,7 +6,4 @@ public class AddressAlreadyExistsException extends DuplicateResourceException {
     public AddressAlreadyExistsException(String addressLine) {
         super("Address", "address", addressLine);
     }
-    public AddressAlreadyExistsException(String field, Object value) {
-        super("Address", field, value);
-    }
 }
