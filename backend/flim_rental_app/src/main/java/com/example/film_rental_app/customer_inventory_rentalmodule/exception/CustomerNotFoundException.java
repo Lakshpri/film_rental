@@ -8,7 +8,4 @@ public class CustomerNotFoundException extends ResourceNotFoundException {
     public CustomerNotFoundException(Integer customerId) {
         super("Customer", customerId);
     }
-    public CustomerNotFoundException(String message) {
-        super(message);
-    }
 }

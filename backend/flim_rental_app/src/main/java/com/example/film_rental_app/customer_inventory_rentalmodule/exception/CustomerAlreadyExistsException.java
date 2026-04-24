@@ -8,7 +8,4 @@ public class CustomerAlreadyExistsException extends DuplicateResourceException {
     public CustomerAlreadyExistsException(String email) {
         super("Customer", "email", email);
     }
-    public CustomerAlreadyExistsException(String field, Object value) {
-        super("Customer", field, value);
-    }
 }

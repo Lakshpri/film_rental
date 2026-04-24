@@ -6,7 +6,4 @@ public class RentalInvalidOperationException extends InvalidOperationException {
     public RentalInvalidOperationException(Integer rentalId, String reason) {
         super(reason);
     }
-    public RentalInvalidOperationException(String message) {
-        super(message);
-    }
 }

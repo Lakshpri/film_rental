@@ -8,7 +8,4 @@ public class RentalNotFoundException extends ResourceNotFoundException {
   public RentalNotFoundException(Integer rentalId) {
     super("Rental", rentalId);
   }
-  public RentalNotFoundException(String message) {
-    super(message);
-  }
 }

@@ -8,7 +8,4 @@ public class InventoryNotFoundException extends ResourceNotFoundException {
     public InventoryNotFoundException(Integer inventoryId) {
         super("Inventory", inventoryId);
     }
-    public InventoryNotFoundException(String message) {
-        super(message);
-    }
 }

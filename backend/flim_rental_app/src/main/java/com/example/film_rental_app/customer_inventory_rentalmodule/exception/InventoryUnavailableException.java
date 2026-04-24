@@ -7,7 +7,4 @@ public class InventoryUnavailableException extends InvalidOperationException {
         super("This item (ID: " + inventoryId + ") is currently rented out and not available. "
                 + "It must be returned first before it can be rented again.");
     }
-    public InventoryUnavailableException(String message) {
-        super(message);
-    }
 }
