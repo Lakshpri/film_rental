@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
       if (success) {
         this.router.navigate(['/module-home']);
       } else {
-        this.error = 'Incorrect password. Hint: try 1234';
+        this.error = 'Incorrect password';
       }
     });
   }

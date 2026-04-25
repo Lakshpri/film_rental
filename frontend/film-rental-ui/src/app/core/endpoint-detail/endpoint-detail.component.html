@@ -1,43 +1,43 @@
-+<div class="ep-detail-page" *ngIf="entity">
+<div class="ep-detail-page" *ngIf="entity">
 
-  <!-- Header -->
-  <div class="ep-detail-header" [style.border-bottom-color]="memberColor + '44'">
-    <div style="display:flex;align-items:center;gap:14px">
-      <button class="back-btn-inline" (click)="goBack()">← Back</button>
-      <div style="font-size:28px">{{ entity.icon }}</div>
-      <div>
-        <div style="font-size:18px;font-weight:600;color:var(--text-primary)">{{ entity.label }}</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:2px">{{ entity.description }}</div>
+  <div class="ep-detail-header" [style.border-bottom-color]="memberColor">
+    <div class="ep-detail-header-tape"></div>
+    <div class="ep-detail-header-inner">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="back-btn-inline" (click)="goBack()">&#8592; Back</button>
+        <div>
+          <div style="font-family:var(--font-display);font-size:20px;color:var(--text-1);font-weight:600">{{ entity.label }}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:1px">{{ entity.description }}</div>
+        </div>
       </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:12px;color:var(--text-dim);font-family:monospace;background:var(--bg-card);padding:4px 10px;border-radius:6px;border:1px solid var(--border)">
-        {{ entity.apiBase }}
-      </span>
-      <button class="btn btn-primary btn-sm" [style.background]="memberColor" [style.border-color]="memberColor" (click)="goToCrud(entity.endpoints[0])">
-        Open CRUD →
-      </button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;color:var(--text-3);font-family:var(--font-mono);background:var(--surface);padding:4px 10px;border-radius:var(--r-sm);border:1px solid var(--border-mid)">
+          {{ entity.apiBase }}
+        </span>
+        <button class="btn btn-primary btn-sm" (click)="goToCrud(entity.endpoints[0])">
+          Open CRUD &#8594;
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Content -->
   <div class="ep-detail-content">
 
-    <div style="margin-bottom:20px">
-      <div style="font-size:13px;color:var(--text-dim)">
-        {{ entity.endpoints.length }} API endpoints — click any endpoint to go to the CRUD interface
-      </div>
+    <div class="ep-description-box">
+      <strong>{{ entity.label }} API</strong> — This module manages all {{ entity.label | lowercase }} records in the Reel Cinema system, providing full data lifecycle control via REST endpoints.
+      Use the routes below to retrieve, create, update, or remove entries. Click any row to open the live CRUD interface.
     </div>
 
-    <!-- Endpoint list -->
-    <div class="ep-list">
-      <div
-        *ngFor="let ep of entity.endpoints; let i = index"
-        class="ep-row"
-        (click)="goToCrud(ep)"
-        [class.ep-row-sub]="ep.isSubRoute">
+    <div style="margin-bottom:12px;font-size:10px;color:var(--text-3);letter-spacing:1.2px;text-transform:uppercase;font-weight:700">
+      {{ entity.endpoints.length }} API Endpoints &mdash; click any to open CRUD interface
+    </div>
 
-        <!-- Method badge -->
+    <div class="ep-list">
+      <div *ngFor="let ep of entity.endpoints"
+           class="ep-row"
+           (click)="goToCrud(ep)"
+           [class.ep-row-sub]="ep.isSubRoute">
+
         <div class="ep-method-badge"
           [style.color]="getMethodColor(ep.method)"
           [style.background]="getMethodBg(ep.method)"
@@ -45,34 +45,13 @@
           {{ ep.method }}
         </div>
 
-        <!-- Path -->
         <div class="ep-row-path">
           <span class="ep-path-text">{{ ep.path }}</span>
-          <span *ngIf="ep.isSubRoute" class="sub-route-tag">sub-route</span>
         </div>
 
-        <!-- Description -->
         <div class="ep-row-desc">{{ ep.description }}</div>
 
-        <!-- Go button -->
-        <div class="ep-row-action" [style.color]="memberColor">
-          → Open
-        </div>
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="ep-legend">
-      <div *ngFor="let m of ['GET','POST','PUT','DELETE']" class="legend-item">
-        <span class="ep-method-badge"
-          [style.color]="getMethodColor(m)"
-          [style.background]="getMethodBg(m)"
-          [style.border-color]="getMethodColor(m) + '44'">
-          {{ m }}
-        </span>
-        <span style="font-size:11px;color:var(--text-dim)">
-          {{ m === 'GET' ? 'Read' : m === 'POST' ? 'Create' : m === 'PUT' ? 'Update' : 'Delete' }}
-        </span>
+        <div class="ep-row-action" [style.color]="memberColor">&#8594; Open</div>
       </div>
     </div>
   </div>

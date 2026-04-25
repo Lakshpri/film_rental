@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Films</span>
     <span class="topbar-badge">Film Catalog Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Film</button>
+</div>
 </div>
 <div class="page-content">
   <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
@@ -11,17 +13,17 @@
   <div *ngIf="loading" class="loading">Loading Films...</div>
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead><tr><th>ID</th><th>Title</th><th>Rating</th><th>Rental Rate</th><th>Length</th><th>Language</th><th>Year</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
-          <td style="color:var(--text-dim)">{{ item.filmId }}</td>
-          <td style="font-weight:500;color:var(--text-primary)">{{ item.title }}</td>
+          <td style="color:var(--text-3)">{{ item.filmId }}</td>
+          <td style="font-weight:500;color:var(--text-1)">{{ item.title }}</td>
           <td><span class="badge badge-blue">{{ item.rating }}</span></td>
-          <td style="color:#22c9a0">${{ item.rentalRate }}</td>
+          <td style="color:var(--green)">${{ item.rentalRate }}</td>
           <td>{{ item.length }} min</td>
           <td>{{ item.languageName }}</td>
           <td>{{ item.releaseYear }}</td>
@@ -32,7 +34,7 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="8" style="text-align:center;color:var(--text-dim);padding:30px">No Films found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="8" style="text-align:center;color:var(--text-3);padding:30px">No Films found.</td></tr>
       </tbody>
     </table>
     <div class="pagination">
@@ -146,13 +148,13 @@
       <input class="form-control" type="number" [(ngModel)]="newSubId" placeholder="Enter ID to add..." />
       <button class="btn btn-primary" (click)="addSubItem()">Add</button>
     </div>
-    <div *ngIf="subLoading" style="color:var(--text-dim)">Loading...</div>
+    <div *ngIf="subLoading" style="color:var(--text-3)">Loading...</div>
     <ul style="list-style:none;padding:0;margin:0;max-height:300px;overflow-y:auto;">
       <li *ngFor="let s of subItems" style="padding:8px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;">
         <span>{{ subType === 'actors' ? (s.actorFirstName + ' ' + s.actorLastName) : s.categoryName }}</span>
         <button class="btn btn-sm btn-danger" (click)="removeSubItem(s.actorId || s.categoryId)">Remove</button>
       </li>
-      <li *ngIf="!subLoading && subItems.length === 0" style="color:var(--text-dim)">No records found.</li>
+      <li *ngIf="!subLoading && subItems.length === 0" style="color:var(--text-3)">No records found.</li>
     </ul>
   </div>
 </div>
