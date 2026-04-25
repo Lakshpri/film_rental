@@ -5,13 +5,13 @@
 <div class="app-shell" *ngIf="!isPublicRoute && auth.currentMember as member">
   <nav class="sidebar">
     <div class="sidebar-logo">
-      <h1>FilmRental</h1>
-      <span>Admin System</span>
+      <h1>REEL</h1>
+      <span>Cinema Admin System</span>
     </div>
 
     <div class="sidebar-user" [style.border-color]="member.color + '44'">
-      <div class="sidebar-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color + '55'">
-        <span [style.color]="member.color">
+      <div class="sidebar-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color">
+        <span [style.color]="member.color" style="font-family:var(--font-display);font-size:13px;font-weight:700">
           {{ member.displayName.split(' ')[0][0] }}{{ member.displayName.split(' ')[1] ? member.displayName.split(' ')[1][0] : '' }}
         </span>
       </div>
@@ -22,24 +22,16 @@
     </div>
 
     <div class="nav-section-title">{{ member.module }}</div>
-    <a
-      *ngFor="let entity of member.entities"
-      class="nav-item"
-      [routerLink]="entity.route"
-      routerLinkActive="active">
-      <span style="font-size:14px">{{ entity.icon }}</span>
+    <a *ngFor="let entity of member.entities" class="nav-item"
+       [routerLink]="entity.route" routerLinkActive="active">
       {{ entity.label }}
     </a>
 
     <div style="flex:1"></div>
 
     <div class="sidebar-bottom">
-      <a class="nav-item" routerLink="/module-home">
-        <span style="font-size:14px">🏠</span> Module Home
-      </a>
-      <button class="sidebar-logout" (click)="logout()">
-        <span style="font-size:14px">🚪</span> Logout
-      </button>
+      <a class="nav-item" routerLink="/module-home">Module Home</a>
+      <button class="sidebar-logout" (click)="logout()">&#8592; Logout</button>
     </div>
   </nav>
 
