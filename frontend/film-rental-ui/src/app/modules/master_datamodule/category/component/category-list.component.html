@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Categories</span>
     <span class="topbar-badge">Master Data Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Category</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -13,7 +15,7 @@
 
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
 
   <div *ngIf="!loading" class="table-wrap">
@@ -21,15 +23,15 @@
       <thead><tr><th>ID</th><th>Name</th><th>Last Update</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
-          <td style="color:var(--text-dim)">{{ item.categoryId }}</td>
-          <td style="font-weight:500;color:var(--text-primary)">{{ item.name }}</td>
-          <td style="color:var(--text-dim);font-size:12px">{{ item.lastUpdate | date:'short' }}</td>
+          <td style="color:var(--text-3)">{{ item.categoryId }}</td>
+          <td style="font-weight:500;color:var(--text-1)">{{ item.name }}</td>
+          <td style="color:var(--text-3);font-size:12px">{{ item.lastUpdate | date:'short' }}</td>
           <td>
             <button class="btn btn-sm" (click)="openEdit(item)" style="margin-right:6px">Edit</button>
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="4" style="text-align:center;color:var(--text-dim);padding:30px">No Categories found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="4" style="text-align:center;color:var(--text-3);padding:30px">No Categories found.</td></tr>
       </tbody>
     </table>
 
