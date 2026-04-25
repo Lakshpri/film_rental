@@ -44,7 +44,12 @@ export class EndpointDetailComponent implements OnInit {
   }
 
   goToCrud(endpoint: ApiEndpoint): void {
-    this.router.navigate([endpoint.route]);
+  
+    if (endpoint.isSubRoute && this.entity) {
+      this.router.navigate([this.entity.route]);
+    } else {
+      this.router.navigate([endpoint.route]);
+    }
   }
 
   goBack(): void {

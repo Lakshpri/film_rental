@@ -699,6 +699,9 @@ select.form-control option { background: var(--bg-surface); }
   font-size: 12px; font-weight: 600;
   opacity: 0;
   transition: opacity 0.2s;
+  background: var(--bg-card);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 /* Info box */
@@ -816,7 +819,6 @@ select.form-control option { background: var(--bg-surface); }
 }
 .ep-row-sub {
   border-left: 3px solid var(--border);
-  margin-left: 20px;
   opacity: 0.85;
 }
 .ep-row-sub:hover { opacity: 1; }

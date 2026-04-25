@@ -42,9 +42,9 @@ export class AuthService {
   readonly teamMembers: TeamMember[] = [
     {
       id: 'padmaprabha',
-      displayName: 'Padma Prabha K',
+      displayName: 'Padmaprabha K',
       username: 'padmaprabha',
-      backendUsername: 'padmaprabha',   // ✅ matches SecurityConfig username
+      backendUsername: 'padmaprabha',
       role: 'MASTER_DATA',
       module: 'Master Data Module',
       color: '#f87171',
@@ -97,10 +97,10 @@ export class AuthService {
       ]
     },
     {
-      id: 'madhumitha',
-      displayName: 'Madhumitha',
-      username: 'madhumitha',
-      backendUsername: 'madhumita',     // ✅ matches SecurityConfig username
+      id: 'madhumita',
+      displayName: 'Madhumita S',
+      username: 'madhumita',
+      backendUsername: 'madhumita',
       role: 'LOCATION_STAFF',
       module: 'Location & Staff Module',
       color: '#60a5fa',
@@ -144,9 +144,9 @@ export class AuthService {
     },
     {
       id: 'krishnaprakash',
-      displayName: 'Krishna Prakash',
+      displayName: 'Krishnaprakash B',
       username: 'krishnaprakash',
-      backendUsername: 'krishnaprakash', // ✅ matches SecurityConfig username
+      backendUsername: 'krishnaprakash',
       role: 'FILM_CATALOG',
       module: 'Film Catalog Module',
       color: '#c9b8ff',
@@ -194,9 +194,9 @@ export class AuthService {
     },
     {
       id: 'subbalakshmi',
-      displayName: 'Subbalakshmi',
+      displayName: 'Subbalakshmi BV',
       username: 'subbalakshmi',
-      backendUsername: 'subbalakshmi',  // ✅ matches SecurityConfig username
+      backendUsername: 'subbalakshmi',
       role: 'CUSTOMER_RENTAL',
       module: 'Customer & Rental Module',
       color: '#22c9a0',
@@ -237,10 +237,10 @@ export class AuthService {
       ]
     },
     {
-      id: 'lakshmipriyta',
-      displayName: 'Lakshmi Priya',
-      username: 'lakshmipriyta',
-      backendUsername: 'lakshmipriya',  // ✅ matches SecurityConfig username
+      id: 'lakshmipriya',
+      displayName: 'Lakshmi Priya G',
+      username: 'lakshmipriya',
+      backendUsername: 'lakshmipriya',  
       role: 'PAYMENT_REPORTS',
       module: 'Payment & Reports Module',
       color: '#fbbf24',
@@ -302,7 +302,6 @@ export class AuthService {
   login(username: string, password: string): Observable<boolean> {
     const member = this.teamMembers.find(m => m.username === username);
     if (!member || password !== '1234') return of(false);
-    // ✅ uses backendUsername for Basic Auth header
     this._credentials = btoa(`${member.backendUsername}:${password}`);
     this._loggedIn = true;
     this._currentMember = member;
