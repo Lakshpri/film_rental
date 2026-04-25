@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Stores</span>
     <span class="topbar-badge">Location &amp; Staff Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Store</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -13,7 +15,7 @@
 
   <!-- ── Search by Store ID ───────────────────────────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Search by Store ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Search by Store ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 1" style="width:110px"
       [(ngModel)]="searchStoreId" (keydown.enter)="fetchByStoreId()" />
     <button class="btn btn-sm" (click)="fetchByStoreId()" [disabled]="searchStoreIdLoading">
@@ -22,14 +24,14 @@
     <button class="btn btn-sm" *ngIf="searchStoreIdResult || searchStoreIdError" (click)="clearStoreIdSearch()">Clear</button>
   </div>
   <div *ngIf="searchStoreIdError" class="alert alert-error" style="white-space:pre-line;margin-bottom:8px">{{ searchStoreIdError }}</div>
-  <div *ngIf="searchStoreIdResult" style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-primary);margin-bottom:8px">Store #{{ searchStoreIdResult.storeId }}</div>
+  <div *ngIf="searchStoreIdResult" style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">Store #{{ searchStoreIdResult.storeId }}</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;font-size:13px">
-      <div><span style="color:var(--text-dim)">Manager Staff ID: </span>{{ searchStoreIdResult.managerStaffId }}</div>
-      <div><span style="color:var(--text-dim)">Manager Name: </span>{{ searchStoreIdResult.managerFullName }}</div>
-      <div><span style="color:var(--text-dim)">Address ID: </span>{{ searchStoreIdResult.addressId }}</div>
-      <div><span style="color:var(--text-dim)">Address: </span>{{ searchStoreIdResult.addressLine }}</div>
-      <div><span style="color:var(--text-dim)">City: </span>{{ searchStoreIdResult.city }}</div>
+      <div><span style="color:var(--text-3)">Manager Staff ID: </span>{{ searchStoreIdResult.managerStaffId }}</div>
+      <div><span style="color:var(--text-3)">Manager Name: </span>{{ searchStoreIdResult.managerFullName }}</div>
+      <div><span style="color:var(--text-3)">Address ID: </span>{{ searchStoreIdResult.addressId }}</div>
+      <div><span style="color:var(--text-3)">Address: </span>{{ searchStoreIdResult.addressLine }}</div>
+      <div><span style="color:var(--text-3)">City: </span>{{ searchStoreIdResult.city }}</div>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px">
       <button class="btn btn-sm" (click)="openEdit(searchStoreIdResult)">Edit</button>
@@ -39,7 +41,7 @@
 
   <!-- ── Search Staff by Store ID ─────────────────────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Staff by Store ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Staff by Store ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 1" style="width:110px"
       [(ngModel)]="searchStaffStoreId" (keydown.enter)="fetchStaffByStore()" />
     <button class="btn btn-sm" (click)="fetchStaffByStore()" [disabled]="searchStaffLoading">
@@ -48,13 +50,13 @@
     <button class="btn btn-sm" *ngIf="searchStaffResults.length || searchStaffError" (click)="clearStaffSearch()">Clear</button>
   </div>
   <div *ngIf="searchStaffError" class="alert alert-error" style="white-space:pre-line;margin-bottom:8px">{{ searchStaffError }}</div>
-  <div *ngIf="searchStaffResults.length" style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-primary);margin-bottom:8px">{{ searchStaffResults.length }} staff in Store #{{ searchStaffStoreId }}</div>
-    <div *ngFor="let s of searchStaffResults" style="border-top:1px solid var(--border,#334155);padding:8px 0;font-size:13px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">
-      <div><span style="color:var(--text-dim)">ID: </span>{{ s.staffId }}</div>
-      <div><span style="color:var(--text-dim)">Name: </span>{{ s.firstName }} {{ s.lastName }}</div>
-      <div><span style="color:var(--text-dim)">Email: </span><span style="color:#60a5fa">{{ s.email }}</span></div>
-      <div><span style="color:var(--text-dim)">Username: </span>{{ s.username }}</div>
+  <div *ngIf="searchStaffResults.length" style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">{{ searchStaffResults.length }} staff in Store #{{ searchStaffStoreId }}</div>
+    <div *ngFor="let s of searchStaffResults" style="border-top:1px solid var(--border-mid);padding:8px 0;font-size:13px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">
+      <div><span style="color:var(--text-3)">ID: </span>{{ s.staffId }}</div>
+      <div><span style="color:var(--text-3)">Name: </span>{{ s.firstName }} {{ s.lastName }}</div>
+      <div><span style="color:var(--text-3)">Email: </span><span style="color:var(--amber)">{{ s.email }}</span></div>
+      <div><span style="color:var(--text-3)">Username: </span>{{ s.username }}</div>
       <div><span class="badge" [ngClass]="s.active ? 'badge-green' : 'badge-red'">{{ s.active ? 'Active' : 'Inactive' }}</span></div>
     </div>
   </div>
@@ -62,16 +64,16 @@
   <!-- ── Main table ───────────────────────────────────────────────── -->
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead><tr><th>ID</th><th>Manager Staff ID</th><th>Manager Full Name</th><th>Address ID</th><th>Address Line</th><th>City</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
-          <td style="color:var(--text-dim)">{{ item.storeId }}</td>
+          <td style="color:var(--text-3)">{{ item.storeId }}</td>
           <td>{{ item.managerStaffId }}</td>
-          <td style="font-weight:500;color:var(--text-primary)">{{ item.managerFullName }}</td>
+          <td style="font-weight:500;color:var(--text-1)">{{ item.managerFullName }}</td>
           <td>{{ item.addressId }}</td>
           <td>{{ item.addressLine }}</td>
           <td>{{ item.city }}</td>
@@ -80,7 +82,7 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px">No Stores found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-3);padding:30px">No Stores found.</td></tr>
       </tbody>
     </table>
     <div class="pagination">

@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Staff</span>
     <span class="topbar-badge">Location &amp; Staff Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Staff</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -13,7 +15,7 @@
 
   <!-- ── Search by Staff ID ─────────────────────────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Search by Staff ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Search by Staff ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 2" style="width:110px"
       [(ngModel)]="searchStaffId" (keydown.enter)="fetchByStaffId()" />
     <button class="btn btn-sm" (click)="fetchByStaffId()" [disabled]="searchStaffIdLoading">
@@ -25,25 +27,25 @@
 
   <!-- Staff-by-ID result card -->
   <div *ngIf="searchStaffIdResult"
-       style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
+       style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <span style="font-weight:600;color:var(--text-primary)">Staff #{{ searchStaffIdResult.staffId }}</span>
+      <span style="font-weight:600;color:var(--text-1)">Staff #{{ searchStaffIdResult.staffId }}</span>
       <span class="badge" [ngClass]="searchStaffIdResult.active ? 'badge-green' : 'badge-red'">
         {{ searchStaffIdResult.active ? 'Active' : 'Inactive' }}
       </span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;font-size:13px">
-      <div><span style="color:var(--text-dim)">First Name: </span>{{ searchStaffIdResult.firstName }}</div>
-      <div><span style="color:var(--text-dim)">Last Name: </span>{{ searchStaffIdResult.lastName }}</div>
-      <div><span style="color:var(--text-dim)">Email: </span><span style="color:#60a5fa">{{ searchStaffIdResult.email }}</span></div>
-      <div><span style="color:var(--text-dim)">Username: </span>{{ searchStaffIdResult.username }}</div>
-      <div><span style="color:var(--text-dim)">Store ID: </span>{{ searchStaffIdResult.storeId }}</div>
-      <div><span style="color:var(--text-dim)">Address ID: </span>{{ searchStaffIdResult.addressId }}</div>
+      <div><span style="color:var(--text-3)">First Name: </span>{{ searchStaffIdResult.firstName }}</div>
+      <div><span style="color:var(--text-3)">Last Name: </span>{{ searchStaffIdResult.lastName }}</div>
+      <div><span style="color:var(--text-3)">Email: </span><span style="color:var(--amber)">{{ searchStaffIdResult.email }}</span></div>
+      <div><span style="color:var(--text-3)">Username: </span>{{ searchStaffIdResult.username }}</div>
+      <div><span style="color:var(--text-3)">Store ID: </span>{{ searchStaffIdResult.storeId }}</div>
+      <div><span style="color:var(--text-3)">Address ID: </span>{{ searchStaffIdResult.addressId }}</div>
     </div>
     <!-- Inline delete error shown inside this card -->
     <div *ngIf="staffIdDeleteError"
-         style="margin-top:10px;padding:10px 12px;background:#2d1a1a;border-radius:6px;border-left:3px solid #f87171">
-      <span style="color:#f87171;font-size:13px;white-space:pre-wrap">⚠️ {{ staffIdDeleteError }}</span>
+         style="margin-top:10px;padding:10px 12px;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red)">
+      <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ staffIdDeleteError }}</span>
     </div>
     <div style="margin-top:10px;display:flex;gap:8px">
       <button class="btn btn-sm" (click)="openEdit(searchStaffIdResult)">Edit</button>
@@ -53,7 +55,7 @@
 
   <!-- ── Search Staff by Store ID ───────────────────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Staff by Store ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Staff by Store ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 1" style="width:110px"
       [(ngModel)]="searchStoreId" (keydown.enter)="fetchByStoreId()" />
     <button class="btn btn-sm" (click)="fetchByStoreId()" [disabled]="searchStoreLoading">
@@ -65,8 +67,8 @@
 
   <!-- Store staff results as full table -->
   <div *ngIf="searchStoreResults.length"
-       style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-primary);margin-bottom:10px">
+       style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:10px">
       {{ searchStoreResults.length }} staff in Store #{{ searchStoreId }}
     </div>
     <div *ngIf="storeDeleteSuccess" class="alert alert-success" style="margin-bottom:8px">{{ storeDeleteSuccess }}</div>
@@ -78,10 +80,10 @@
         <tbody>
           <ng-container *ngFor="let s of searchStoreResults">
             <tr>
-              <td style="color:var(--text-dim)">{{ s.staffId }}</td>
+              <td style="color:var(--text-3)">{{ s.staffId }}</td>
               <td>{{ s.firstName }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ s.lastName }}</td>
-              <td style="color:#60a5fa">{{ s.email }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ s.lastName }}</td>
+              <td style="color:var(--amber)">{{ s.email }}</td>
               <td>{{ s.username }}</td>
               <td><span class="badge" [ngClass]="s.active ? 'badge-green' : 'badge-red'">{{ s.active ? 'Active' : 'Inactive' }}</span></td>
               <td>
@@ -91,8 +93,8 @@
             </tr>
             <!-- Inline error directly under this staff row -->
             <tr *ngIf="storeDeleteErrors[s.staffId]">
-              <td colspan="7" style="padding:6px 12px 6px 28px;background:#2d1a1a;border-top:none">
-                <span style="color:#f87171;font-size:13px;white-space:pre-wrap">⚠️ {{ storeDeleteErrors[s.staffId] }}</span>
+              <td colspan="7" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+                <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ storeDeleteErrors[s.staffId] }}</span>
               </td>
             </tr>
           </ng-container>
@@ -104,7 +106,7 @@
   <!-- ── Main table ─────────────────────────────────────────────── -->
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
@@ -114,10 +116,10 @@
       <tbody>
         <ng-container *ngFor="let item of pagedItems">
           <tr>
-            <td style="color:var(--text-dim)">{{ item.staffId }}</td>
+            <td style="color:var(--text-3)">{{ item.staffId }}</td>
             <td>{{ item.firstName }}</td>
-            <td style="font-weight:500;color:var(--text-primary)">{{ item.lastName }}</td>
-            <td style="color:#60a5fa">{{ item.email }}</td>
+            <td style="font-weight:500;color:var(--text-1)">{{ item.lastName }}</td>
+            <td style="color:var(--amber)">{{ item.email }}</td>
             <td>{{ item.username }}</td>
             <td>{{ item.storeId }}</td>
             <td><span class="badge" [ngClass]="item.active ? 'badge-green' : 'badge-red'">{{ item.active ? 'Active' : 'Inactive' }}</span></td>
@@ -128,13 +130,13 @@
           </tr>
           <!-- Inline backend error directly under this row -->
           <tr *ngIf="tableDeleteErrors[item.staffId]">
-            <td colspan="8" style="padding:6px 12px 6px 28px;background:#2d1a1a;border-top:none">
-              <span style="color:#f87171;font-size:13px;white-space:pre-wrap">⚠️ {{ tableDeleteErrors[item.staffId] }}</span>
+            <td colspan="8" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+              <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ tableDeleteErrors[item.staffId] }}</span>
             </td>
           </tr>
         </ng-container>
         <tr *ngIf="items.length === 0">
-          <td colspan="8" style="text-align:center;color:var(--text-dim);padding:30px">No Staff found.</td>
+          <td colspan="8" style="text-align:center;color:var(--text-3);padding:30px">No Staff found.</td>
         </tr>
       </tbody>
     </table>

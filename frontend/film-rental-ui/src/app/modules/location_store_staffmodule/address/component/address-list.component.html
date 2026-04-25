@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Addresses</span>
     <span class="topbar-badge">Location &amp; Staff Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Address</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -13,7 +15,7 @@
 
   <!-- ── Search by Address ID ────────────────────────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Search by Address ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Search by Address ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 3" style="width:110px"
       [(ngModel)]="searchAddressId" (keydown.enter)="fetchByAddressId()" />
     <button class="btn btn-sm" (click)="fetchByAddressId()" [disabled]="searchAddressIdLoading">
@@ -22,15 +24,15 @@
     <button class="btn btn-sm" *ngIf="searchAddressIdResult || searchAddressIdError" (click)="clearAddressIdSearch()">Clear</button>
   </div>
   <div *ngIf="searchAddressIdError" class="alert alert-error" style="white-space:pre-line;margin-bottom:8px">{{ searchAddressIdError }}</div>
-  <div *ngIf="searchAddressIdResult" style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-primary);margin-bottom:8px">Address #{{ searchAddressIdResult.addressId }}</div>
+  <div *ngIf="searchAddressIdResult" style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">Address #{{ searchAddressIdResult.addressId }}</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;font-size:13px">
-      <div><span style="color:var(--text-dim)">Address: </span>{{ searchAddressIdResult.address }}</div>
-      <div *ngIf="searchAddressIdResult.address2"><span style="color:var(--text-dim)">Address 2: </span>{{ searchAddressIdResult.address2 }}</div>
-      <div><span style="color:var(--text-dim)">District: </span>{{ searchAddressIdResult.district }}</div>
-      <div><span style="color:var(--text-dim)">Postal Code: </span>{{ searchAddressIdResult.postalCode }}</div>
-      <div><span style="color:var(--text-dim)">Phone: </span>{{ searchAddressIdResult.phone }}</div>
-      <div><span style="color:var(--text-dim)">City ID: </span>{{ searchAddressIdResult.cityId }}</div>
+      <div><span style="color:var(--text-3)">Address: </span>{{ searchAddressIdResult.address }}</div>
+      <div *ngIf="searchAddressIdResult.address2"><span style="color:var(--text-3)">Address 2: </span>{{ searchAddressIdResult.address2 }}</div>
+      <div><span style="color:var(--text-3)">District: </span>{{ searchAddressIdResult.district }}</div>
+      <div><span style="color:var(--text-3)">Postal Code: </span>{{ searchAddressIdResult.postalCode }}</div>
+      <div><span style="color:var(--text-3)">Phone: </span>{{ searchAddressIdResult.phone }}</div>
+      <div><span style="color:var(--text-3)">City ID: </span>{{ searchAddressIdResult.cityId }}</div>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px">
       <button class="btn btn-sm" (click)="openEdit(searchAddressIdResult)">Edit</button>
@@ -40,7 +42,7 @@
 
   <!-- ── Search by City ID — client-side filter ─────────────────── -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap;min-width:130px">Search by City ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap;min-width:130px">Search by City ID:</label>
     <input class="search-input" type="number" min="1" placeholder="e.g. 1" style="width:110px"
       [(ngModel)]="searchCityId" (keydown.enter)="fetchByCityId()" />
     <button class="btn btn-sm" (click)="fetchByCityId()">Search</button>
@@ -50,8 +52,8 @@
 
   <!-- City ID results — same columns as main table + Actions -->
   <div *ngIf="searchCityIdResults.length"
-       style="background:var(--surface-2,#1e293b);border:1px solid var(--border,#334155);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-primary);margin-bottom:10px">
+       style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:10px">
       {{ searchCityIdResults.length }} address(es) in City #{{ cityIdSearched }}
     </div>
     <div *ngIf="cityDeleteSuccess" class="alert alert-success" style="margin-bottom:8px">{{ cityDeleteSuccess }}</div>
@@ -66,8 +68,8 @@
         <tbody>
           <ng-container *ngFor="let a of searchCityIdResults">
             <tr>
-              <td style="color:var(--text-dim)">{{ a.addressId }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ a.address }}</td>
+              <td style="color:var(--text-3)">{{ a.addressId }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ a.address }}</td>
               <td>{{ a.district }}</td>
               <td>{{ a.postalCode }}</td>
               <td>{{ a.phone }}</td>
@@ -79,8 +81,8 @@
             </tr>
             <!-- Inline error row directly under the affected address -->
             <tr *ngIf="cityDeleteErrors[a.addressId]">
-              <td colspan="7" style="padding:6px 12px 6px 28px;background:#2d1a1a;border-top:none">
-                <span style="color:#f87171;font-size:13px;white-space:pre-wrap">⚠️ {{ cityDeleteErrors[a.addressId] }}</span>
+              <td colspan="7" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+                <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ cityDeleteErrors[a.addressId] }}</span>
               </td>
             </tr>
           </ng-container>
@@ -92,15 +94,15 @@
   <!-- ── Main table ─────────────────────────────────────────────── -->
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead><tr><th>ID</th><th>Address</th><th>District</th><th>Postal Code</th><th>Phone</th><th>City ID</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
-          <td style="color:var(--text-dim)">{{ item.addressId }}</td>
-          <td style="font-weight:500;color:var(--text-primary)">{{ item.address }}</td>
+          <td style="color:var(--text-3)">{{ item.addressId }}</td>
+          <td style="font-weight:500;color:var(--text-1)">{{ item.address }}</td>
           <td>{{ item.district }}</td>
           <td>{{ item.postalCode }}</td>
           <td>{{ item.phone }}</td>
@@ -110,7 +112,7 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px">No Addresses found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-3);padding:30px">No Addresses found.</td></tr>
       </tbody>
     </table>
     <div class="pagination">
