@@ -43,6 +43,13 @@ public class StoreServiceImpl implements StoreService {
                 && storeRepository.existsByAddress_AddressId(store.getAddress().getAddressId())) {
             throw new StoreAlreadyExistsException(store.getAddress().getAddressId());
         }
+        if (store.getManagerStaff() != null &&
+                storeRepository.existsByManagerStaff_StaffId(store.getManagerStaff().getStaffId())) {
+
+            throw new StoreAlreadyExistsException(
+                    store.getManagerStaff().getStaffId(), true
+            );
+        }
         return storeRepository.save(store);
     }
 

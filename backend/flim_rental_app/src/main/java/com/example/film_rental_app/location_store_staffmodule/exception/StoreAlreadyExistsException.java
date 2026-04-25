@@ -6,4 +6,12 @@ public class StoreAlreadyExistsException extends DuplicateResourceException {
     public StoreAlreadyExistsException(Integer addressId) {
         super("A store already exists at this address (Address ID: " + addressId + "). Each address can only have one store.");
     }
+
+    public StoreAlreadyExistsException(Integer staffId, boolean isManager) {
+        super("This staff member (ID: " + staffId + ") is already assigned as a store manager.");
+    }
+
+    public StoreAlreadyExistsException(String message) {
+        super(message);
+    }
 }

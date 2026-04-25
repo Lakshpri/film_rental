@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Integer> {
     boolean existsByAddress_AddressId(Integer addressId);
+    boolean existsByManagerStaff_StaffId(Integer staffId);
 }

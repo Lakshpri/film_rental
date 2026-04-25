@@ -111,7 +111,7 @@
   <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead>
-        <tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>Store</th><th>Active</th><th>Actions</th></tr>
+        <tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>AddressId</th><th>Store</th><th>Active</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <ng-container *ngFor="let item of pagedItems">
@@ -121,6 +121,7 @@
             <td style="font-weight:500;color:var(--text-1)">{{ item.lastName }}</td>
             <td style="color:var(--amber)">{{ item.email }}</td>
             <td>{{ item.username }}</td>
+            <td>{{ item.addressId }}
             <td>{{ item.storeId }}</td>
             <td><span class="badge" [ngClass]="item.active ? 'badge-green' : 'badge-red'">{{ item.active ? 'Active' : 'Inactive' }}</span></td>
             <td>
@@ -130,13 +131,13 @@
           </tr>
           <!-- Inline backend error directly under this row -->
           <tr *ngIf="tableDeleteErrors[item.staffId]">
-            <td colspan="8" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+            <td colspan="9" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
               <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ tableDeleteErrors[item.staffId] }}</span>
             </td>
           </tr>
         </ng-container>
         <tr *ngIf="items.length === 0">
-          <td colspan="8" style="text-align:center;color:var(--text-3);padding:30px">No Staff found.</td>
+          <td colspan="9" style="text-align:center;color:var(--text-3);padding:30px">No Staff found.</td>
         </tr>
       </tbody>
     </table>

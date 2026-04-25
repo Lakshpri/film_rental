@@ -52,6 +52,10 @@ public class AddressServiceImpl implements AddressService {
     public Address updateAddress(Integer addressId, Address updated) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new AddressNotFoundException(addressId));
+        if (addressRepository.existsByAddressAndAddressIdNot(
+                updated.getAddress(), addressId)) {
+            throw new AddressAlreadyExistsException(updated.getAddress());
+        }
         address.setAddress(updated.getAddress());
         address.setAddress2(updated.getAddress2());
         address.setDistrict(updated.getDistrict());

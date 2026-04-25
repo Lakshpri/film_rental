@@ -40,7 +40,7 @@ public class Address {
     private String postalCode;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 10)
     @Column(name = "phone", nullable = false, length = 20)
     private String phone;
 
