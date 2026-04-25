@@ -1,9 +1,9 @@
 <div class="login-page">
-  <button class="back-btn" (click)="goBack()">← Back</button>
+  <button class="back-btn" (click)="goBack()">&#8592; Back</button>
 
   <div class="login-card" *ngIf="member">
-    <div class="login-avatar" [style.background]="member.color + '22'" [style.border-color]="member.color + '55'">
-      <span [style.color]="member.color" style="font-size:32px;font-weight:600">
+    <div class="login-avatar" [style.background]="member.color + '18'" [style.border-color]="member.color">
+      <span [style.color]="member.color" style="font-size:28px;font-family:var(--font-display);font-weight:600">
         {{ member.displayName.split(' ')[0][0] }}{{ member.displayName.split(' ')[1] ? member.displayName.split(' ')[1][0] : '' }}
       </span>
     </div>
@@ -22,37 +22,32 @@
       <div class="form-group">
         <label class="form-label">Password</label>
         <div style="position:relative">
-          <input
-            class="form-control login-input"
+          <input class="form-control login-input"
             [type]="showPassword ? 'text' : 'password'"
             [(ngModel)]="password"
-            placeholder="Enter password"
+            placeholder="Enter your password"
             (keydown)="onKeydown($event)"
             autofocus />
           <button type="button" class="show-password-btn" (click)="showPassword = !showPassword">
-            {{ showPassword ? '🙈' : '👁️' }}
+            {{ showPassword ? '&#9679;&#9679;' : '&#9673;' }}
           </button>
         </div>
       </div>
 
       <div *ngIf="error" class="alert alert-error" style="font-size:12px">{{ error }}</div>
 
-      <!-- Entity preview using entities instead of endpoints -->
       <div class="endpoint-preview">
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px">Your Module Entities</div>
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700">Module Access</div>
         <div class="preview-tags">
-          <span
-            *ngFor="let entity of member.entities"
-            class="preview-tag"
-            [style.border-color]="member.color + '55'"
-            [style.color]="member.color">
-            {{ entity.icon }} {{ entity.label }}
+          <span *ngFor="let entity of member.entities" class="preview-tag"
+            [style.border-color]="member.color + '55'" [style.color]="member.color">
+            {{ entity.label }}
           </span>
         </div>
       </div>
 
       <button class="login-btn" [style.background]="member.color" (click)="login()" [disabled]="loading">
-        {{ loading ? 'Logging in...' : 'Login →' }}
+        {{ loading ? 'Signing in...' : 'Sign In' }}
       </button>
     </div>
   </div>

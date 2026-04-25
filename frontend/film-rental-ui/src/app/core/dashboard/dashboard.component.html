@@ -1,179 +1,152 @@
 <div class="topbar">
-  <div style="display:flex;align-items:center;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
+  <div style="display:flex;align-items:center;gap:10px">
     <span class="topbar-title">Dashboard</span>
-    <span class="topbar-badge">Film Rental System</span>
+    <span class="topbar-badge">Overview</span>
   </div>
   <span class="badge" [ngClass]="backendOnline ? 'badge-green' : 'badge-amber'">
     {{ backendOnline ? 'Backend Online' : 'Connecting...' }}
   </span>
 </div>
+</div>
 
 <div class="page-content">
 
-  <!-- KPI STATS ROW -->
-  <div class="stats-grid" style="margin-bottom:24px">
+  <div class="stats-grid">
     <div class="stat-card">
       <div class="label">Total Films</div>
-      <div class="value" style="color:#c9b8ff">{{ totalFilms ?? '...' }}</div>
+      <div class="value" style="color:var(--amber)">{{ totalFilms ?? '—' }}</div>
       <div class="sub">in catalog</div>
     </div>
     <div class="stat-card">
       <div class="label">Customers</div>
-      <div class="value" style="color:#22c9a0">{{ totalCustomers ?? '...' }}</div>
+      <div class="value" style="color:var(--green)">{{ totalCustomers ?? '—' }}</div>
       <div class="sub">registered</div>
     </div>
     <div class="stat-card">
       <div class="label">Actors</div>
-      <div class="value" style="color:#60a5fa">{{ totalActors ?? '...' }}</div>
-      <div class="sub">registered</div>
+      <div class="value" style="color:var(--amber)">{{ totalActors ?? '—' }}</div>
+      <div class="sub">in database</div>
     </div>
     <div class="stat-card">
       <div class="label">Stores</div>
-      <div class="value" style="color:#fbbf24">{{ totalStores ?? '...' }}</div>
+      <div class="value" style="color:var(--text-2)">{{ totalStores ?? '—' }}</div>
       <div class="sub">active</div>
     </div>
     <div class="stat-card">
-      <div class="label">Total Rentals</div>
-      <div class="value" style="color:#f87171">{{ totalRentals ?? '...' }}</div>
+      <div class="label">Rentals</div>
+      <div class="value" style="color:var(--red)">{{ totalRentals ?? '—' }}</div>
       <div class="sub">all time</div>
     </div>
     <div class="stat-card">
       <div class="label">Payments</div>
-      <div class="value" style="color:#4ade80">{{ totalPayments ?? '...' }}</div>
+      <div class="value" style="color:var(--amber)">{{ totalPayments ?? '—' }}</div>
       <div class="sub">processed</div>
     </div>
     <div class="stat-card">
       <div class="label">Inventory</div>
-      <div class="value" style="color:#a78bfa">{{ totalInventory ?? '...' }}</div>
+      <div class="value" style="color:var(--text-2)">{{ totalInventory ?? '—' }}</div>
       <div class="sub">items</div>
     </div>
     <div class="stat-card">
       <div class="label">Staff</div>
-      <div class="value" style="color:#fb923c">{{ totalStaff ?? '...' }}</div>
+      <div class="value" style="color:var(--amber)">{{ totalStaff ?? '—' }}</div>
       <div class="sub">members</div>
     </div>
   </div>
 
-  <!-- ANALYTICS ROW 1 -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-
-    <!-- Recent Rentals -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
     <div class="analytics-card">
       <div class="analytics-card-header">
         <span>Recent Rentals</span>
-        <a routerLink="/rentals" style="font-size:11px;color:var(--accent-soft);text-decoration:none">View all →</a>
+        <a routerLink="/rentals" style="font-size:11px;color:var(--amber);text-decoration:none;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">View all &#8594;</a>
       </div>
-      <div *ngIf="recentRentals.length === 0" style="padding:20px 16px;color:var(--text-dim);font-size:13px">Loading...</div>
+      <div *ngIf="recentRentals.length === 0" style="padding:18px 16px;color:var(--text-3);font-size:13px">Loading...</div>
       <div class="analytics-row" *ngFor="let r of recentRentals; let i = index">
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:9px">
           <span class="rank-badge" [ngClass]="i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'">{{ i+1 }}</span>
           <div>
-            <div style="font-size:13px;color:var(--text-primary)">Rental #{{ r.rentalId }}</div>
-            <div style="font-size:11px;color:var(--text-dim)">Customer ID: {{ r.customerId }}</div>
+            <div style="font-size:13px;color:var(--text-1);font-weight:600">Rental #{{ r.rentalId }}</div>
+            <div style="font-size:11px;color:var(--text-3)">Customer {{ r.customerId }}</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <span class="badge" [ngClass]="r.returnDate ? 'badge-green' : 'badge-amber'">
-            {{ r.returnDate ? 'Returned' : 'Active' }}
-          </span>
-        </div>
+        <span class="badge" [ngClass]="r.returnDate ? 'badge-green' : 'badge-amber'">
+          {{ r.returnDate ? 'Returned' : 'Active' }}
+        </span>
       </div>
     </div>
 
-    <!-- Recent Payments -->
     <div class="analytics-card">
       <div class="analytics-card-header">
-        <span>Recent Payments</span>
-        <a routerLink="/payments" style="font-size:11px;color:var(--accent-soft);text-decoration:none">View all →</a>
+        <span>Film Highlights</span>
+        <a routerLink="/films" style="font-size:11px;color:var(--amber);text-decoration:none;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">View all &#8594;</a>
       </div>
-      <div *ngIf="recentPayments.length === 0" style="padding:20px 16px;color:var(--text-dim);font-size:13px">Loading...</div>
-      <div class="analytics-row" *ngFor="let p of recentPayments; let i = index">
-        <div style="display:flex;align-items:center;gap:10px">
+      <div *ngIf="topFilms.length === 0" style="padding:18px 16px;color:var(--text-3);font-size:13px">Loading...</div>
+      <div class="analytics-row" *ngFor="let f of topFilms; let i = index">
+        <div style="display:flex;align-items:center;gap:9px">
           <span class="rank-badge" [ngClass]="i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'">{{ i+1 }}</span>
           <div>
-            <div style="font-size:13px;color:var(--text-primary)">Payment #{{ p.paymentId }}</div>
-            <div style="font-size:11px;color:var(--text-dim)">Customer: {{ p.customerId }}</div>
+            <div style="font-size:13px;color:var(--text-1);font-weight:600">{{ f.title }}</div>
+            <div style="font-size:11px;color:var(--text-3)">{{ f.releaseYear }} &middot; {{ f.languageName }}</div>
           </div>
         </div>
-        <div style="color:#4ade80;font-weight:500;font-size:13px">${{ p.amount }}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="badge badge-blue">{{ f.rating }}</span>
+          <span style="color:var(--green);font-size:12px;font-weight:700">${{ f.rentalRate }}</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ANALYTICS ROW 2 -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="analytics-card">
+      <div class="analytics-card-header">
+        <span>Recent Payments</span>
+        <a routerLink="/payments" style="font-size:11px;color:var(--amber);text-decoration:none;font-weight:700;text-transform:uppercase">View all &#8594;</a>
+      </div>
+      <div *ngIf="recentPayments.length === 0" style="padding:18px 16px;color:var(--text-3);font-size:13px">Loading...</div>
+      <div class="analytics-row" *ngFor="let p of recentPayments; let i = index">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span class="rank-badge" [ngClass]="i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'">{{ i+1 }}</span>
+          <div>
+            <div style="font-size:13px;color:var(--text-1);font-weight:600">Payment #{{ p.paymentId }}</div>
+            <div style="font-size:11px;color:var(--text-3)">Customer {{ p.customerId }}</div>
+          </div>
+        </div>
+        <div style="color:var(--green);font-weight:700;font-size:13px">${{ p.amount }}</div>
+      </div>
+    </div>
 
-    <!-- Top Customers -->
     <div class="analytics-card">
       <div class="analytics-card-header">
         <span>Customers Overview</span>
-        <a routerLink="/customers" style="font-size:11px;color:var(--accent-soft);text-decoration:none">Manage →</a>
+        <a routerLink="/customers" style="font-size:11px;color:var(--amber);text-decoration:none;font-weight:700;text-transform:uppercase">Manage &#8594;</a>
       </div>
-      <div *ngIf="topCustomers.length === 0" style="padding:20px 16px;color:var(--text-dim);font-size:13px">Loading...</div>
+      <div *ngIf="topCustomers.length === 0" style="padding:18px 16px;color:var(--text-3);font-size:13px">Loading...</div>
       <div class="analytics-row" *ngFor="let c of topCustomers; let i = index">
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:9px">
           <span class="rank-badge" [ngClass]="i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'">{{ i+1 }}</span>
           <div>
-            <div style="font-size:13px;color:var(--text-primary)">{{ c.firstName }} {{ c.lastName }}</div>
-            <div style="font-size:11px;color:var(--text-dim)">{{ c.email }}</div>
+            <div style="font-size:13px;color:var(--text-1);font-weight:600">{{ c.firstName }} {{ c.lastName }}</div>
+            <div style="font-size:11px;color:var(--text-3)">{{ c.email }}</div>
           </div>
         </div>
         <span class="badge" [ngClass]="c.active ? 'badge-green' : 'badge-red'">{{ c.active ? 'Active' : 'Inactive' }}</span>
       </div>
     </div>
-
-    <!-- Top Films -->
-    <div class="analytics-card">
-      <div class="analytics-card-header">
-        <span>Film Catalog Highlights</span>
-        <a routerLink="/films" style="font-size:11px;color:var(--accent-soft);text-decoration:none">View all →</a>
-      </div>
-      <div *ngIf="topFilms.length === 0" style="padding:20px 16px;color:var(--text-dim);font-size:13px">Loading...</div>
-      <div class="analytics-row" *ngFor="let f of topFilms; let i = index">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="rank-badge" [ngClass]="i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'">{{ i+1 }}</span>
-          <div>
-            <div style="font-size:13px;color:var(--text-primary)">{{ f.title }}</div>
-            <div style="font-size:11px;color:var(--text-dim)">{{ f.releaseYear }} · {{ f.languageName }}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="badge badge-blue">{{ f.rating }}</span>
-          <span style="color:#22c9a0;font-size:12px">${{ f.rentalRate }}</span>
-        </div>
-      </div>
-    </div>
   </div>
 
-  <!-- QUICK NAVIGATION -->
   <div class="analytics-card">
     <div class="analytics-card-header"><span>Quick Navigation</span></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0">
-      <a routerLink="/films" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px;transition:background 0.1s" class="nav-quick">
-        <span style="font-size:16px">🎬</span> Films ({{ totalFilms ?? '...' }})
-      </a>
-      <a routerLink="/actors" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">🎭</span> Actors ({{ totalActors ?? '...' }})
-      </a>
-      <a routerLink="/customers" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">👥</span> Customers ({{ totalCustomers ?? '...' }})
-      </a>
-      <a routerLink="/rentals" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">📋</span> Rentals ({{ totalRentals ?? '...' }})
-      </a>
-      <a routerLink="/payments" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">💳</span> Payments ({{ totalPayments ?? '...' }})
-      </a>
-      <a routerLink="/analytics" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">📊</span> Analytics
-      </a>
-      <a routerLink="/stores" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;border-right:1px solid var(--border-soft);font-size:13px">
-        <span style="font-size:16px">🏪</span> Stores ({{ totalStores ?? '...' }})
-      </a>
-      <a routerLink="/reports" style="display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--accent-soft);text-decoration:none;font-size:13px">
-        <span style="font-size:16px">📈</span> Reports
-      </a>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+      <a routerLink="/films" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;transition:background 0.1s">Films <span style="color:var(--text-3);font-weight:400">{{ totalFilms ?? '...' }}</span></a>
+      <a routerLink="/actors" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Actors <span style="color:var(--text-3);font-weight:400">{{ totalActors ?? '...' }}</span></a>
+      <a routerLink="/customers" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Customers <span style="color:var(--text-3);font-weight:400">{{ totalCustomers ?? '...' }}</span></a>
+      <a routerLink="/rentals" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Rentals <span style="color:var(--text-3);font-weight:400">{{ totalRentals ?? '...' }}</span></a>
+      <a routerLink="/payments" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Payments <span style="color:var(--text-3);font-weight:400">{{ totalPayments ?? '...' }}</span></a>
+      <a routerLink="/analytics" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Analytics</a>
+      <a routerLink="/stores" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;border-right:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Stores <span style="color:var(--text-3);font-weight:400">{{ totalStores ?? '...' }}</span></a>
+      <a routerLink="/reports" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--amber);text-decoration:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Reports</a>
     </div>
   </div>
-
 </div>
