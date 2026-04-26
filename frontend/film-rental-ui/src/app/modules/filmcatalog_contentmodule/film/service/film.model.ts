@@ -6,6 +6,7 @@ export interface Film {
   languageId: number;
   languageName: string;
   originalLanguageId: number;
+  originalLanguageName: string;
   rentalDuration: number;
   rentalRate: number;
   length: number;

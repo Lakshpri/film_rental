@@ -17,7 +17,7 @@
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>Title</th><th>Rating</th><th>Rental Rate</th><th>Length</th><th>Language</th><th>Year</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>Title</th><th>Rating</th><th>Rental Rate</th><th>Length</th><th>Language</th><th>Orig. Language</th><th>Year</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td style="color:var(--text-3)">{{ item.filmId }}</td>
@@ -26,6 +26,7 @@
           <td style="color:var(--green)">${{ item.rentalRate }}</td>
           <td>{{ item.length }} min</td>
           <td>{{ item.languageName }}</td>
+          <td>{{ item.originalLanguageName || '—' }}</td>
           <td>{{ item.releaseYear }}</td>
           <td>
             <button class="btn btn-sm" (click)="openActors(item)" style="margin-right:6px">Actors</button>
@@ -34,7 +35,7 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="8" style="text-align:center;color:var(--text-3);padding:30px">No Films found.</td></tr>
+        <tr *ngIf="items.length === 0"><td colspan="9" style="text-align:center;color:var(--text-3);padding:30px">No Films found.</td></tr>
       </tbody>
     </table>
     <div class="pagination">
@@ -92,6 +93,11 @@
       <label class="form-label">Language ID *</label>
       <input class="form-control" type="number" [class.input-error]="formErrors['languageId']" [(ngModel)]="formData.languageId" placeholder="e.g. 1" />
       <span *ngIf="formErrors['languageId']" class="field-error">{{ formErrors['languageId'] }}</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Original Language ID <span style="color:var(--text-3);font-size:11px">(optional)</span></label>
+      <input class="form-control" type="number" [class.input-error]="formErrors['originalLanguageId']" [(ngModel)]="formData.originalLanguageId" placeholder="e.g. 2" />
+      <span *ngIf="formErrors['originalLanguageId']" class="field-error">{{ formErrors['originalLanguageId'] }}</span>
     </div>
     <div class="form-group">
       <label class="form-label">Rental Duration (days)</label>
