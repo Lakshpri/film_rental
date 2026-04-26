@@ -31,13 +31,13 @@ export class FilmListComponent implements OnInit {
 
   openCreate(): void {
     this.editItem = null;
-    this.formData = { title: '', description: '', releaseYear: null, languageId: null, rentalDuration: 3, rentalRate: 4.99, length: null, replacementCost: 19.99, rating: 'G', specialFeatures: '' };
+    this.formData = { title: '', description: '', releaseYear: null, languageId: null, originalLanguageId: null, rentalDuration: 3, rentalRate: 4.99, length: null, replacementCost: 19.99, rating: 'G', specialFeatures: '' };
     this.modalError = ''; this.formErrors = {}; this.showModal = true;
   }
 
   openEdit(item: any): void {
     this.editItem = item;
-    this.formData = { title: item.title, description: item.description, releaseYear: item.releaseYear, languageId: item.languageId, rentalDuration: item.rentalDuration, rentalRate: item.rentalRate, length: item.length, replacementCost: item.replacementCost, rating: item.rating, specialFeatures: item.specialFeatures };
+    this.formData = { title: item.title, description: item.description, releaseYear: item.releaseYear, languageId: item.languageId, originalLanguageId: item.originalLanguageId ?? null, rentalDuration: item.rentalDuration, rentalRate: item.rentalRate, length: item.length, replacementCost: item.replacementCost, rating: item.rating, specialFeatures: item.specialFeatures };
     this.modalError = ''; this.formErrors = {}; this.showModal = true;
   }
 
@@ -49,6 +49,9 @@ export class FilmListComponent implements OnInit {
     if (!this.formData.title?.trim()) { this.formErrors['title'] = 'Title is required.'; }
     if (this.formData.languageId === null || this.formData.languageId === '') { this.formErrors['languageId'] = 'Language ID is required.'; }
     else if (this.formData.languageId <= 0) { this.formErrors['languageId'] = 'Language ID must be a positive number.'; }
+    if (this.formData.originalLanguageId !== null && this.formData.originalLanguageId !== '' && this.formData.originalLanguageId <= 0) {
+      this.formErrors['originalLanguageId'] = 'Original Language ID must be a positive number.';
+    }
     if (this.formData.releaseYear && (this.formData.releaseYear < 1888 || this.formData.releaseYear > new Date().getFullYear() + 1)) {
       this.formErrors['releaseYear'] = 'Release year is not valid.';
     }
