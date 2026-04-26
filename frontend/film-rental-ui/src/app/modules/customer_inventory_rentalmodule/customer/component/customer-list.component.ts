@@ -148,7 +148,7 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  // ✅ FIXED SEARCH (API ONLY)
+  //  FIXED SEARCH (API ONLY)
   search(term: string): void {
     this.searchTerm = term;
 

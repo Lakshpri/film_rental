@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Rentals</span>
     <span class="topbar-badge">Customer &amp; Rental Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ New Rental</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -19,14 +21,14 @@
       placeholder="Search by Rental ID or Film Title..."
       (input)="search($any($event.target).value)"
     />
-    <span style="color:var(--text-dim);font-size:12px;white-space:nowrap">
+    <span style="color:var(--text-3);font-size:12px;white-space:nowrap">
       {{ filteredItems.length }} records
     </span>
   </div>
 
   <!-- Customer ID search bar -->
   <div class="search-bar" style="margin-top:10px;gap:8px">
-    <label style="color:var(--text-dim);font-size:13px;white-space:nowrap">Customer ID:</label>
+    <label style="color:var(--text-3);font-size:13px;white-space:nowrap">Customer ID:</label>
     <input
       class="search-input"
       type="number"
@@ -36,7 +38,7 @@
     />
     <button class="btn btn-primary btn-sm" (click)="searchByCustomer()">Search</button>
     <button class="btn btn-sm" (click)="clearCustomerSearch()" *ngIf="customerIdInput">Clear</button>
-    <span *ngIf="customerSearchError" style="color:#f87171;font-size:12px">
+    <span *ngIf="customerSearchError" style="color:var(--red);font-size:12px">
       {{ customerSearchError }}
     </span>
   </div>
@@ -76,7 +78,7 @@
 
         <!-- Empty state: check filteredItems not items so customer search empty shows correctly -->
         <tr *ngIf="filteredItems.length === 0">
-          <td colspan="11" style="text-align:center;color:var(--text-dim);padding:30px">
+          <td colspan="11" style="text-align:center;color:var(--text-3);padding:30px">
             No Rentals found.
           </td>
         </tr>
