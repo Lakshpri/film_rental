@@ -24,7 +24,8 @@
     <button class="btn btn-sm" *ngIf="searchStoreIdResult || searchStoreIdError" (click)="clearStoreIdSearch()">Clear</button>
   </div>
   <div *ngIf="searchStoreIdError" class="alert alert-error" style="white-space:pre-line;margin-bottom:8px">{{ searchStoreIdError }}</div>
-  <div *ngIf="searchStoreIdResult" style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+  <div *ngIf="searchStoreIdResult"
+       style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
     <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">Store #{{ searchStoreIdResult.storeId }}</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;font-size:13px">
       <div><span style="color:var(--text-3)">Manager Staff ID: </span>{{ searchStoreIdResult.managerStaffId }}</div>
@@ -32,6 +33,10 @@
       <div><span style="color:var(--text-3)">Address ID: </span>{{ searchStoreIdResult.addressId }}</div>
       <div><span style="color:var(--text-3)">Address: </span>{{ searchStoreIdResult.addressLine }}</div>
       <div><span style="color:var(--text-3)">City: </span>{{ searchStoreIdResult.city }}</div>
+      <!-- FIX 4: lastUpdate now shown in the search card too -->
+      <div><span style="color:var(--text-3)">Last Update: </span>
+        {{ searchStoreIdResult.lastUpdate ? (searchStoreIdResult.lastUpdate | date:'dd MMM yyyy, HH:mm') : '—' }}
+      </div>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px">
       <button class="btn btn-sm" (click)="openEdit(searchStoreIdResult)">Edit</button>
@@ -50,9 +55,13 @@
     <button class="btn btn-sm" *ngIf="searchStaffResults.length || searchStaffError" (click)="clearStaffSearch()">Clear</button>
   </div>
   <div *ngIf="searchStaffError" class="alert alert-error" style="white-space:pre-line;margin-bottom:8px">{{ searchStaffError }}</div>
-  <div *ngIf="searchStaffResults.length" style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
-    <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">{{ searchStaffResults.length }} staff in Store #{{ searchStaffStoreId }}</div>
-    <div *ngFor="let s of searchStaffResults" style="border-top:1px solid var(--border-mid);padding:8px 0;font-size:13px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">
+  <div *ngIf="searchStaffResults.length"
+       style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
+    <div style="font-weight:600;color:var(--text-1);margin-bottom:8px">
+      {{ searchStaffResults.length }} staff in Store #{{ searchStaffStoreId }}
+    </div>
+    <div *ngFor="let s of searchStaffResults"
+         style="border-top:1px solid var(--border-mid);padding:8px 0;font-size:13px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">
       <div><span style="color:var(--text-3)">ID: </span>{{ s.staffId }}</div>
       <div><span style="color:var(--text-3)">Name: </span>{{ s.firstName }} {{ s.lastName }}</div>
       <div><span style="color:var(--text-3)">Email: </span><span style="color:var(--amber)">{{ s.email }}</span></div>
@@ -68,7 +77,13 @@
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>Manager Staff ID</th><th>Manager Full Name</th><th>Address ID</th><th>Address Line</th><th>City</th><th>Last Update</th><th>Actions</th></tr></thead>
+      <thead>
+        <tr>
+          <th>ID</th><th>Manager Staff ID</th><th>Manager Full Name</th>
+          <th>Address ID</th><th>Address Line</th><th>City</th>
+          <th>Last Update</th><th>Actions</th>
+        </tr>
+      </thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td style="color:var(--text-3)">{{ item.storeId }}</td>
@@ -78,19 +93,24 @@
           <td>{{ item.addressLine }}</td>
           <td>{{ item.city }}</td>
           <td style="color:var(--text-3);font-size:12px;white-space:nowrap">
-  {{ item.lastUpdate ? (item.lastUpdate | date:'dd MMM yyyy, HH:mm') : '—' }}
-</td>
+            {{ item.lastUpdate ? (item.lastUpdate | date:'dd MMM yyyy, HH:mm') : '—' }}
+          </td>
           <td>
             <button class="btn btn-sm" (click)="openEdit(item)" style="margin-right:6px">Edit</button>
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="7" style="text-align:center;color:var(--text-3);padding:30px">No Stores found.</td></tr>
+        <!-- FIX 5: colspan corrected from 7 to 8 (table now has 8 columns) -->
+        <tr *ngIf="items.length === 0">
+          <td colspan="8" style="text-align:center;color:var(--text-3);padding:30px">No Stores found.</td>
+        </tr>
       </tbody>
     </table>
     <div class="pagination">
       <div style="display:flex;align-items:center;gap:12px">
-        <span class="pagination-info">Showing {{ (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}</span>
+        <span class="pagination-info">
+          Showing {{ (currentPage-1)*pageSize + 1 }}–{{ currentPage*pageSize > filteredItems.length ? filteredItems.length : currentPage*pageSize }} of {{ filteredItems.length }}
+        </span>
         <select class="page-size-select" (change)="changePageSize(+$any($event.target).value)">
           <option value="10">10 / page</option><option value="25">25 / page</option>
           <option value="50">50 / page</option><option value="100">100 / page</option>

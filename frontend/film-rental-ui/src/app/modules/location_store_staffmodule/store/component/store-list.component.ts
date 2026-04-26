@@ -6,12 +6,12 @@ import { StoreService } from '../service/store.service';
 
 @Component({
   standalone: true,
-  selector: 'app-store-list.component',
-  imports: [CommonModule, FormsModule,DatePipe],
+  selector: 'app-store-list',                        // FIX 1: was 'app-store-list.component' (dot in selector is invalid)
+  imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './store-list.component.html',
   styleUrl: './store-list.component.css',
 })
-export class StoreListComponent {
+export class StoreListComponent implements OnInit {  // FIX 2: 'implements OnInit' was missing
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
@@ -30,18 +30,27 @@ export class StoreListComponent {
   searchStaffLoading = false;
 
   constructor(private svc: StoreService, private cdr: ChangeDetectorRef) {}
-  ngOnInit(): void { setTimeout(() => this.load()); }
+
+  ngOnInit(): void { setTimeout(() => this.load()); }   // FIX 3: ngOnInit was defined but class never declared implements OnInit
 
   load(): void {
     this.loading = true; this.error = '';
     this.svc.getAll().subscribe({
-      next: (d: any[]) => { this.items = d; this.filteredItems = d; this.paginate(); this.loading = false; this.cdr.detectChanges(); },
-      error: (e: any) => { this.error = formatBackendError(e); this.loading = false; this.cdr.detectChanges(); }
+      next: (d: any[]) => {
+        this.items = d; this.filteredItems = d; this.paginate();
+        this.loading = false; this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        this.error = formatBackendError(e); this.loading = false; this.cdr.detectChanges();
+      }
     });
   }
 
   fetchByStoreId(): void {
-    if (!this.searchStoreId || this.searchStoreId <= 0) { this.searchStoreIdError = 'Please enter a valid Store ID (positive number).'; this.searchStoreIdResult = null; return; }
+    if (!this.searchStoreId || this.searchStoreId <= 0) {
+      this.searchStoreIdError = 'Please enter a valid Store ID (positive number).';
+      this.searchStoreIdResult = null; return;
+    }
     this.searchStoreIdLoading = true; this.searchStoreIdError = ''; this.searchStoreIdResult = null;
     this.svc.getById(this.searchStoreId).subscribe({
       next: (d: any) => { this.searchStoreIdResult = d; this.searchStoreIdLoading = false; this.cdr.detectChanges(); },
@@ -52,7 +61,10 @@ export class StoreListComponent {
   clearStoreIdSearch(): void { this.searchStoreId = null; this.searchStoreIdResult = null; this.searchStoreIdError = ''; }
 
   fetchStaffByStore(): void {
-    if (!this.searchStaffStoreId || this.searchStaffStoreId <= 0) { this.searchStaffError = 'Please enter a valid Store ID (positive number).'; this.searchStaffResults = []; return; }
+    if (!this.searchStaffStoreId || this.searchStaffStoreId <= 0) {
+      this.searchStaffError = 'Please enter a valid Store ID (positive number).';
+      this.searchStaffResults = []; return;
+    }
     this.searchStaffLoading = true; this.searchStaffError = ''; this.searchStaffResults = [];
     this.svc.getStaffByStore(this.searchStaffStoreId).subscribe({
       next: (d: any[]) => { this.searchStaffResults = d; this.searchStaffLoading = false; this.cdr.detectChanges(); },
@@ -62,22 +74,37 @@ export class StoreListComponent {
 
   clearStaffSearch(): void { this.searchStaffStoreId = null; this.searchStaffResults = []; this.searchStaffError = ''; }
 
-  openCreate(): void { this.editItem = null; this.formData = { managerStaffId: null, addressId: null }; this.modalError = ''; this.showModal = true; }
-  openEdit(item: any): void { this.editItem = item; this.formData = { managerStaffId: item.managerStaffId, addressId: item.addressId }; this.modalError = ''; this.showModal = true; }
+  openCreate(): void {
+    this.editItem = null; this.formData = { managerStaffId: null, addressId: null };
+    this.modalError = ''; this.showModal = true;
+  }
+  openEdit(item: any): void {
+    this.editItem = item; this.formData = { managerStaffId: item.managerStaffId, addressId: item.addressId };
+    this.modalError = ''; this.showModal = true;
+  }
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
   validate(): boolean {
-    if (!this.formData.managerStaffId || this.formData.managerStaffId <= 0) { this.modalError = 'A valid Manager Staff ID is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false; }
+    if (!this.formData.managerStaffId || this.formData.managerStaffId <= 0) {
+      this.modalError = 'A valid Manager Staff ID is required.'; this.cdr.detectChanges(); return false;
+    }
+    if (!this.formData.addressId || this.formData.addressId <= 0) {
+      this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false;
+    }
     return true;
   }
 
   save(): void {
     this.modalError = '';
     if (!this.validate()) return;
-    const call = this.editItem ? this.svc.update(this.editItem.storeId, this.formData) : this.svc.create(this.formData);
+    const call = this.editItem
+      ? this.svc.update(this.editItem.storeId, this.formData)
+      : this.svc.create(this.formData);
     call.subscribe({
-      next: () => { this.successMsg = `Store ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
+      next: () => {
+        this.successMsg = `Store ${this.editItem ? 'updated' : 'created'}!`;
+        this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000);
+      },
       error: (e: any) => { this.modalError = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
@@ -93,7 +120,9 @@ export class StoreListComponent {
 
   search(term: string): void {
     this.searchTerm = term;
-    this.filteredItems = this.items.filter(item => JSON.stringify(item).toLowerCase().includes(term.toLowerCase()));
+    this.filteredItems = this.items.filter(item =>
+      JSON.stringify(item).toLowerCase().includes(term.toLowerCase())
+    );
     this.currentPage = 1; this.paginate();
   }
 
@@ -115,5 +144,3 @@ export class StoreListComponent {
     return pages;
   }
 }
-
-
