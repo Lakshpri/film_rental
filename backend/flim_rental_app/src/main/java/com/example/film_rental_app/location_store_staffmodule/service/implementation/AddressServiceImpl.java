@@ -42,9 +42,22 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address createAddress(Address address) {
-        if (addressRepository.existsByAddress(address.getAddress())) {
-            throw new AddressAlreadyExistsException(address.getAddress());
+        String addressVal = address.getAddress().trim();
+        String districtVal = address.getDistrict().trim();
+        Integer cityId = address.getCity().getCityId();
+
+        if (addressRepository
+                .existsByAddressIgnoreCaseAndDistrictIgnoreCaseAndCity_CityId(
+                        addressVal,
+                        districtVal,
+                        cityId
+                )) {
+            throw new AddressAlreadyExistsException(addressVal);
         }
+
+        address.setAddress(addressVal);
+        address.setDistrict(districtVal);
+
         return addressRepository.save(address);
     }
 
@@ -52,13 +65,18 @@ public class AddressServiceImpl implements AddressService {
     public Address updateAddress(Integer addressId, Address updated) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new AddressNotFoundException(addressId));
-        if (addressRepository.existsByAddressAndAddressIdNot(
-                updated.getAddress(), addressId)) {
+        if (addressRepository
+                .existsByAddressIgnoreCaseAndDistrictIgnoreCaseAndCity_CityIdAndAddressIdNot(
+                        updated.getAddress().trim(),
+                        updated.getDistrict().trim(),
+                        updated.getCity().getCityId(),
+                        addressId
+                )) {
             throw new AddressAlreadyExistsException(updated.getAddress());
         }
-        address.setAddress(updated.getAddress());
+        address.setAddress(updated.getAddress().trim());
         address.setAddress2(updated.getAddress2());
-        address.setDistrict(updated.getDistrict());
+        address.setDistrict(updated.getDistrict().trim());
         address.setPostalCode(updated.getPostalCode());
         address.setPhone(updated.getPhone());
         if (updated.getCity() != null) address.setCity(updated.getCity());

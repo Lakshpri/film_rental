@@ -9,7 +9,6 @@ import com.example.film_rental_app.location_store_staffmodule.mapper.StaffMapper
 import com.example.film_rental_app.location_store_staffmodule.service.AddressService;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +43,10 @@ public class StaffController {
         return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.getStaffById(staffId)));
     }
 
-    @PostMapping
-    public ResponseEntity<StaffResponseDTO> createStaff(@Valid @RequestBody StaffRequestDTO dto) {
+    // FIX 1: path was "/staff/staff" — corrected to just POST on "/api/staff"
+    // FIX 2: consumes multipart/form-data, uses @ModelAttribute (was already correct here)
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<?> create(@ModelAttribute StaffRequestDTO dto) {
         Staff staff = staffMapper.toEntity(dto);
         Address address = addressService.getAddressById(dto.getAddressId());
         staff.setAddress(address);
@@ -54,9 +55,11 @@ public class StaffController {
         return ResponseEntity.status(201).body(staffMapper.toResponseDTO(staffService.createStaff(staff)));
     }
 
-    @PutMapping("/{staffId}")
+    // FIX 3: PUT also changed to multipart/form-data + @ModelAttribute so photo can be updated
+    @PutMapping(value = "/{staffId}", consumes = "multipart/form-data")
     public ResponseEntity<StaffResponseDTO> updateStaff(
-            @PathVariable @Positive(message = "Staff ID must be a positive number") Integer staffId, @Valid @RequestBody StaffRequestDTO dto) {
+            @PathVariable @Positive(message = "Staff ID must be a positive number") Integer staffId,
+            @ModelAttribute StaffRequestDTO dto) {
         Staff existing = staffService.getStaffById(staffId);
         staffMapper.updateEntity(existing, dto);
         if (dto.getAddressId() != null) existing.setAddress(addressService.getAddressById(dto.getAddressId()));

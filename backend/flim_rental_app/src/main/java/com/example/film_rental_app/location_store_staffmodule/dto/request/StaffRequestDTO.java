@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 public class StaffRequestDTO {
 
@@ -30,8 +31,10 @@ public class StaffRequestDTO {
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username must contain only letters, numbers, and underscores")
     private String username;
 
-    @Size(max = 40, message = "Password must not exceed 40 characters")
+    @Size(min = 6, max = 40, message = "Password must be 6–40 characters")
     private String password;
+
+    private MultipartFile picture;
 
     @NotNull(message = "Address ID is required")
     @Positive(message = "Address ID must be a positive number")
@@ -58,4 +61,12 @@ public class StaffRequestDTO {
     public void setAddressId(Integer addressId) { this.addressId = addressId; }
     public Integer getStoreId() { return storeId; }
     public void setStoreId(Integer storeId) { this.storeId = storeId; }
+
+    public MultipartFile getPicture() {
+        return picture;
+    }
+
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
+    }
 }

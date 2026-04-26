@@ -10,13 +10,21 @@ public class StaffResponseDTO {
     private String lastName;
     private String email;
     private boolean active;
-    private String username;
+    private String username;private String picture;
     private Integer addressId;
     private String addressLine;
     private Integer storeId;
     private LocalDateTime lastUpdate;
 
     public StaffResponseDTO() {}
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
 
     public Integer getStaffId() { return staffId; }
     public void setStaffId(Integer staffId) { this.staffId = staffId; }
@@ -47,5 +55,7 @@ public class StaffResponseDTO {
 
     public LocalDateTime getLastUpdate() { return lastUpdate; }
     public void setLastUpdate(LocalDateTime lastUpdate) { this.lastUpdate = lastUpdate; }
+
+
 }
 

@@ -1,25 +1,28 @@
 import { formatBackendError } from '../../../../shared/error-utils';
-import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { StaffService } from '../service/staff.service';
 import { StoreService } from '../../store/service/store.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-
 @Component({
   standalone: true,
   selector: 'app-staff-list.component',
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './staff-list.component.html',
   styleUrl: './staff-list.component.css',
 })
-export class StaffListComponent {
+export class StaffListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true;
-  pageError  = '';   // load-level error (top of page)
-  modalError = '';   // create/edit modal
+  pageError  = '';
+  modalError = '';
   showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
+
+  // FIX 10: Track the selected File object and its preview URL
+  selectedPhotoFile: File | null = null;
+  photoPreview: string | null = null;
 
   // Per-row delete errors in main table
   tableDeleteErrors: { [staffId: number]: string } = {};
@@ -29,14 +32,14 @@ export class StaffListComponent {
   searchStaffIdResult: any = null;
   searchStaffIdError = '';
   searchStaffIdLoading = false;
-  staffIdDeleteError = '';   // delete error inside the search-by-id card
+  staffIdDeleteError = '';
 
   // Search Staff by Store ID
   searchStoreId: number | null = null;
   searchStoreResults: any[] = [];
   searchStoreError = '';
   searchStoreLoading = false;
-  storeDeleteErrors: { [staffId: number]: string } = {};  // per-row in store results
+  storeDeleteErrors: { [staffId: number]: string } = {};
   storeDeleteSuccess = '';
 
   constructor(private svc: StaffService, private storeSvc: StoreService, private cdr: ChangeDetectorRef) {}
@@ -68,7 +71,6 @@ export class StaffListComponent {
     this.searchStaffIdError = ''; this.staffIdDeleteError = '';
   }
 
-  // Delete from the search-by-id card — error stays inside the card
   deleteFromCard(item: any): void {
     if (!confirm(`Delete Staff #${item.staffId} — ${item.firstName} ${item.lastName}?`)) return;
     this.staffIdDeleteError = '';
@@ -79,10 +81,7 @@ export class StaffListComponent {
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (e: any) => {
-        this.staffIdDeleteError = formatBackendError(e);
-        this.cdr.detectChanges();
-      }
+      error: (e: any) => { this.staffIdDeleteError = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -104,7 +103,6 @@ export class StaffListComponent {
     this.searchStoreError = ''; this.storeDeleteErrors = {}; this.storeDeleteSuccess = '';
   }
 
-  // Delete staff from the store-results panel — error inline under that row
   deleteFromStoreResults(staff: any): void {
     if (!confirm(`Delete Staff #${staff.staffId} — ${staff.firstName} ${staff.lastName}?`)) return;
     delete this.storeDeleteErrors[staff.staffId];
@@ -118,10 +116,7 @@ export class StaffListComponent {
         setTimeout(() => this.storeDeleteSuccess = '', 3000);
         this.cdr.detectChanges();
       },
-      error: (e: any) => {
-        this.storeDeleteErrors[staff.staffId] = formatBackendError(e);
-        this.cdr.detectChanges();
-      }
+      error: (e: any) => { this.storeDeleteErrors[staff.staffId] = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 
@@ -129,14 +124,34 @@ export class StaffListComponent {
   openCreate(): void {
     this.editItem = null;
     this.formData = { firstName: '', lastName: '', email: '', username: '', password: '', addressId: null, storeId: null, active: true };
+    this.selectedPhotoFile = null;
+    this.photoPreview = null;
     this.modalError = ''; this.showModal = true;
   }
   openEdit(item: any): void {
     this.editItem = item;
     this.formData = { firstName: item.firstName, lastName: item.lastName, email: item.email, username: item.username, password: '', addressId: item.addressId, storeId: item.storeId, active: item.active };
+    this.selectedPhotoFile = null;
+    this.photoPreview = null;
     this.modalError = ''; this.showModal = true;
   }
-  closeModal(): void { this.showModal = false; this.modalError = ''; }
+  closeModal(): void { this.showModal = false; this.modalError = ''; this.selectedPhotoFile = null; this.photoPreview = null; }
+
+  // FIX 11: Handle file input change — store File and generate a preview URL
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedPhotoFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => { this.photoPreview = e.target?.result as string; this.cdr.detectChanges(); };
+      reader.readAsDataURL(this.selectedPhotoFile);
+    }
+  }
+
+  clearPhoto(): void {
+    this.selectedPhotoFile = null;
+    this.photoPreview = null;
+  }
 
   validate(): boolean {
     if (!this.formData.firstName?.trim())  { this.modalError = 'First name is required.'; this.cdr.detectChanges(); return false; }
@@ -151,10 +166,28 @@ export class StaffListComponent {
     return true;
   }
 
+  // FIX 12: Build a FormData (multipart) payload so the photo file is sent to the backend
   save(): void {
     this.modalError = '';
     if (!this.validate()) return;
-    const call = this.editItem ? this.svc.update(this.editItem.staffId, this.formData) : this.svc.create(this.formData);
+
+    const fd = new FormData();
+    fd.append('firstName', this.formData.firstName.trim());
+    fd.append('lastName',  this.formData.lastName.trim());
+    fd.append('email',     this.formData.email?.trim() ?? '');
+    fd.append('username',  this.formData.username.trim());
+    if (this.formData.password) fd.append('password', this.formData.password);
+    fd.append('addressId', String(this.formData.addressId));
+    fd.append('storeId',   String(this.formData.storeId));
+    fd.append('active',    String(this.formData.active));
+    if (this.selectedPhotoFile) {
+      fd.append('picture', this.selectedPhotoFile, this.selectedPhotoFile.name);
+    }
+
+    const call = this.editItem
+      ? this.svc.updateMultipart(this.editItem.staffId, fd)
+      : this.svc.createMultipart(fd);
+
     call.subscribe({
       next: () => {
         this.successMsg = `Staff ${this.editItem ? 'updated' : 'created'}!`;
@@ -164,7 +197,6 @@ export class StaffListComponent {
     });
   }
 
-  // Main table delete — error shown inline under the row
   delete(item: any): void {
     if (!confirm(`Delete Staff #${item.staffId} — ${item.firstName} ${item.lastName}?`)) return;
     delete this.tableDeleteErrors[item.staffId];
@@ -173,10 +205,7 @@ export class StaffListComponent {
         this.successMsg = `Staff "${item.firstName} ${item.lastName}" deleted.`;
         this.load(); setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (e: any) => {
-        this.tableDeleteErrors[item.staffId] = formatBackendError(e);
-        this.cdr.detectChanges();
-      }
+      error: (e: any) => { this.tableDeleteErrors[item.staffId] = formatBackendError(e); this.cdr.detectChanges(); }
     });
   }
 

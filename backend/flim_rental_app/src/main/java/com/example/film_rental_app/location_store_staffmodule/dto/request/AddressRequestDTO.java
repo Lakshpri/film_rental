@@ -1,6 +1,5 @@
 package com.example.film_rental_app.location_store_staffmodule.dto.request;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -24,9 +23,9 @@ public class AddressRequestDTO {
     @Pattern(regexp = "^[0-9\\-\\s]*$", message = "Postal code must contain numbers only (e.g. 600002)")
     private String postalCode;
 
-    @Size(max = 10, message = "Phone number must not exceed 10 characters")
-    @Pattern(regexp = "\\s*\\d{10}\\s*", message = "Phone number must be exactly 10 digits")
-    @Column(name = "phone", nullable = false, length = 20)
+    @NotBlank(message = "Phone number is required")
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Pattern(regexp = "^[0-9][0-9\\-\\s]*$", message = "Phone number can contain digits, spaces, and hyphens and must start with digit")
     private String phone;
 
     @NotNull(message = "City ID is required")

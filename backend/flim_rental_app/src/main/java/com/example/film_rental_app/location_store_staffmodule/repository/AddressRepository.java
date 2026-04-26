@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Integer> {
         List<Address> findByCity_CityId(Integer cityId);
-        boolean existsByAddress(String address);
         boolean existsByCity_CityId(Integer cityId);
-        boolean existsByAddressAndAddressIdNot(String address, Integer addressId);
+        boolean existsByAddressIgnoreCaseAndDistrictIgnoreCaseAndCity_CityId(String address, String district, Integer cityId);
+        boolean existsByAddressIgnoreCaseAndDistrictIgnoreCaseAndCity_CityIdAndAddressIdNot(String address, String district, Integer cityId, Integer addressId);
 }
