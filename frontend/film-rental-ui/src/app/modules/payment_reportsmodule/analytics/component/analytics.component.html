@@ -1,8 +1,10 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Analytics</span>
     <span class="topbar-badge">Payment Reports Module</span>
   </div>
+</div>
 </div>
  
 <div class="page-content">
@@ -13,83 +15,103 @@
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div *ngIf="!activeSection">
     <div style="margin-bottom:20px">
-      <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:6px">Select an Analytics Report</div>
-      <div style="font-size:13px;color:var(--text-dim)">Click a card to open the analytics tool</div>
+      <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:6px">Select an Analytics Report</div>
+      <div style="font-size:13px;color:var(--text-3)">Click a card to open the analytics tool</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
-      <div class="report-select-card" (click)="activeSection='rewards'; rewardsData=null">
+ 
+      <div class="report-select-card" (click)="openSection('rewards')">
         <div style="font-size:28px;margin-bottom:12px">🏆</div>
-        <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Rewards Report</div>
-        <div style="font-size:12px;color:var(--text-dim)">Rental count and reward tier per customer</div>
-        <div style="margin-top:14px;font-size:12px;color:var(--accent-soft)">Open →</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:4px">Rewards Report</div>
+        <div style="font-size:12px;color:var(--text-3)">Rental count and reward tier per customer</div>
+        <div style="margin-top:14px;font-size:12px;color:var(--amber)">Open &rarr;</div>
       </div>
-      <div class="report-select-card" (click)="activeSection='stock'; stockData=null">
-        <div style="font-size:28px;margin-bottom:12px">📦</div>
-        <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Film Stock Check</div>
-        <div style="font-size:12px;color:var(--text-dim)">Check how many copies of a film are in or out of stock</div>
-        <div style="margin-top:14px;font-size:12px;color:var(--accent-soft)">Open →</div>
+ 
+      <div class="report-select-card" (click)="openSection('stock')">
+        <div style="font-size:28px;margin-bottom:12px">🎬</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:4px">Film Stock Check</div>
+        <div style="font-size:12px;color:var(--text-3)">Check how many copies of a film are in or out of stock</div>
+        <div style="margin-top:14px;font-size:12px;color:var(--amber)">Open &rarr;</div>
       </div>
-      <div class="report-select-card" (click)="activeSection='balance'; balanceData=null">
+ 
+      <div class="report-select-card" (click)="openSection('balance')">
         <div style="font-size:28px;margin-bottom:12px">💰</div>
-        <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Customer Balance</div>
-        <div style="font-size:12px;color:var(--text-dim)">Total amount paid by a customer across all payments</div>
-        <div style="margin-top:14px;font-size:12px;color:var(--accent-soft)">Open →</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:4px">Customer Balance</div>
+        <div style="font-size:12px;color:var(--text-3)">Total amount paid by a customer across all payments</div>
+        <div style="margin-top:14px;font-size:12px;color:var(--amber)">Open &rarr;</div>
       </div>
+ 
     </div>
   </div>
  
+  <!-- Back button -->
   <div *ngIf="activeSection" style="margin-bottom:20px">
-    <button class="btn btn-sm" (click)="activeSection=''; error=''">← Back to Analytics</button>
+    <button class="btn btn-sm" (click)="goBack()">← Back to Analytics</button>
   </div>
  
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- REWARDS REPORT                                                  -->
-  <!-- Backend keys: rewardEligibleCustomers, averageRentals          -->
+  <!-- REWARDS REPORT — auto-loads on open, no Load button            -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div *ngIf="activeSection === 'rewards'">
     <div class="table-wrap" style="margin-bottom:20px">
+ 
+      <!-- Header — Refresh button only (no initial Load button) -->
       <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <div>
           <div style="font-size:14px;font-weight:500">🏆 Rewards Report</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:2px">
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">
             Customers with rentals above average — Gold 10+ · Silver 5–9 · Bronze below 5
           </div>
         </div>
         <button class="btn btn-primary" (click)="loadRewards()" [disabled]="rewardsLoading">
-          {{ rewardsLoading ? 'Loading...' : rewardsData ? 'Refresh' : 'Load' }}
+          {{ rewardsLoading ? 'Loading...' : 'Refresh' }}
         </button>
       </div>
  
-      <!-- ✅ Summary stats — only keys that exist in backend response -->
-      <div *ngIf="rewardsData" style="display:flex;border-bottom:1px solid var(--border)">
+      <!-- Spinner while loading -->
+      <div *ngIf="rewardsLoading" class="loading" style="padding:30px 18px">
+        Loading rewards report...
+      </div>
+ 
+      <!-- Summary stats -->
+      <div *ngIf="rewardsData && !rewardsLoading" style="display:flex;border-bottom:1px solid var(--border)">
         <div style="flex:1;padding:14px 18px;border-right:1px solid var(--border)">
-          <div style="font-size:11px;color:var(--text-dim)">Eligible Customers</div>
-          <div style="font-size:22px;font-weight:500;color:#c9b8ff">{{ rewardsData.totalCustomers }}</div>
+          <div style="font-size:11px;color:var(--text-3)">Eligible Customers</div>
+          <div style="font-size:22px;font-weight:500;color:var(--amber)">{{ rewardsData.totalCustomers }}</div>
         </div>
         <div style="flex:1;padding:14px 18px">
-          <div style="font-size:11px;color:var(--text-dim)">Avg Rentals / Customer</div>
-          <div style="font-size:22px;font-weight:500;color:#fbbf24">{{ rewardsData.averageRentalsPerCustomer | number:'1.1-1' }}</div>
+          <div style="font-size:11px;color:var(--text-3)">Avg Rentals / Customer</div>
+          <div style="font-size:22px;font-weight:500;color:var(--amber)">{{ rewardsData.averageRentalsPerCustomer | number:'1.1-1' }}</div>
         </div>
       </div>
  
-      <div *ngIf="rewardsData">
+      <!-- Data table -->
+      <div *ngIf="rewardsData && !rewardsLoading">
         <div class="search-bar">
           <input class="search-input" placeholder="Search by name or email..."
             (input)="rewardSearch = $any($event.target).value; rewardsPage=1" />
-          <span style="color:var(--text-dim);font-size:12px">{{ filteredRewards.length }} customers</span>
+          <span style="color:var(--text-3);font-size:12px">{{ filteredRewards.length }} customers</span>
         </div>
         <table>
           <thead>
-            <tr><th>#</th><th>Customer ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Rental Count</th><th>Tier</th></tr>
+            <tr>
+              <th>#</th>
+              <th>Customer ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Rental Count</th>
+              <th>Tier</th>
+            </tr>
           </thead>
           <tbody>
             <tr *ngFor="let c of filteredRewards.slice((rewardsPage-1)*rewardsPageSize, rewardsPage*rewardsPageSize); let i = index">
-              <td style="color:var(--text-dim)">{{ (rewardsPage-1)*rewardsPageSize + i + 1 }}</td>
-              <td style="color:var(--text-dim)">{{ c.customerId }}</td>
+              <td style="color:var(--text-3)">{{ (rewardsPage-1)*rewardsPageSize + i + 1 }}</td>
+              <td style="color:var(--text-3)">{{ c.customerId }}</td>
               <td>{{ c.firstName }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ c.lastName }}</td>
-              <td style="color:#60a5fa">{{ c.email }}</td>
-              <td><span style="font-weight:500;color:var(--text-primary)">{{ c.rentalCount }}</span></td>
+              <td style="font-weight:500;color:var(--text-1)">{{ c.lastName }}</td>
+              <td style="color:var(--amber)">{{ c.email }}</td>
+              <td><span style="font-weight:500;color:var(--text-1)">{{ c.rentalCount }}</span></td>
               <td>
                 <span class="badge" [ngClass]="c.rentalCount>=10?'badge-green':c.rentalCount>=5?'badge-amber':'badge-red'">
                   {{ c.rentalCount>=10 ? '🥇 Gold' : c.rentalCount>=5 ? '🥈 Silver' : '🥉 Bronze' }}
@@ -97,7 +119,7 @@
               </td>
             </tr>
             <tr *ngIf="filteredRewards.length===0">
-              <td colspan="7" style="text-align:center;color:var(--text-dim);padding:20px">No results</td>
+              <td colspan="7" style="text-align:center;color:var(--text-3);padding:20px">No results</td>
             </tr>
           </tbody>
         </table>
@@ -122,9 +144,6 @@
         </div>
       </div>
  
-      <div *ngIf="!rewardsData && !rewardsLoading" style="padding:24px 18px;color:var(--text-dim);font-size:13px">
-        Click <strong style="color:var(--accent-soft)">Load</strong> to fetch the rewards report.
-      </div>
     </div>
   </div>
  
@@ -134,16 +153,16 @@
   <div *ngIf="activeSection === 'stock'">
     <div class="table-wrap" style="margin-bottom:20px">
       <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
-        <div style="font-size:14px;font-weight:500">📦 Film Stock Check</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Check copies in / out of stock at a store</div>
+        <div style="font-size:14px;font-weight:500">🎬 Film Stock Check</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Check copies in / out of stock at a store</div>
       </div>
       <div style="padding:16px 18px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;border-bottom:1px solid var(--border)">
         <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Film ID</div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:4px">Film ID</div>
           <input class="form-control" style="width:120px" type="number" [(ngModel)]="filmId" min="1" />
         </div>
         <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Store ID</div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:4px">Store ID</div>
           <input class="form-control" style="width:120px" type="number" [(ngModel)]="storeId" min="1" />
         </div>
         <button class="btn btn-primary" (click)="checkFilmInStock()" [disabled]="stockLoading">
@@ -155,21 +174,21 @@
       </div>
       <div *ngIf="stockData" style="padding:20px 18px">
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
-            <div style="font-size:11px;color:var(--text-dim)">Film ID</div>
-            <div style="font-size:24px;font-weight:500;color:#c9b8ff">{{ stockData.filmId }}</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
+            <div style="font-size:11px;color:var(--text-3)">Film ID</div>
+            <div style="font-size:24px;font-weight:500;color:var(--amber)">{{ stockData.filmId }}</div>
           </div>
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
-            <div style="font-size:11px;color:var(--text-dim)">Store ID</div>
-            <div style="font-size:24px;font-weight:500;color:#60a5fa">{{ stockData.storeId }}</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
+            <div style="font-size:11px;color:var(--text-3)">Store ID</div>
+            <div style="font-size:24px;font-weight:500;color:var(--amber)">{{ stockData.storeId }}</div>
           </div>
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
-            <div style="font-size:11px;color:var(--text-dim)">{{ stockMode==='in' ? 'In Stock' : 'Rented Out' }}</div>
-            <div style="font-size:24px;font-weight:500" [style.color]="stockMode==='in'?'#4ade80':'#f87171'">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:1;min-width:110px">
+            <div style="font-size:11px;color:var(--text-3)">{{ stockMode==='in' ? 'In Stock' : 'Rented Out' }}</div>
+            <div style="font-size:24px;font-weight:500" [style.color]="stockMode==='in'?'var(--green)':'var(--red)'">
               {{ stockMode==='in' ? stockData.inStockCount : stockData.notInStockCount }}
             </div>
           </div>
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:2;min-width:200px;display:flex;align-items:center">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;flex:2;min-width:200px;display:flex;align-items:center">
             <span class="badge" style="font-size:12px;padding:6px 14px"
               [ngClass]="(stockMode==='in'&&stockData.isAvailable)?'badge-green':(stockMode==='in')?'badge-red':'badge-amber'">
               {{ stockData.message }}
@@ -177,13 +196,13 @@
           </div>
         </div>
         <div *ngIf="stockData.inventoryIds?.length > 0">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">Inventory IDs:</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:8px">Inventory IDs:</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             <span *ngFor="let id of stockData.inventoryIds" class="badge badge-blue" style="font-size:11px;padding:3px 10px">#{{ id }}</span>
           </div>
         </div>
       </div>
-      <div *ngIf="!stockData && !stockLoading" style="padding:20px 18px;color:var(--text-dim);font-size:13px">
+      <div *ngIf="!stockData && !stockLoading" style="padding:20px 18px;color:var(--text-3);font-size:13px">
         Enter Film ID and Store ID, then click Check In Stock or Check Out of Stock.
       </div>
     </div>
@@ -196,11 +215,11 @@
     <div class="table-wrap">
       <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
         <div style="font-size:14px;font-weight:500">💰 Customer Balance</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:2px">Total amount paid by a customer</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Total amount paid by a customer</div>
       </div>
       <div style="padding:16px 18px;display:flex;gap:12px;align-items:flex-end;border-bottom:1px solid var(--border)">
         <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Customer ID</div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:4px">Customer ID</div>
           <input class="form-control" style="width:150px" type="number" [(ngModel)]="customerId" min="1" />
         </div>
         <button class="btn btn-primary" (click)="loadCustomerBalance()" [disabled]="balanceLoading">
@@ -209,21 +228,21 @@
       </div>
       <div *ngIf="balanceData" style="padding:20px 18px">
         <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:1;min-width:130px;text-align:center">
-            <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">Customer ID</div>
-            <div style="font-size:30px;font-weight:500;color:#c9b8ff">{{ balanceData.customerId }}</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:1;min-width:130px;text-align:center">
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Customer ID</div>
+            <div style="font-size:30px;font-weight:500;color:var(--amber)">{{ balanceData.customerId }}</div>
           </div>
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:1;min-width:130px;text-align:center">
-            <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">Total Payments</div>
-            <div style="font-size:30px;font-weight:500;color:#60a5fa">{{ balanceData.totalPayments }}</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:1;min-width:130px;text-align:center">
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Total Payments</div>
+            <div style="font-size:30px;font-weight:500;color:var(--amber)">{{ balanceData.totalPayments }}</div>
           </div>
-          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:2;min-width:180px;text-align:center">
-            <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">Total Amount Paid</div>
-            <div style="font-size:34px;font-weight:500;color:#4ade80">${{ balanceData.totalAmountPaid }}</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 24px;flex:2;min-width:180px;text-align:center">
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Total Amount Paid</div>
+            <div style="font-size:34px;font-weight:500;color:var(--green)">${{ balanceData.totalAmountPaid }}</div>
           </div>
         </div>
       </div>
-      <div *ngIf="!balanceData && !balanceLoading" style="padding:20px 18px;color:var(--text-dim);font-size:13px">
+      <div *ngIf="!balanceData && !balanceLoading" style="padding:20px 18px;color:var(--text-3);font-size:13px">
         Enter a Customer ID and click Get Balance.
       </div>
     </div>
