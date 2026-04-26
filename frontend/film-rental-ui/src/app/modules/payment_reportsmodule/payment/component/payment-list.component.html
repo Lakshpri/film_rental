@@ -17,10 +17,10 @@
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div style="display:flex;gap:16px;margin-bottom:16px;">
  
-    <!-- LEFT: Search by Payment ID — GET /api/payments/{paymentId} -->
+    <!-- LEFT: Search by Payment ID -->
     <div class="table-wrap" style="flex:1;padding:16px 18px">
       <div style="font-size:13px;font-weight:500;color:var(--text-1);margin-bottom:10px">
-         Search by Payment ID
+        Search by Payment ID
         <span style="font-size:11px;color:var(--text-3);font-weight:400;margin-left:6px">
           GET /api/payments/{{ '{' }}paymentId{{ '}' }}
         </span>
@@ -42,7 +42,6 @@
         </button>
       </div>
  
-      <!-- Error -->
       <div *ngIf="paymentIdError" style="margin-top:10px;font-size:12px;color:var(--red)">
         {{ paymentIdError }}
       </div>
@@ -59,7 +58,7 @@
             <tr>
               <td *ngFor="let k of resultKeys(paymentIdResult)">
                 <ng-container *ngIf="isSimple(paymentIdResult[k]); else objTpl2">
-                  {{ paymentIdResult[k] }}
+                  {{ formatValue(k, paymentIdResult[k]) }}
                 </ng-container>
                 <ng-template #objTpl2><span class="badge badge-blue">object</span></ng-template>
               </td>
@@ -69,10 +68,10 @@
       </div>
     </div>
  
-    <!-- RIGHT: Search by Customer ID — GET /api/customers/{customerId}/payments -->
+    <!-- RIGHT: Search by Customer ID -->
     <div class="table-wrap" style="flex:1;padding:16px 18px">
       <div style="font-size:13px;font-weight:500;color:var(--text-1);margin-bottom:10px">
-         Search by Customer ID
+        Search by Customer ID
         <span style="font-size:11px;color:var(--text-3);font-weight:400;margin-left:6px">
           GET /api/customers/{{ '{' }}customerId{{ '}' }}/payments
         </span>
@@ -94,7 +93,6 @@
         </button>
       </div>
  
-      <!-- Error -->
       <div *ngIf="customerIdError" style="margin-top:10px;font-size:12px;color:var(--red)">
         {{ customerIdError }}
       </div>
@@ -114,7 +112,9 @@
           <tbody>
             <tr *ngFor="let item of customerPaymentsPagedItems">
               <td *ngFor="let k of keys(item)">
-                <ng-container *ngIf="isSimple(item[k]); else objTplC">{{ item[k] }}</ng-container>
+                <ng-container *ngIf="isSimple(item[k]); else objTplC">
+                  {{ formatValue(k, item[k]) }}
+                </ng-container>
                 <ng-template #objTplC><span class="badge badge-blue">object</span></ng-template>
               </td>
               <td>
@@ -148,7 +148,7 @@
   <!-- END TOP ROW -->
  
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ALL PAYMENTS TABLE — GET /api/payments                         -->
+  <!-- ALL PAYMENTS TABLE                                              -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div style="font-size:13px;font-weight:500;color:var(--text-1);margin-bottom:10px">
     All Payments
@@ -170,7 +170,9 @@
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td *ngFor="let k of keys(item)">
-            <ng-container *ngIf="isSimple(item[k]); else objTpl">{{ item[k] }}</ng-container>
+            <ng-container *ngIf="isSimple(item[k]); else objTpl">
+              {{ formatValue(k, item[k]) }}
+            </ng-container>
             <ng-template #objTpl><span class="badge badge-blue">object</span></ng-template>
           </td>
           <td>
@@ -242,3 +244,4 @@
     </div>
   </div>
 </div>
+ 
