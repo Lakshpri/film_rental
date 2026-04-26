@@ -1,9 +1,11 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Inventory</span>
     <span class="topbar-badge">Customer &amp; Rental Module</span>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add Inventory</button>
+</div>
 </div>
 
 <div class="page-content">
@@ -15,18 +17,18 @@
   <div class="search-bar" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
 
     <div style="display:flex;gap:8px;align-items:center">
-      <label style="color:var(--text-dim);font-size:13px;white-space:nowrap">Inventory ID:</label>
+      <label style="color:var(--text-3);font-size:13px;white-space:nowrap">Inventory ID:</label>
       <input class="search-input" type="text" [(ngModel)]="inventorySearchTerm" placeholder="Search by Inventory ID" />
       <button class="btn btn-sm btn-primary" (click)="searchByInventoryId()">Search</button>
     </div>
 
     <div style="display:flex;gap:8px;align-items:center">
-      <label style="color:var(--text-dim);font-size:13px;white-space:nowrap">Store ID:</label>
+      <label style="color:var(--text-3);font-size:13px;white-space:nowrap">Store ID:</label>
       <input class="search-input" type="text" [(ngModel)]="storeSearchTerm" placeholder="Search by Store ID" />
       <button class="btn btn-sm btn-primary" (click)="searchByStoreId()">Search</button>
     </div>
 
-    <span style="margin-left:auto;color:var(--text-dim);font-size:12px;white-space:nowrap">
+    <span style="margin-left:auto;color:var(--text-3);font-size:12px;white-space:nowrap">
       {{ filteredItems.length }} records
     </span>
 
@@ -51,7 +53,7 @@
           </td>
         </tr>
         <tr *ngIf="items.length === 0">
-          <td colspan="10" style="text-align:center;color:var(--text-dim);padding:30px">No Inventory found.</td>
+          <td colspan="10" style="text-align:center;color:var(--text-3);padding:30px">No Inventory found.</td>
         </tr>
       </tbody>
     </table>
