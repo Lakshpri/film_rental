@@ -1,8 +1,10 @@
 <div class="topbar">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
   <div style="display:flex;align-items:center;gap:12px">
     <span class="topbar-title">Reports</span>
     <span class="topbar-badge">Payment Reports Module</span>
   </div>
+</div>
 </div>
  
 <div class="page-content">
@@ -13,15 +15,15 @@
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div *ngIf="!activeReport">
     <div style="margin-bottom:20px">
-      <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:6px">Select a Report</div>
-      <div style="font-size:13px;color:var(--text-dim)">Click any report below to view its data</div>
+      <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:6px">Select a Report</div>
+      <div style="font-size:13px;color:var(--text-3)">Click any report below to view its data</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
       <div *ngFor="let r of reportCards" class="report-select-card" (click)="selectReport(r.key)">
         <div style="font-size:28px;margin-bottom:12px">{{ r.icon }}</div>
-        <div style="font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:4px">{{ r.label }}</div>
-        <div style="font-size:12px;color:var(--text-dim)">{{ r.description }}</div>
-        <div style="margin-top:14px;font-size:12px;color:var(--accent-soft)">View Report →</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text-1);margin-bottom:4px">{{ r.label }}</div>
+        <div style="font-size:12px;color:var(--text-3)">{{ r.description }}</div>
+        <div style="margin-top:14px;font-size:12px;color:var(--amber)">View Report &#8594;</div>
       </div>
     </div>
   </div>
@@ -32,7 +34,7 @@
   <div *ngIf="activeReport">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <button class="btn btn-sm" (click)="goBack()">← Back to Reports</button>
-      <span style="font-size:15px;font-weight:500;color:var(--text-primary)">{{ getActiveLabel() }}</span>
+      <span style="font-size:15px;font-weight:500;color:var(--text-1)">{{ getActiveLabel() }}</span>
     </div>
  
     <!-- ─── CUSTOMER LIST ─────────────────────────────────────────── -->
@@ -40,7 +42,7 @@
       <div class="search-bar" style="border-radius:8px 8px 0 0;margin-bottom:0">
         <input class="search-input" placeholder="Search name or email..."
           (input)="customerSearch = $any($event.target).value; page['customers']=1" />
-        <span style="font-size:12px;color:var(--text-dim)">{{ filteredCustomers.length }} records</span>
+        <span style="font-size:12px;color:var(--text-3)">{{ filteredCustomers.length }} records</span>
       </div>
       <div *ngIf="customersLoading" class="loading">Loading customers...</div>
       <div class="table-wrap" style="border-radius:0 0 8px 8px;margin-top:0" *ngIf="!customersLoading && customersLoaded">
@@ -48,14 +50,14 @@
           <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Store</th><th>Status</th></tr></thead>
           <tbody>
             <tr *ngFor="let c of paged(filteredCustomers,'customers')">
-              <td style="color:var(--text-dim)">{{ c.customerId }}</td>
+              <td style="color:var(--text-3)">{{ c.customerId }}</td>
               <td>{{ c.firstName }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ c.lastName }}</td>
-              <td style="color:#60a5fa">{{ c.email }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ c.lastName }}</td>
+              <td style="color:var(--amber)">{{ c.email }}</td>
               <td>{{ c.storeId }}</td>
               <td><span class="badge" [ngClass]="c.active ? 'badge-green' : 'badge-red'">{{ c.active ? 'Active' : 'Inactive' }}</span></td>
             </tr>
-            <tr *ngIf="filteredCustomers.length===0"><td colspan="6" style="text-align:center;color:var(--text-dim);padding:24px">No results</td></tr>
+            <tr *ngIf="filteredCustomers.length===0"><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">No results</td></tr>
           </tbody>
         </table>
         <div class="pagination">
@@ -76,7 +78,7 @@
       <div class="search-bar" style="border-radius:8px 8px 0 0;margin-bottom:0">
         <input class="search-input" placeholder="Search title, rating, language..."
           (input)="filmSearch = $any($event.target).value; page['films']=1" />
-        <span style="font-size:12px;color:var(--text-dim)">{{ filteredFilms.length }} records</span>
+        <span style="font-size:12px;color:var(--text-3)">{{ filteredFilms.length }} records</span>
       </div>
       <div *ngIf="filmsLoading" class="loading">Loading films...</div>
       <div class="table-wrap" style="border-radius:0 0 8px 8px;margin-top:0" *ngIf="!filmsLoading && filmsLoaded">
@@ -84,16 +86,16 @@
           <thead><tr><th>ID</th><th>Title</th><th>Year</th><th>Language</th><th>Rating</th><th>Duration</th><th>Rate</th><th>Length</th></tr></thead>
           <tbody>
             <tr *ngFor="let f of paged(filteredFilms,'films')">
-              <td style="color:var(--text-dim)">{{ f.filmId }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ f.title }}</td>
+              <td style="color:var(--text-3)">{{ f.filmId }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ f.title }}</td>
               <td>{{ f.releaseYear }}</td>
               <td>{{ f.languageName }}</td>
               <td><span class="badge badge-blue">{{ f.rating }}</span></td>
               <td>{{ f.rentalDuration }}d</td>
-              <td style="color:#22c9a0">${{ f.rentalRate }}</td>
+              <td style="color:var(--green)">${{ f.rentalRate }}</td>
               <td>{{ f.length }} min</td>
             </tr>
-            <tr *ngIf="filteredFilms.length===0"><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px">No results</td></tr>
+            <tr *ngIf="filteredFilms.length===0"><td colspan="8" style="text-align:center;color:var(--text-3);padding:24px">No results</td></tr>
           </tbody>
         </table>
         <div class="pagination">
@@ -114,7 +116,7 @@
       <div class="search-bar" style="border-radius:8px 8px 0 0;margin-bottom:0">
         <input class="search-input" placeholder="Search name, email or username..."
           (input)="staffSearch = $any($event.target).value; page['staff']=1" />
-        <span style="font-size:12px;color:var(--text-dim)">{{ filteredStaff.length }} records</span>
+        <span style="font-size:12px;color:var(--text-3)">{{ filteredStaff.length }} records</span>
       </div>
       <div *ngIf="staffLoading" class="loading">Loading staff...</div>
       <div class="table-wrap" style="border-radius:0 0 8px 8px;margin-top:0" *ngIf="!staffLoading && staffLoaded">
@@ -122,15 +124,15 @@
           <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>Store</th><th>Status</th></tr></thead>
           <tbody>
             <tr *ngFor="let s of paged(filteredStaff,'staff')">
-              <td style="color:var(--text-dim)">{{ s.staffId }}</td>
+              <td style="color:var(--text-3)">{{ s.staffId }}</td>
               <td>{{ s.firstName }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ s.lastName }}</td>
-              <td style="color:#60a5fa">{{ s.email }}</td>
-              <td style="color:var(--text-dim)">{{ s.username }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ s.lastName }}</td>
+              <td style="color:var(--amber)">{{ s.email }}</td>
+              <td style="color:var(--text-3)">{{ s.username }}</td>
               <td>{{ s.storeId }}</td>
               <td><span class="badge" [ngClass]="s.active ? 'badge-green' : 'badge-red'">{{ s.active ? 'Active' : 'Inactive' }}</span></td>
             </tr>
-            <tr *ngIf="filteredStaff.length===0"><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px">No results</td></tr>
+            <tr *ngIf="filteredStaff.length===0"><td colspan="7" style="text-align:center;color:var(--text-3);padding:24px">No results</td></tr>
           </tbody>
         </table>
         <div class="pagination">
@@ -161,12 +163,12 @@
           </thead>
           <tbody>
             <tr *ngFor="let s of paged(stores,'stores')">
-              <td style="font-weight:500;color:var(--text-primary)">Store {{ s.storeId }}</td>
+              <td style="font-weight:500;color:var(--text-1)">Store {{ s.storeId }}</td>
               <td>{{ s.totalPayments }}</td>
-              <td style="color:#22c9a0;font-weight:500">${{ s.totalRevenue | number:'1.2-2' }}</td>
+              <td style="color:var(--green);font-weight:500">${{ s.totalRevenue | number:'1.2-2' }}</td>
             </tr>
             <tr *ngIf="stores.length===0">
-              <td colspan="3" style="text-align:center;color:var(--text-dim);padding:24px">No results</td>
+              <td colspan="3" style="text-align:center;color:var(--text-3);padding:24px">No results</td>
             </tr>
           </tbody>
         </table>
@@ -198,12 +200,12 @@
           </thead>
           <tbody>
             <tr *ngFor="let c of paged(categories,'categories')">
-              <td style="font-weight:500;color:var(--text-primary)">{{ c.categoryName }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ c.categoryName }}</td>
               <td>{{ c.totalPayments }}</td>
-              <td style="color:#22c9a0;font-weight:500">${{ c.totalRevenue | number:'1.2-2' }}</td>
+              <td style="color:var(--green);font-weight:500">${{ c.totalRevenue | number:'1.2-2' }}</td>
             </tr>
             <tr *ngIf="categories.length===0">
-              <td colspan="3" style="text-align:center;color:var(--text-dim);padding:24px">No results</td>
+              <td colspan="3" style="text-align:center;color:var(--text-3);padding:24px">No results</td>
             </tr>
           </tbody>
         </table>
@@ -225,7 +227,7 @@
       <div class="search-bar" style="border-radius:8px 8px 0 0;margin-bottom:0">
         <input class="search-input" placeholder="Search actor name..."
           (input)="actorSearch = $any($event.target).value; page['actors']=1" />
-        <span style="font-size:12px;color:var(--text-dim)">{{ filteredActors.length }} records</span>
+        <span style="font-size:12px;color:var(--text-3)">{{ filteredActors.length }} records</span>
       </div>
       <div *ngIf="actorsLoading" class="loading">Loading actors...</div>
       <div class="table-wrap" style="border-radius:0 0 8px 8px;margin-top:0" *ngIf="!actorsLoading && actorsLoaded">
@@ -233,12 +235,12 @@
           <thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Last Update</th></tr></thead>
           <tbody>
             <tr *ngFor="let a of paged(filteredActors,'actors')">
-              <td style="color:var(--text-dim)">{{ a.actorId }}</td>
+              <td style="color:var(--text-3)">{{ a.actorId }}</td>
               <td>{{ a.firstName }}</td>
-              <td style="font-weight:500;color:var(--text-primary)">{{ a.lastName }}</td>
-              <td style="color:var(--text-dim)">{{ a.lastUpdate }}</td>
+              <td style="font-weight:500;color:var(--text-1)">{{ a.lastName }}</td>
+              <td style="color:var(--text-3)">{{ a.lastUpdate }}</td>
             </tr>
-            <tr *ngIf="filteredActors.length===0"><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No results</td></tr>
+            <tr *ngIf="filteredActors.length===0"><td colspan="4" style="text-align:center;color:var(--text-3);padding:24px">No results</td></tr>
           </tbody>
         </table>
         <div class="pagination">

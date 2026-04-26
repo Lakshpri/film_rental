@@ -1,5 +1,5 @@
 import { formatBackendError } from '../../../../shared/error-utils';
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../service/analytics.service';
@@ -10,7 +10,7 @@ import { AnalyticsService } from '../service/analytics.service';
   templateUrl: './analytics.component.html',
   imports: [CommonModule, FormsModule]
 })
-export class AnalyticsComponent implements OnInit {
+export class AnalyticsComponent {
   error = '';
   activeSection: string = '';
  
@@ -32,12 +32,34 @@ export class AnalyticsComponent implements OnInit {
  
   constructor(private svc: AnalyticsService, private cdr: ChangeDetectorRef) {}
  
-  ngOnInit(): void {
-    this.loadRewards();
+  // ── Called when clicking any card ────────────────────────────────
+  openSection(section: string): void {
+    this.error = '';
+    this.activeSection = section;
+ 
+    if (section === 'rewards') {
+      this.rewardsData = null;
+      this.rewardSearch = '';
+      this.rewardsPage = 1;
+      this.loadRewards(); // auto-load immediately on open
+    } else if (section === 'stock') {
+      this.stockData = null;
+      this.stockMode = null;
+    } else if (section === 'balance') {
+      this.balanceData = null;
+    }
   }
  
+  goBack(): void {
+    this.activeSection = '';
+    this.error = '';
+  }
+ 
+  // ── Rewards ───────────────────────────────────────────────────────
   loadRewards(): void {
-    this.rewardsLoading = true; this.rewardsData = null; this.error = '';
+    this.rewardsLoading = true;
+    this.rewardsData = null;
+    this.error = '';
     this.svc.getRewardsReport().subscribe({
       next: (d: any) => {
         this.rewardsData = {
@@ -79,6 +101,7 @@ export class AnalyticsComponent implements OnInit {
     return pages;
   }
  
+  // ── Film Stock ────────────────────────────────────────────────────
   checkFilmInStock(): void {
     this.stockLoading = true; this.stockData = null; this.stockMode = 'in'; this.error = '';
     this.svc.getFilmInStock(this.filmId, this.storeId).subscribe({
@@ -111,6 +134,7 @@ export class AnalyticsComponent implements OnInit {
     });
   }
  
+  // ── Customer Balance ──────────────────────────────────────────────
   loadCustomerBalance(): void {
     this.balanceLoading = true; this.balanceData = null; this.error = '';
     this.svc.getCustomerBalance(this.customerId).subscribe({
