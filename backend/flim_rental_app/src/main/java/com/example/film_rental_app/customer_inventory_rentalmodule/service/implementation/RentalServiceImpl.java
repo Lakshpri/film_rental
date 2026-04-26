@@ -100,10 +100,8 @@ public class RentalServiceImpl implements RentalService {
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(customerId);
         }
-        List<Rental> rentals = rentalRepository.findByCustomer_CustomerId(customerId);
-        if (rentals.isEmpty()) {
-            throw new RentalNotFoundException(customerId);
-        }
-        return rentals;
+        // Return empty list if customer has no rentals — do NOT throw here,
+        // as bulk callers like the rewards report iterate over all customers
+        return rentalRepository.findByCustomer_CustomerId(customerId);
     }
 }
