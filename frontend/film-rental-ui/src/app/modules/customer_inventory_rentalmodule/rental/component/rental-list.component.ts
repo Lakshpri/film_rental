@@ -129,6 +129,21 @@ export class RentalListComponent implements OnInit {
   ];
 }
 
+formatValue(key: string, val: any): string {
+  if (key.toLowerCase().includes('date') && val) {
+    const date = new Date(val);
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).replace(',', '');
+  }
+  return val != null ? String(val) : '';
+}
+
   search(term: string): void {
     this.searchTerm = term.trim();
 

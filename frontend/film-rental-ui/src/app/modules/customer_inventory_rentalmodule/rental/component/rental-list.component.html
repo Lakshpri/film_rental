@@ -59,7 +59,7 @@
         <tr *ngFor="let item of pagedItems">
           <td *ngFor="let k of keys(item)">
             <ng-container *ngIf="isSimple(item[k]); else objTpl">
-              {{ item[k] }}
+              {{ formatValue(k, item[k]) }}
             </ng-container>
             <ng-template #objTpl>
               <span class="badge badge-blue">object</span>
