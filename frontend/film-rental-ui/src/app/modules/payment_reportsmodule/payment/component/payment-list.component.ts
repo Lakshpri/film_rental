@@ -171,6 +171,25 @@ export class PaymentListComponent implements OnInit {
     return pages;
   }
  
+  // ── Format cell values — cleans up dates ──────────────────────────
+  formatValue(key: string, val: any): string {
+    if (val === null || val === undefined) return '';
+    if (key.toLowerCase().includes('date') && typeof val === 'string') {
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+    }
+    return String(val);
+  }
+ 
   // ── Helpers ────────────────────────────────────────────────────────
   isSimple(val: any): boolean { return val === null || val === undefined || typeof val !== 'object'; }
   keys(item: any): string[] { return Object.keys(item).slice(0, 7); }
