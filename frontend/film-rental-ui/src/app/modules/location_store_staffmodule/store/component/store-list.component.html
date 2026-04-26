@@ -68,7 +68,7 @@
   </div>
   <div *ngIf="!loading" class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>Manager Staff ID</th><th>Manager Full Name</th><th>Address ID</th><th>Address Line</th><th>City</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>Manager Staff ID</th><th>Manager Full Name</th><th>Address ID</th><th>Address Line</th><th>City</th><th>Last Update</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td style="color:var(--text-3)">{{ item.storeId }}</td>
@@ -77,6 +77,9 @@
           <td>{{ item.addressId }}</td>
           <td>{{ item.addressLine }}</td>
           <td>{{ item.city }}</td>
+          <td style="color:var(--text-3);font-size:12px;white-space:nowrap">
+  {{ item.lastUpdate ? (item.lastUpdate | date:'dd MMM yyyy, HH:mm') : '—' }}
+</td>
           <td>
             <button class="btn btn-sm" (click)="openEdit(item)" style="margin-right:6px">Edit</button>
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>

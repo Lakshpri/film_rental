@@ -1,13 +1,13 @@
 import { formatBackendError } from '../../../../shared/error-utils';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StoreService } from '../service/store.service';
 
 @Component({
   standalone: true,
   selector: 'app-store-list.component',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,DatePipe],
   templateUrl: './store-list.component.html',
   styleUrl: './store-list.component.css',
 })

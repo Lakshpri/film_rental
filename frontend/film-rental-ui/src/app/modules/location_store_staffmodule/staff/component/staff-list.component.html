@@ -29,7 +29,18 @@
   <div *ngIf="searchStaffIdResult"
        style="background:var(--surface);border:1px solid var(--border-mid);border-radius:8px;padding:14px;margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <span style="font-weight:600;color:var(--text-1)">Staff #{{ searchStaffIdResult.staffId }}</span>
+      <div style="display:flex;align-items:center;gap:12px">
+        <!-- FIX 5: Show staff photo in the search-by-id card -->
+        <img *ngIf="searchStaffIdResult.picture"
+             [src]="'data:image/jpeg;base64,' + searchStaffIdResult.picture"
+             alt="Staff photo"
+             style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border-mid)" />
+        <div *ngIf="!searchStaffIdResult.picture"
+             style="width:48px;height:48px;border-radius:50%;background:var(--border-mid);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text-3)">
+          👤
+        </div>
+        <span style="font-weight:600;color:var(--text-1)">Staff #{{ searchStaffIdResult.staffId }}</span>
+      </div>
       <span class="badge" [ngClass]="searchStaffIdResult.active ? 'badge-green' : 'badge-red'">
         {{ searchStaffIdResult.active ? 'Active' : 'Inactive' }}
       </span>
@@ -75,11 +86,19 @@
     <div class="table-wrap" style="margin-bottom:0">
       <table>
         <thead>
-          <tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>Active</th><th>Actions</th></tr>
+          <tr><th>Photo</th><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>Active</th><th>Actions</th></tr>
         </thead>
         <tbody>
           <ng-container *ngFor="let s of searchStoreResults">
             <tr>
+              <!-- FIX 6: Photo column in store-results table -->
+              <td>
+                <img *ngIf="s.picture"
+                     [src]="'data:image/jpeg;base64,' + s.picture"
+                     alt="Photo"
+                     style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border-mid)" />
+                <span *ngIf="!s.picture" style="color:var(--text-3);font-size:18px">👤</span>
+              </td>
               <td style="color:var(--text-3)">{{ s.staffId }}</td>
               <td>{{ s.firstName }}</td>
               <td style="font-weight:500;color:var(--text-1)">{{ s.lastName }}</td>
@@ -93,7 +112,7 @@
             </tr>
             <!-- Inline error directly under this staff row -->
             <tr *ngIf="storeDeleteErrors[s.staffId]">
-              <td colspan="7" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+              <td colspan="8" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
                 <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ storeDeleteErrors[s.staffId] }}</span>
               </td>
             </tr>
@@ -111,17 +130,26 @@
   <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead>
-        <tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>AddressId</th><th>Store</th><th>Active</th><th>Actions</th></tr>
+        <!-- FIX 7: Added Photo column to main table header -->
+        <tr><th>Photo</th><th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Username</th><th>AddressId</th><th>Store</th><th>Active</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <ng-container *ngFor="let item of pagedItems">
           <tr>
+            <!-- FIX 8: Photo cell in main table -->
+            <td>
+              <img *ngIf="item.picture"
+                   [src]="'data:image/jpeg;base64,' + item.picture"
+                   alt="Photo"
+                   style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border-mid)" />
+              <span *ngIf="!item.picture" style="color:var(--text-3);font-size:18px">👤</span>
+            </td>
             <td style="color:var(--text-3)">{{ item.staffId }}</td>
             <td>{{ item.firstName }}</td>
             <td style="font-weight:500;color:var(--text-1)">{{ item.lastName }}</td>
             <td style="color:var(--amber)">{{ item.email }}</td>
             <td>{{ item.username }}</td>
-            <td>{{ item.addressId }}
+            <td>{{ item.addressId }}</td>
             <td>{{ item.storeId }}</td>
             <td><span class="badge" [ngClass]="item.active ? 'badge-green' : 'badge-red'">{{ item.active ? 'Active' : 'Inactive' }}</span></td>
             <td>
@@ -131,13 +159,13 @@
           </tr>
           <!-- Inline backend error directly under this row -->
           <tr *ngIf="tableDeleteErrors[item.staffId]">
-            <td colspan="9" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
+            <td colspan="10" style="padding:6px 12px 6px 28px;background:var(--red-bg);border-top:none">
               <span style="color:var(--red);font-size:13px;white-space:pre-wrap">⚠️ {{ tableDeleteErrors[item.staffId] }}</span>
             </td>
           </tr>
         </ng-container>
         <tr *ngIf="items.length === 0">
-          <td colspan="9" style="text-align:center;color:var(--text-3);padding:30px">No Staff found.</td>
+          <td colspan="10" style="text-align:center;color:var(--text-3);padding:30px">No Staff found.</td>
         </tr>
       </tbody>
     </table>
@@ -182,6 +210,35 @@
         <option [ngValue]="false">No</option>
       </select>
     </div>
+
+    <!-- FIX 9: Photo upload field + live preview in modal -->
+    <div class="form-group">
+      <label class="form-label">Photo {{ editItem ? '(leave blank to keep current)' : '' }}</label>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <!-- Preview of currently stored photo when editing -->
+        <img *ngIf="editItem && editItem.picture && !photoPreview"
+             [src]="'data:image/jpeg;base64,' + editItem.picture"
+             alt="Current photo"
+             style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border-mid)" />
+        <!-- Preview of newly selected photo -->
+        <img *ngIf="photoPreview"
+             [src]="photoPreview"
+             alt="New photo preview"
+             style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:2px solid var(--primary)" />
+        <div *ngIf="!editItem?.picture && !photoPreview"
+             style="width:56px;height:56px;border-radius:8px;background:var(--border-mid);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text-3)">
+          👤
+        </div>
+        <div>
+          <input type="file" accept="image/*" style="display:none" #photoInput (change)="onPhotoSelected($event)" />
+          <button class="btn btn-sm" type="button" (click)="photoInput.click()">
+            {{ photoPreview ? 'Change photo' : (editItem?.picture ? 'Replace photo' : 'Choose photo') }}
+          </button>
+          <button class="btn btn-sm" type="button" *ngIf="photoPreview" (click)="clearPhoto()" style="margin-left:6px">Remove</button>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn" (click)="closeModal()">Cancel</button>
       <button class="btn btn-primary" (click)="save()">{{ editItem ? 'Update' : 'Create' }}</button>
