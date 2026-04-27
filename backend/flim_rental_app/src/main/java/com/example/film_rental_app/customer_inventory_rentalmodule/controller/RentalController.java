@@ -29,6 +29,7 @@ public class RentalController {
     @Autowired private StaffService staffService;
     @Autowired private RentalMapper rentalMapper;
 
+    // GET /api/rentals
     @GetMapping
     public ResponseEntity<List<RentalResponseDTO>> getAllRentals() {
         List<RentalResponseDTO> result = rentalService.getAllRentals().stream()
@@ -37,27 +38,33 @@ public class RentalController {
         return ResponseEntity.ok(result);
     }
 
+    // GET /api/rentals/{rentalId}
     @GetMapping("/{rentalId}")
     public ResponseEntity<RentalResponseDTO> getRentalById(
             @PathVariable @Positive(message = "Rental ID must be a positive number") Integer rentalId) {
         return ResponseEntity.ok(rentalMapper.toResponseDTO(rentalService.getRentalById(rentalId)));
     }
 
+    // POST /api/rentals
     @PostMapping
     public ResponseEntity<RentalResponseDTO> createRental(@Valid @RequestBody RentalRequestDTO dto) {
         Rental rental = rentalMapper.toEntity(dto);
         rental.setInventory(inventoryService.getInventoryById(dto.getInventoryId()));
         rental.setCustomer(customerService.getCustomerById(dto.getCustomerId()));
         rental.setStaff(staffService.getStaffById(dto.getStaffId()));
-        return ResponseEntity.status(201)
-                .body(rentalMapper.toResponseDTO(rentalService.createRental(rental)));
+        RentalResponseDTO response = rentalMapper.toResponseDTO(rentalService.createRental(rental));
+        response.setMessage("Rental created successfully.");
+        return ResponseEntity.status(201).body(response);
     }
 
+    // PUT /api/rentals/{rentalId}/return
     @PutMapping("/{rentalId}/return")
     public ResponseEntity<RentalResponseDTO> returnRental(
             @PathVariable @Positive(message = "Rental ID must be a positive number") Integer rentalId) {
         Rental existing = rentalService.getRentalById(rentalId);
         existing.setReturnDate(LocalDateTime.now());
-        return ResponseEntity.ok(rentalMapper.toResponseDTO(rentalService.updateRental(rentalId, existing)));
+        RentalResponseDTO response = rentalMapper.toResponseDTO(rentalService.updateRental(rentalId, existing));
+        response.setMessage("Rental #" + rentalId + " marked as returned successfully.");
+        return ResponseEntity.ok(response);
     }
 }

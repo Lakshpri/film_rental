@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class RentalResponseDTO {
 
+    private String message;
     private Integer rentalId;
     private LocalDateTime rentalDate;
     private LocalDateTime returnDate;
@@ -17,6 +18,9 @@ public class RentalResponseDTO {
     private LocalDateTime lastUpdate;
 
     public RentalResponseDTO() {}
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
     public Integer getRentalId() { return rentalId; }
     public void setRentalId(Integer rentalId) { this.rentalId = rentalId; }

@@ -95,8 +95,8 @@ export class CustomerListComponent implements OnInit {
       : this.svc.create(this.formData);
 
     call.subscribe({
-      next: () => {
-        this.successMsg = `Customer ${this.editItem ? 'updated' : 'created'}!`;
+      next: (res: any) => {
+        this.successMsg = res?.message || `Customer ${this.editItem ? 'updated' : 'created'}!`;
         this.closeModal();
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
@@ -112,8 +112,8 @@ export class CustomerListComponent implements OnInit {
 
     this.error = '';
     this.svc.delete(item.customerId).subscribe({
-      next: () => {
-        this.successMsg = 'Customer deleted!';
+      next: (res: any) => {
+        this.successMsg = res?.message || 'Customer deleted!';
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
       },
@@ -123,17 +123,14 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  //  FIXED SEARCH (API ONLY)
   search(term: string): void {
     this.searchTerm = term;
 
-    // If empty → load all
     if (!term || term.trim() === '') {
       this.load();
       return;
     }
 
-    // Only numeric ID allowed
     if (isNaN(Number(term))) {
       this.error = 'Please enter a valid Customer ID';
       this.filteredItems = [];
