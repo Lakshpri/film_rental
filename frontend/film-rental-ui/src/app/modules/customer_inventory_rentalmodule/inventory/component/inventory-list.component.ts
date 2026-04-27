@@ -70,12 +70,6 @@ export class InventoryListComponent implements OnInit {
 
   save(): void {
     this.error = '';
-
-    if (!this.formData.filmId || !this.formData.storeId) {
-      this.error = 'Film ID and Store ID required';
-      return;
-    }
-
     this.svc.create(this.formData).subscribe({
       next: () => {
         this.successMsg = 'Inventory created!';

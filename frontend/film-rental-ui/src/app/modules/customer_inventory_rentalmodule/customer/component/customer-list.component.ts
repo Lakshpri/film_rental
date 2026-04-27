@@ -87,33 +87,8 @@ export class CustomerListComponent implements OnInit {
     this.error = '';
   }
 
-  validate(): boolean {
-    if (!this.formData.firstName?.trim()) { this.error = 'First name is required.'; return false; }
-    if (!this.formData.lastName?.trim()) { this.error = 'Last name is required.'; return false; }
-    if (!this.formData.email?.trim()) { this.error = 'Email is required.'; return false; }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.formData.email)) {
-      this.error = 'Please enter a valid email address.';
-      return false;
-    }
-
-    if (!this.formData.storeId || this.formData.storeId <= 0) {
-      this.error = 'A valid Store ID is required.';
-      return false;
-    }
-
-    if (!this.formData.addressId || this.formData.addressId <= 0) {
-      this.error = 'A valid Address ID is required.';
-      return false;
-    }
-
-    return true;
-  }
-
   save(): void {
     this.error = '';
-    if (!this.validate()) return;
 
     const call = this.editItem
       ? this.svc.update(this.editItem.customerId, this.formData)
