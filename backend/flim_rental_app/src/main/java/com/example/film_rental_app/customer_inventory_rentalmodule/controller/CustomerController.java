@@ -31,7 +31,7 @@ public class CustomerController {
     @Autowired private RentalService rentalService;
     @Autowired private RentalMapper rentalMapper;
 
-    // GET /api/customers
+    // GET all customers
     @GetMapping
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers() {
         List<CustomerResponseDTO> result = customerService.getAllCustomers().stream()
@@ -40,58 +40,83 @@ public class CustomerController {
         return ResponseEntity.ok(result);
     }
 
-    // GET /api/customers/{customerId}
+    // GET customer by ID
     @GetMapping("/{customerId}")
     public ResponseEntity<CustomerResponseDTO> getCustomerById(
-            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
+            @PathVariable @Positive Integer customerId) {
+
         return ResponseEntity.ok(
                 customerMapper.toResponseDTO(customerService.getCustomerById(customerId))
         );
     }
 
-    // GET /api/customers/{customerId}/rentals
+    // GET rentals of customer
     @GetMapping("/{customerId}/rentals")
     public ResponseEntity<List<RentalResponseDTO>> getCustomerRentals(
-            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
-        customerService.getCustomerById(customerId);
-        List<RentalResponseDTO> result = rentalService.getRentalsByCustomer(customerId).stream()
-                .map(rentalMapper::toResponseDTO)
-                .toList();
+            @PathVariable @Positive Integer customerId) {
+
+        customerService.getCustomerById(customerId); // validation
+
+        List<RentalResponseDTO> result =
+                rentalService.getRentalsByCustomer(customerId).stream()
+                        .map(rentalMapper::toResponseDTO)
+                        .toList();
+
         return ResponseEntity.ok(result);
     }
 
-    // POST /api/customers
+    // CREATE customer
     @PostMapping
-    public ResponseEntity<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO dto) {
+    public ResponseEntity<CustomerResponseDTO> createCustomer(
+            @Valid @RequestBody CustomerRequestDTO dto) {
+
         Customer customer = customerMapper.toEntity(dto);
+
         customer.setStore(storeService.getStoreById(dto.getStoreId()));
         customer.setAddress(addressService.getAddressById(dto.getAddressId()));
-        CustomerResponseDTO response = customerMapper.toResponseDTO(customerService.createCustomer(customer));
+
+        CustomerResponseDTO response =
+                customerMapper.toResponseDTO(customerService.createCustomer(customer));
+
         response.setMessage("Customer created successfully.");
+
         return ResponseEntity.status(201).body(response);
     }
 
-    // PUT /api/customers/{customerId}
+    // UPDATE customer
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerResponseDTO> updateCustomer(
-            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId,
+            @PathVariable @Positive Integer customerId,
             @Valid @RequestBody CustomerRequestDTO dto) {
+
         Customer existing = customerService.getCustomerById(customerId);
+
         customerMapper.updateEntity(existing, dto);
-        if (dto.getStoreId() != null) existing.setStore(storeService.getStoreById(dto.getStoreId()));
-        if (dto.getAddressId() != null) existing.setAddress(addressService.getAddressById(dto.getAddressId()));
-        CustomerResponseDTO response = customerMapper.toResponseDTO(customerService.updateCustomer(customerId, existing));
+
+        if (dto.getStoreId() != null)
+            existing.setStore(storeService.getStoreById(dto.getStoreId()));
+
+        if (dto.getAddressId() != null)
+            existing.setAddress(addressService.getAddressById(dto.getAddressId()));
+
+        CustomerResponseDTO response =
+                customerMapper.toResponseDTO(customerService.updateCustomer(customerId, existing));
+
         response.setMessage("Customer updated successfully.");
+
         return ResponseEntity.ok(response);
     }
 
-    // DELETE /api/customers/{customerId}
+    // DELETE customer
     @DeleteMapping("/{customerId}")
     public ResponseEntity<CustomerResponseDTO> deleteCustomer(
-            @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
+            @PathVariable @Positive Integer customerId) {
+
         customerService.deleteCustomer(customerId);
+
         CustomerResponseDTO response = new CustomerResponseDTO();
         response.setMessage("Customer deleted successfully.");
+
         return ResponseEntity.ok(response);
     }
 }
