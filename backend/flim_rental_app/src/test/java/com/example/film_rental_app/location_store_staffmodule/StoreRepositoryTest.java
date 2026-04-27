@@ -161,4 +161,23 @@ class StoreRepositoryTest {
 
         assertThat(storeRepository.findById(storeId)).isEmpty();
     }
+
+    @Test
+    void testFindAllWithDetails() {
+        Store store = createStore();
+
+        var result = storeRepository.findAllWithDetails(
+                org.springframework.data.domain.Sort.by("storeId")
+        );
+
+        assertThat(result).isNotNull();
+
+        Store fetched = result.get(0);
+
+        // Verify JOIN FETCH worked (no lazy issues)
+        assertThat(fetched.getManagerStaff()).isNotNull();
+        assertThat(fetched.getAddress()).isNotNull();
+        assertThat(fetched.getAddress().getCity()).isNotNull();
+        assertThat(fetched.getAddress().getCity().getCountry()).isNotNull();
+    }
 }
