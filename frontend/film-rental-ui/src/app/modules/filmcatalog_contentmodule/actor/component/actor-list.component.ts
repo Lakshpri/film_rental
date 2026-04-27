@@ -33,18 +33,10 @@ export class ActorListComponent implements OnInit {
   closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
 
   validate(): boolean {
-    this.formErrors = {};
-    this.modalError = '';
-    if (!this.formData.firstName?.trim()) { this.formErrors['firstName'] = 'First name is required.'; }
-    else if (/\d/.test(this.formData.firstName)) { this.formErrors['firstName'] = 'First name must not contain numbers.'; }
-    if (!this.formData.lastName?.trim()) { this.formErrors['lastName'] = 'Last name is required.'; }
-    else if (/\d/.test(this.formData.lastName)) { this.formErrors['lastName'] = 'Last name must not contain numbers.'; }
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   parseBackendError(e: any): void {
     const err = e.error;
@@ -57,25 +49,65 @@ export class ActorListComponent implements OnInit {
   }
 
   save(): void {
-    this.modalError = '';
-    this.formErrors = {};
-    if (!this.validate()) return;
-    const payload = { firstName: this.formData.firstName.trim(), lastName: this.formData.lastName.trim() };
-    const call = this.editItem ? this.svc.update(this.editItem.actorId, payload) : this.svc.create(payload);
-    call.subscribe({
-      next: () => { this.successMsg = `Actor ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.parseBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+  this.modalError = '';
+  this.formErrors = {};
 
-  delete(item: any): void {
-    if (!confirm('Delete this Actor?')) return;
-    this.error = '';
-    this.svc.delete(item.actorId).subscribe({
-      next: () => { this.successMsg = 'Actor deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
-    });
-  }
+  if (!this.validate()) return;
+
+  const payload = {
+    firstName: this.formData.firstName?.trim(),
+    lastName: this.formData.lastName?.trim()
+  };
+
+  const call = this.editItem
+    ? this.svc.update(this.editItem.actorId, payload)
+    : this.svc.create(payload);
+
+  call.subscribe({
+    next: (res: any) => {
+      // Uses backend ResponseEntity message directly
+      this.successMsg =
+        res?.message ||
+        res?.success ||
+        res?.reason ||
+        `Actor ${this.editItem ? 'updated' : 'created'} successfully.`;
+
+      this.closeModal();
+      this.load();
+
+      setTimeout(() => {
+        this.successMsg = '';
+      }, 3000);
+    },
+
+    error: (e: any) => {
+      // DTO / Global Exception validation messages
+      this.parseBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+delete(item: any): void {
+  if (!confirm('Delete this Actor?')) return;
+
+  this.error = '';
+
+  this.svc.delete(item.actorId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
   searchById(term: string): void {
     const raw = term.trim();

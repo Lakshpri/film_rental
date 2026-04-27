@@ -45,28 +45,10 @@ export class FilmListComponent implements OnInit {
   closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
 
   validate(): boolean {
-    this.formErrors = {};
-    this.modalError = '';
-    if (!this.formData.title?.trim()) { this.formErrors['title'] = 'Title is required.'; }
-    if (this.formData.languageId === null || this.formData.languageId === '') { this.formErrors['languageId'] = 'Language ID is required.'; }
-    else if (this.formData.languageId <= 0) { this.formErrors['languageId'] = 'Language ID must be a positive number.'; }
-    if (this.formData.originalLanguageId !== null && this.formData.originalLanguageId !== '' && this.formData.originalLanguageId <= 0) {
-      this.formErrors['originalLanguageId'] = 'Original Language ID must be a positive number.';
-    }
-    if (this.formData.releaseYear && (this.formData.releaseYear < 1888 || this.formData.releaseYear > new Date().getFullYear() + 1)) {
-      this.formErrors['releaseYear'] = 'Release year is not valid.';
-    }
-    if (this.formData.rentalDuration < 1) { this.formErrors['rentalDuration'] = 'Rental duration must be at least 1 day.'; }
-    if (this.formData.rentalRate < 0) { this.formErrors['rentalRate'] = 'Rental rate cannot be negative.'; }
-    if (this.formData.length !== null && this.formData.length !== '' && this.formData.length <= 0) { this.formErrors['length'] = 'Film length must be positive.'; }
-    if (this.formData.replacementCost < 0) { this.formErrors['replacementCost'] = 'Replacement cost cannot be negative.'; }
-    if (!this.ratingOptions.includes(this.formData.rating) && !['G','PG','PG_13','R','NC_17'].includes(this.formData.rating)) { this.formErrors['rating'] = 'Rating must be one of: G, PG, PG-13, R, NC-17.'; }
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   parseBackendError(e: any): void {
     const err = e.error;
@@ -90,13 +72,25 @@ export class FilmListComponent implements OnInit {
   }
 
   delete(item: any): void {
-    if (!confirm('Delete this Film?')) return;
-    this.error = '';
-    this.svc.delete(item.filmId).subscribe({
-      next: () => { this.successMsg = 'Film deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
-    });
-  }
+  if (!confirm('Delete this Film?')) return;
+
+  this.error = '';
+
+  this.svc.delete(item.filmId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
   searchById(term: string): void {
     const raw = term.trim();

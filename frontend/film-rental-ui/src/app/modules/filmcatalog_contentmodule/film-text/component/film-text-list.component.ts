@@ -51,25 +51,10 @@ export class FilmTextListComponent implements OnInit {
   }
 
   validate(): boolean {
-    this.formErrors = {};
-    this.modalError = '';
-
-    if (!this.formData.filmId || this.formData.filmId <= 0) {
-      this.formErrors['filmId'] = 'A valid Film ID is required.';
-    }
-
-    if (!this.formData.title?.trim()) {
-      this.formErrors['title'] = 'Title is required.';
-    }
-
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-
-    return true;
-  }
-
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
   parseBackendError(e: any): void {
     const err = e.error;
 
@@ -84,7 +69,6 @@ export class FilmTextListComponent implements OnInit {
   save(): void {
     this.modalError = '';
     this.formErrors = {};
-
     if (!this.validate()) return;
 
     const payload = {
@@ -112,21 +96,25 @@ export class FilmTextListComponent implements OnInit {
   }
 
   delete(item: any): void {
-    if (!confirm('Delete this Film Text?')) return;
+  if (!confirm('Delete this Film Text?')) return;
 
-    this.error = '';
+  this.error = '';
 
-    this.svc.delete(item.filmId).subscribe({
-      next: () => {
-        this.successMsg = 'Film Text deleted!';
-        this.load();
-        setTimeout(() => this.successMsg = '', 3000);
-      },
-      error: (e: any) => {
-        this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed';
-      }
-    });
-  }
+  this.svc.delete(item.filmId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
   searchById(term: string): void {
     const raw = term.trim();
