@@ -39,7 +39,7 @@ public class StaffController {
 
     @GetMapping("/{staffId}")
     public ResponseEntity<StaffResponseDTO> getStaffById(
-            @PathVariable @Positive(message = "Staff ID must be a positive number") Integer staffId) {
+            @PathVariable @Positive(message = "Please enter a valid Staff ID (positive number).") Integer staffId) {
         return ResponseEntity.ok(staffMapper.toResponseDTO(staffService.getStaffById(staffId)));
     }
 
