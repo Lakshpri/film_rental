@@ -23,11 +23,16 @@ import java.util.stream.Collectors;
 @Validated
 public class PaymentController {
 
-    @Autowired private PaymentService paymentService;
-    @Autowired private CustomerService customerService;
-    @Autowired private StaffService staffService;
-    @Autowired private RentalService rentalService;
-    @Autowired private PaymentMapper paymentMapper;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private StaffService staffService;
+    @Autowired
+    private RentalService rentalService;
+    @Autowired
+    private PaymentMapper paymentMapper;
 
     // GET /api/payments
     @GetMapping
@@ -73,7 +78,7 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseDTO> deletePayment(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
 
-        // ✅ Returns the deleted payment's data with 200 OK
+        // Returns the deleted payment's data with 200 OK
         PaymentResponseDTO deleted = paymentService.deletePayment(paymentId);
         return ResponseEntity.ok(deleted);
     }

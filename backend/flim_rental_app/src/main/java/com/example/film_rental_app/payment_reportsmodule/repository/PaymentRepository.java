@@ -8,16 +8,20 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 
+// Handles all database operations for the Payment table
+// Extends JpaRepository — gives free CRUD methods (save, findById, findAll, delete etc.)
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
+    // Find all payments made by a specific customer
     List<Payment> findByCustomer_CustomerId(Integer customerId);
-    List<Payment> findByAmountGreaterThan(BigDecimal amount);
-    List<Payment> findByStaff_StaffId(Integer staffId);
+
+    // Check if a rental already has a payment — prevents duplicate payments
     boolean existsByRental_RentalId(Integer rentalId);
 
     // ── Sales by Store ─────────────────────────────────────────────
-    // Chain: Payment -> Staff -> Store
+    // Aggregates total payments and revenue grouped by store
+    // Chain followed: Payment → Staff → Store
     @Query("""
         SELECT p.staff.store.storeId    AS storeId,
                COUNT(p)                 AS totalPayments,
@@ -29,7 +33,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     List<Object[]> findSalesByStore();
 
     // ── Sales by Category ──────────────────────────────────────────
-    // Chain: Payment -> Rental -> Inventory -> Film -> filmCategories -> Category
+    // Aggregates total payments and revenue grouped by film category
+    // Chain followed: Payment → Rental → Inventory → Film → FilmCategories → Category
     @Query("""
         SELECT fc.category.name         AS categoryName,
                COUNT(p)                 AS totalPayments,
