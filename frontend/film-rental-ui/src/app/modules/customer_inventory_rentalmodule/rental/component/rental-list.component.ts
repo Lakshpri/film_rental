@@ -72,17 +72,8 @@ export class RentalListComponent implements OnInit {
     this.formData = {};
   }
 
-  validate(): boolean {
-    if (!this.formData.rentalDate) { this.error = 'Rental date is required.'; return false; }
-    if (!this.formData.inventoryId || this.formData.inventoryId <= 0) { this.error = 'A valid Inventory ID is required.'; return false; }
-    if (!this.formData.customerId || this.formData.customerId <= 0) { this.error = 'A valid Customer ID is required.'; return false; }
-    if (!this.formData.staffId || this.formData.staffId <= 0) { this.error = 'A valid Staff ID is required.'; return false; }
-    return true;
-  }
-
   save(): void {
     this.error = '';
-    if (!this.validate()) return;
     const payload = {
       rentalDate: this.formData.rentalDate,
       inventoryId: this.formData.inventoryId,
