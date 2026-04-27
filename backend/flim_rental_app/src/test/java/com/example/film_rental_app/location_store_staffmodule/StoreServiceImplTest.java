@@ -37,7 +37,7 @@ class StoreServiceImplTest {
         store.setAddress(address); // ✅ IMPORTANT FIX
     }
 
-    // ---------- POSITIVE (8) ----------
+    // ---------- POSITIVE ----------
 
 
     @Test
@@ -92,7 +92,7 @@ class StoreServiceImplTest {
         assertNotNull(service.updateStore(1, store));
     }
 
-    // ---------- NEGATIVE (7) ----------
+    // ---------- NEGATIVE  ----------
 
     @Test
     void testGetStore_NotFound() {
