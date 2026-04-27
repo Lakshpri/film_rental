@@ -12,6 +12,7 @@ import { FilmTextService } from '../service/film-text.service';
 export class FilmTextListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
+  idSearchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   modalError = ''; formErrors: { [key: string]: string } = {};
 
@@ -27,24 +28,36 @@ export class FilmTextListComponent implements OnInit {
     });
   }
 
-  openCreate(): void { this.editItem = null; this.formData = { filmId: null, title: '', description: '' }; this.modalError = ''; this.formErrors = {}; this.showModal = true; }
-  openEdit(item: any): void { this.editItem = item; this.formData = { filmId: item.filmId, title: item.title, description: item.description }; this.modalError = ''; this.formErrors = {}; this.showModal = true; }
-  closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
-
-  validate(): boolean {
-    this.formErrors = {};
+  openCreate(): void {
+    this.editItem = null;
+    this.formData = { filmId: null, title: '', description: '' };
     this.modalError = '';
-    if (!this.formData.filmId || this.formData.filmId <= 0) { this.formErrors['filmId'] = 'A valid Film ID is required.'; }
-    if (!this.formData.title?.trim()) { this.formErrors['title'] = 'Title is required.'; }
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-    return true;
+    this.formErrors = {};
+    this.showModal = true;
   }
 
+  openEdit(item: any): void {
+    this.editItem = item;
+    this.formData = { filmId: item.filmId, title: item.title, description: item.description };
+    this.modalError = '';
+    this.formErrors = {};
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.modalError = '';
+    this.formErrors = {};
+  }
+
+  validate(): boolean {
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
   parseBackendError(e: any): void {
     const err = e.error;
+
     if (err?.fields && typeof err.fields === 'object') {
       this.formErrors = { ...err.fields };
       this.modalError = err.error || err.message || 'Some fields have invalid values.';
@@ -57,38 +70,87 @@ export class FilmTextListComponent implements OnInit {
     this.modalError = '';
     this.formErrors = {};
     if (!this.validate()) return;
-    const payload = { filmId: this.formData.filmId, title: this.formData.title.trim(), description: this.formData.description };
-    const call = this.editItem ? this.svc.update(this.editItem.filmId, payload) : this.svc.create(payload);
+
+    const payload = {
+      filmId: this.formData.filmId,
+      title: this.formData.title.trim(),
+      description: this.formData.description
+    };
+
+    const call = this.editItem
+      ? this.svc.update(this.editItem.filmId, payload)
+      : this.svc.create(payload);
+
     call.subscribe({
-      next: () => { this.successMsg = `Film Text ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.parseBackendError(e); this.cdr.detectChanges(); }
+      next: () => {
+        this.successMsg = `Film Text ${this.editItem ? 'updated' : 'created'}!`;
+        this.closeModal();
+        this.load();
+        setTimeout(() => this.successMsg = '', 3000);
+      },
+      error: (e: any) => {
+        this.parseBackendError(e);
+        this.cdr.detectChanges();
+      }
     });
   }
 
   delete(item: any): void {
-    if (!confirm('Delete this Film Text?')) return;
-    this.error = '';
-    this.svc.delete(item.filmId).subscribe({
-      next: () => { this.successMsg = 'Film Text deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
-    });
-  }
+  if (!confirm('Delete this Film Text?')) return;
 
- search(term: string): void {
-  this.searchTerm = term.trim();
   this.error = '';
 
-  // ✅ Reset when empty
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+  this.svc.delete(item.filmId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
-  // ✅ Numeric → search by filmId (API)
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
+  searchById(term: string): void {
+    const raw = term.trim();
+    this.idSearchTerm = raw;
+    this.error = '';
+
+    if (!raw) {
+      this.filteredItems = [...this.items];
+
+      if (this.searchTerm) {
+        const lower = this.searchTerm.toLowerCase();
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.title?.toLowerCase().includes(lower) ||
+          item.description?.toLowerCase().includes(lower)
+        );
+      }
+
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    // Only allow numeric input
+    if (isNaN(Number(raw)) || raw === '') return;
+
+    const id = Number(raw);
+
+    // Added validation for negative or zero values
+    if (id <= 0) {
+      this.error = 'Film Text ID must be a positive number';
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     this.loading = true;
 
     this.svc.getById(id).subscribe({
@@ -100,8 +162,7 @@ export class FilmTextListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        // ✅ Show backend error properly
-        this.error = e.error?.message || e.error?.error || e.message || 'Film Text not found';
+        this.error = e.error?.message || e.error?.error || e.message;
         this.filteredItems = [];
         this.currentPage = 1;
         this.paginate();
@@ -109,9 +170,21 @@ export class FilmTextListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
 
-  } else {
-    // ✅ Text search → filter by meaningful fields
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (this.idSearchTerm) return;
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const lower = this.searchTerm.toLowerCase();
 
     this.filteredItems = this.items.filter(item =>
@@ -122,23 +195,40 @@ export class FilmTextListComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
-    if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
+
     const start = (this.currentPage - 1) * this.pageSize;
     this.pagedItems = this.filteredItems.slice(start, start + this.pageSize);
   }
 
-  goToPage(page: number): void { if (page < 1 || page > this.totalPages) return; this.currentPage = page; this.paginate(); }
-  changePageSize(size: number): void { this.pageSize = size; this.currentPage = 1; this.paginate(); }
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+
+    this.currentPage = page;
+    this.paginate();
+  }
+
+  changePageSize(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.paginate();
+  }
 
   get pageNumbers(): number[] {
     const pages: number[] = [];
     const start = Math.max(1, this.currentPage - 2);
     const end = Math.min(this.totalPages, start + 4);
-    for (let i = start; i <= end; i++) pages.push(i);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
     return pages;
   }
 }

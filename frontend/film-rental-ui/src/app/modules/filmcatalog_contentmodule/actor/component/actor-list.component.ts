@@ -12,6 +12,7 @@ import { ActorService } from '../service/actor.service';
 export class ActorListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
+  idSearchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   modalError = ''; formErrors: { [key: string]: string } = {};
 
@@ -32,18 +33,10 @@ export class ActorListComponent implements OnInit {
   closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
 
   validate(): boolean {
-    this.formErrors = {};
-    this.modalError = '';
-    if (!this.formData.firstName?.trim()) { this.formErrors['firstName'] = 'First name is required.'; }
-    else if (/\d/.test(this.formData.firstName)) { this.formErrors['firstName'] = 'First name must not contain numbers.'; }
-    if (!this.formData.lastName?.trim()) { this.formErrors['lastName'] = 'Last name is required.'; }
-    else if (/\d/.test(this.formData.lastName)) { this.formErrors['lastName'] = 'Last name must not contain numbers.'; }
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   parseBackendError(e: any): void {
     const err = e.error;
@@ -56,41 +49,98 @@ export class ActorListComponent implements OnInit {
   }
 
   save(): void {
-    this.modalError = '';
-    this.formErrors = {};
-    if (!this.validate()) return;
-    const payload = { firstName: this.formData.firstName.trim(), lastName: this.formData.lastName.trim() };
-    const call = this.editItem ? this.svc.update(this.editItem.actorId, payload) : this.svc.create(payload);
-    call.subscribe({
-      next: () => { this.successMsg = `Actor ${this.editItem ? 'updated' : 'created'}!`; this.closeModal(); this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.parseBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+  this.modalError = '';
+  this.formErrors = {};
 
-  delete(item: any): void {
-    if (!confirm('Delete this Actor?')) return;
-    this.error = '';
-    this.svc.delete(item.actorId).subscribe({
-      next: () => { this.successMsg = 'Actor deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
-    });
-  }
+  if (!this.validate()) return;
 
- search(term: string): void {
-  this.searchTerm = term.trim();
+  const payload = {
+    firstName: this.formData.firstName?.trim(),
+    lastName: this.formData.lastName?.trim()
+  };
+
+  const call = this.editItem
+    ? this.svc.update(this.editItem.actorId, payload)
+    : this.svc.create(payload);
+
+  call.subscribe({
+    next: (res: any) => {
+      // Uses backend ResponseEntity message directly
+      this.successMsg =
+        res?.message ||
+        res?.success ||
+        res?.reason ||
+        `Actor ${this.editItem ? 'updated' : 'created'} successfully.`;
+
+      this.closeModal();
+      this.load();
+
+      setTimeout(() => {
+        this.successMsg = '';
+      }, 3000);
+    },
+
+    error: (e: any) => {
+      // DTO / Global Exception validation messages
+      this.parseBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+delete(item: any): void {
+  if (!confirm('Delete this Actor?')) return;
+
   this.error = '';
 
-  // ✅ If empty → reset
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+  this.svc.delete(item.actorId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
-  // ✅ If numeric → search by ID (API)
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
+  searchById(term: string): void {
+    const raw = term.trim();
+    this.idSearchTerm = raw;
+    this.error = '';
+
+    if (!raw) {
+      this.filteredItems = [...this.items];
+      if (this.searchTerm) {
+        const lower = this.searchTerm.toLowerCase();
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.firstName?.toLowerCase().includes(lower) ||
+          item.lastName?.toLowerCase().includes(lower)
+        );
+      }
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    if (isNaN(Number(raw)) || raw === '') return;
+
+    const id = Number(raw);
+
+    // Added only this validation
+    if (id <= 0) {
+      this.error = 'Actor ID must be a positive number';
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     this.loading = true;
 
     this.svc.getById(id).subscribe({
@@ -102,8 +152,7 @@ export class ActorListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        // ✅ Show backend error
-        this.error = e.error?.message || e.error?.error || e.message || 'Actor not found';
+        this.error = e.error?.message || e.error?.error || e.message;
         this.filteredItems = [];
         this.currentPage = 1;
         this.paginate();
@@ -111,11 +160,22 @@ export class ActorListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
 
-  } else {
-    // ✅ Text search → filter by name (clean, not JSON)
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (this.idSearchTerm) return;
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const lower = this.searchTerm.toLowerCase();
-
     this.filteredItems = this.items.filter(item =>
       item.firstName?.toLowerCase().includes(lower) ||
       item.lastName?.toLowerCase().includes(lower)
@@ -124,7 +184,6 @@ export class ActorListComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));

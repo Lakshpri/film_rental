@@ -17,7 +17,7 @@ export class StaffListComponent implements OnInit {
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true;
   pageError  = '';
-  modalError = '';
+  modalError = ''; formErrors: { [key: string]: string } = {};
   showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
 
   // FIX 10: Track the selected File object and its preview URL
@@ -152,19 +152,12 @@ export class StaffListComponent implements OnInit {
     this.selectedPhotoFile = null;
     this.photoPreview = null;
   }
-
   validate(): boolean {
-    if (!this.formData.firstName?.trim())  { this.modalError = 'First name is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.lastName?.trim())   { this.modalError = 'Last name is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.email?.trim())      { this.modalError = 'Email is required.'; this.cdr.detectChanges(); return false; }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.formData.email)) { this.modalError = 'Please enter a valid email address.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.username?.trim())   { this.modalError = 'Username is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.editItem && !this.formData.password?.trim()) { this.modalError = 'Password is required when creating a staff member.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.addressId || this.formData.addressId <= 0) { this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.storeId   || this.formData.storeId   <= 0) { this.modalError = 'A valid Store ID is required.'; this.cdr.detectChanges(); return false; }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
+
 
   // FIX 12: Build a FormData (multipart) payload so the photo file is sent to the backend
   save(): void {
@@ -198,16 +191,26 @@ export class StaffListComponent implements OnInit {
   }
 
   delete(item: any): void {
-    if (!confirm(`Delete Staff #${item.staffId} — ${item.firstName} ${item.lastName}?`)) return;
-    delete this.tableDeleteErrors[item.staffId];
-    this.svc.delete(item.staffId).subscribe({
-      next: () => {
-        this.successMsg = `Staff "${item.firstName} ${item.lastName}" deleted.`;
-        this.load(); setTimeout(() => this.successMsg = '', 3000);
-      },
-      error: (e: any) => { this.tableDeleteErrors[item.staffId] = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+  if (!confirm(`Delete Staff #${item.staffId} — ${item.firstName} ${item.lastName}?`)) return;
+
+  delete this.tableDeleteErrors[item.staffId];
+  this.successMsg = '';
+
+  this.svc.delete(item.staffId).subscribe({
+    next: (res: any) => {
+      // ✅ get success message from backend
+      this.successMsg = res?.message || 'Staff deleted successfully';
+
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      // ✅ backend exception (inline per row)
+      this.tableDeleteErrors[item.staffId] = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   search(term: string): void {
     this.searchTerm = term;

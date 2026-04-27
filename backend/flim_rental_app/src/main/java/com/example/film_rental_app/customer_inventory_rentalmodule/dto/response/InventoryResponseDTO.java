@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class InventoryResponseDTO {
 
+    private String message;
     private Integer inventoryId;
     private Integer filmId;
     private String filmTitle;
@@ -11,6 +12,9 @@ public class InventoryResponseDTO {
     private LocalDateTime lastUpdate;
 
     public InventoryResponseDTO() {}
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
     public Integer getInventoryId() { return inventoryId; }
     public void setInventoryId(Integer inventoryId) { this.inventoryId = inventoryId; }

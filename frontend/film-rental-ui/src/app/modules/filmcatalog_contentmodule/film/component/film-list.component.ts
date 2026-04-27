@@ -12,6 +12,7 @@ import { FilmService } from '../service/film.service';
 export class FilmListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
+  idSearchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   modalError = ''; formErrors: { [key: string]: string } = {};
 
@@ -44,28 +45,10 @@ export class FilmListComponent implements OnInit {
   closeModal(): void { this.showModal = false; this.modalError = ''; this.formErrors = {}; }
 
   validate(): boolean {
-    this.formErrors = {};
-    this.modalError = '';
-    if (!this.formData.title?.trim()) { this.formErrors['title'] = 'Title is required.'; }
-    if (this.formData.languageId === null || this.formData.languageId === '') { this.formErrors['languageId'] = 'Language ID is required.'; }
-    else if (this.formData.languageId <= 0) { this.formErrors['languageId'] = 'Language ID must be a positive number.'; }
-    if (this.formData.originalLanguageId !== null && this.formData.originalLanguageId !== '' && this.formData.originalLanguageId <= 0) {
-      this.formErrors['originalLanguageId'] = 'Original Language ID must be a positive number.';
-    }
-    if (this.formData.releaseYear && (this.formData.releaseYear < 1888 || this.formData.releaseYear > new Date().getFullYear() + 1)) {
-      this.formErrors['releaseYear'] = 'Release year is not valid.';
-    }
-    if (this.formData.rentalDuration < 1) { this.formErrors['rentalDuration'] = 'Rental duration must be at least 1 day.'; }
-    if (this.formData.rentalRate < 0) { this.formErrors['rentalRate'] = 'Rental rate cannot be negative.'; }
-    if (this.formData.length !== null && this.formData.length !== '' && this.formData.length <= 0) { this.formErrors['length'] = 'Film length must be positive.'; }
-    if (this.formData.replacementCost < 0) { this.formErrors['replacementCost'] = 'Replacement cost cannot be negative.'; }
-    if (!this.ratingOptions.includes(this.formData.rating) && !['G','PG','PG_13','R','NC_17'].includes(this.formData.rating)) { this.formErrors['rating'] = 'Rating must be one of: G, PG, PG-13, R, NC-17.'; }
-    if (Object.keys(this.formErrors).length > 0) {
-      this.modalError = 'Please fix the highlighted fields and try again.';
-      return false;
-    }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   parseBackendError(e: any): void {
     const err = e.error;
@@ -89,29 +72,65 @@ export class FilmListComponent implements OnInit {
   }
 
   delete(item: any): void {
-    if (!confirm('Delete this Film?')) return;
-    this.error = '';
-    this.svc.delete(item.filmId).subscribe({
-      next: () => { this.successMsg = 'Film deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = e.error?.reason || e.error?.message || e.error?.error || 'Delete failed'; }
-    });
-  }
+  if (!confirm('Delete this Film?')) return;
 
- search(term: string): void {
-  this.searchTerm = term.trim();
   this.error = '';
 
-  // ✅ Reset when empty
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+  this.svc.delete(item.filmId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res.message;
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      this.error =
+        e.error?.reason ||
+        e.error?.message ||
+        e.error?.error ||
+        'Delete failed';
+    }
+  });
+}
 
-  // ✅ Numeric → search by ID (API)
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
+  searchById(term: string): void {
+    const raw = term.trim();
+    this.idSearchTerm = raw;
+    this.error = '';
+
+    // Clear ID search → restore full list (then re-apply text filter if any)
+    if (!raw) {
+      this.filteredItems = [...this.items];
+
+      if (this.searchTerm) {
+        const lower = this.searchTerm.toLowerCase();
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.title?.toLowerCase().includes(lower) ||
+          item.description?.toLowerCase().includes(lower) ||
+          item.rating?.toLowerCase().includes(lower)
+        );
+      }
+
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    // Only allow numeric input
+    if (isNaN(Number(raw)) || raw === '') {
+      return;
+    }
+
+    const id = Number(raw);
+
+    // Added only this validation
+    if (id <= 0) {
+      this.error = 'Film ID must be a positive number';
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     this.loading = true;
 
     this.svc.getById(id).subscribe({
@@ -123,8 +142,7 @@ export class FilmListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        // ✅ Show backend exception
-        this.error = e.error?.message || e.error?.error || e.message || 'Film not found';
+        this.error = e.error?.message || e.error?.error || e.message;
         this.filteredItems = [];
         this.currentPage = 1;
         this.paginate();
@@ -132,11 +150,22 @@ export class FilmListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
 
-  } else {
-    // ✅ Text search → filter by meaningful fields
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (this.idSearchTerm) return;
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const lower = this.searchTerm.toLowerCase();
-
     this.filteredItems = this.items.filter(item =>
       item.title?.toLowerCase().includes(lower) ||
       item.description?.toLowerCase().includes(lower) ||
@@ -146,7 +175,6 @@ export class FilmListComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
@@ -175,35 +203,55 @@ export class FilmListComponent implements OnInit {
     this.activeFilm = item; this.subType = 'actors'; this.subTitle = 'Actors in ' + item.title; this.showSubModal = true;
     this.loadSubItems();
   }
+
   openCategories(item: any): void {
     this.activeFilm = item; this.subType = 'categories'; this.subTitle = 'Categories for ' + item.title; this.showSubModal = true;
     this.loadSubItems();
   }
+
   loadSubItems(): void {
     this.subLoading = true; this.subItems = []; this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.getActorsByFilm(this.activeFilm.filmId) : this.svc.getCategoriesByFilm(this.activeFilm.filmId);
+    const req = this.subType === 'actors'
+      ? this.svc.getActorsByFilm(this.activeFilm.filmId)
+      : this.svc.getCategoriesByFilm(this.activeFilm.filmId);
+
     req.subscribe({
       next: (d: any[]) => { this.subItems = d; this.subLoading = false; this.cdr.detectChanges(); },
       error: (e: any) => { this.subModalError = e.error?.message || e.error?.error || 'Failed to load'; this.subLoading = false; this.cdr.detectChanges(); }
     });
   }
+
   addSubItem(): void {
     if (!this.newSubId) return;
     this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.addActorToFilm(this.activeFilm.filmId, +this.newSubId) : this.svc.addCategoryToFilm(this.activeFilm.filmId, +this.newSubId);
+
+    const req = this.subType === 'actors'
+      ? this.svc.addActorToFilm(this.activeFilm.filmId, +this.newSubId)
+      : this.svc.addCategoryToFilm(this.activeFilm.filmId, +this.newSubId);
+
     req.subscribe({
       next: () => { this.newSubId = ''; this.loadSubItems(); },
       error: (e: any) => { this.subModalError = e.error?.reason || e.error?.message || e.error?.error || 'Failed to add'; this.cdr.detectChanges(); }
     });
   }
+
   removeSubItem(id: number): void {
     if (!confirm('Remove?')) return;
     this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.removeActorFromFilm(this.activeFilm.filmId, id) : this.svc.removeCategoryFromFilm(this.activeFilm.filmId, id);
+
+    const req = this.subType === 'actors'
+      ? this.svc.removeActorFromFilm(this.activeFilm.filmId, id)
+      : this.svc.removeCategoryFromFilm(this.activeFilm.filmId, id);
+
     req.subscribe({
       next: () => this.loadSubItems(),
       error: (e: any) => { this.subModalError = e.error?.reason || e.error?.message || e.error?.error || 'Failed to remove'; this.cdr.detectChanges(); }
     });
   }
-  closeSubModal(): void { this.showSubModal = false; this.activeFilm = null; this.subModalError = ''; }
+
+  closeSubModal(): void {
+    this.showSubModal = false;
+    this.activeFilm = null;
+    this.subModalError = '';
+  }
 }

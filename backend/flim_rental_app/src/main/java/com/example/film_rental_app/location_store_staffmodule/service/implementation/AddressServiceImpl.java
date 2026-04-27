@@ -12,6 +12,7 @@ import com.example.film_rental_app.location_store_staffmodule.service.AddressSer
 import com.example.film_rental_app.master_datamodule.repository.CityRepository;
 import com.example.film_rental_app.common.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional(readOnly = true)
     public List<Address> getAllAddresses() {
-        return addressRepository.findAll();
+        return addressRepository.findAll(Sort.by("addressId").ascending());
     }
 
     @Override

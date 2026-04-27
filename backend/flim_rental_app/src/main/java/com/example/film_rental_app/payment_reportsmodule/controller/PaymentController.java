@@ -20,21 +20,25 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payments")
-@Validated
+@Validated // enables method-level constraint validation (e.g. @Positive on path variables)
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
     @Autowired
     private CustomerService customerService;
+
     @Autowired
     private StaffService staffService;
+
     @Autowired
     private RentalService rentalService;
+
     @Autowired
     private PaymentMapper paymentMapper;
 
-    // GET /api/payments
+    // GET /api/payments — returns all payments
     @GetMapping
     public ResponseEntity<List<PaymentResponseDTO>> getAllPayments() {
         List<PaymentResponseDTO> result = paymentService.getAllPayments().stream()
@@ -43,14 +47,14 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
-    // GET /api/payments/{paymentId}
+    // GET /api/payments/{paymentId} — returns a single payment by ID
     @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentResponseDTO> getPaymentById(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
         return ResponseEntity.ok(paymentMapper.toResponseDTO(paymentService.getPaymentById(paymentId)));
     }
 
-    // GET /api/payments/customer/{customerId}
+    // GET /api/payments/customer/{customerId} — returns all payments for a given customer
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByCustomer(
             @PathVariable @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)") Integer customerId) {
@@ -61,25 +65,29 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
-    // POST /api/payments
+    // POST /api/payments — creates a new payment record
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
         Payment payment = paymentMapper.toEntity(dto);
         payment.setCustomer(customerService.getCustomerById(dto.getCustomerId()));
         payment.setStaff(staffService.getStaffById(dto.getStaffId()));
+
+        // Rental is optional
         if (dto.getRentalId() != null) {
             payment.setRental(rentalService.getRentalById(dto.getRentalId()));
         }
-        return ResponseEntity.status(201).body(paymentMapper.toResponseDTO(paymentService.createPayment(payment)));
+
+        PaymentResponseDTO created = paymentMapper.toResponseDTO(paymentService.createPayment(payment));
+        created.setMessage("Payment created!");
+        return ResponseEntity.status(201).body(created);
     }
 
-    // DELETE /api/payments/{paymentId}
+    // DELETE /api/payments/{paymentId} — deletes a payment and returns its data
     @DeleteMapping("/{paymentId}")
     public ResponseEntity<PaymentResponseDTO> deletePayment(
             @PathVariable @Positive(message = "Payment ID must be a number greater than zero (e.g. 1, 2, 3)") Integer paymentId) {
-
-        // Returns the deleted payment's data with 200 OK
         PaymentResponseDTO deleted = paymentService.deletePayment(paymentId);
+        deleted.setMessage("Payment deleted Successfully!");
         return ResponseEntity.ok(deleted);
     }
 }

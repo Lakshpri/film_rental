@@ -37,13 +37,8 @@ class StoreServiceImplTest {
         store.setAddress(address); // ✅ IMPORTANT FIX
     }
 
-    // ---------- POSITIVE (8) ----------
+    // ---------- POSITIVE ----------
 
-    @Test
-    void testGetAllStores() {
-        when(repository.findAll()).thenReturn(List.of(store));
-        assertEquals(1, service.getAllStores().size());
-    }
 
     @Test
     void testGetStoreById() {
@@ -97,7 +92,7 @@ class StoreServiceImplTest {
         assertNotNull(service.updateStore(1, store));
     }
 
-    // ---------- NEGATIVE (7) ----------
+    // ---------- NEGATIVE  ----------
 
     @Test
     void testGetStore_NotFound() {

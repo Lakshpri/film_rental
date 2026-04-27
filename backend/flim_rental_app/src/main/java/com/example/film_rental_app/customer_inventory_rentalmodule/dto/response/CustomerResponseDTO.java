@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class CustomerResponseDTO {
 
+    private String message;
     private Integer customerId;
     private String firstName;
     private String lastName;
@@ -17,8 +18,10 @@ public class CustomerResponseDTO {
 
     public CustomerResponseDTO() {}
 
-    public Integer getCustomerId() {
-        return customerId; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+
+    public Integer getCustomerId() { return customerId; }
     public void setCustomerId(Integer customerId) { this.customerId = customerId; }
 
     public String getFirstName() { return firstName; }

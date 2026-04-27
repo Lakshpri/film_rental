@@ -25,7 +25,7 @@ export class RentalListComponent implements OnInit {
   successMsg = '';
   customerIdInput = '';
   customerSearchError = '';
-  isCustomerSearch = false;   // ← NEW FLAG
+  isCustomerSearch = false;
 
   constructor(private svc: RentalService, private cdr: ChangeDetectorRef) {}
 
@@ -38,7 +38,7 @@ export class RentalListComponent implements OnInit {
       next: (data: any[]) => {
         this.items = data;
         this.filteredItems = data;
-        this.isCustomerSearch = false;   // ← RESET ON NORMAL LOAD
+        this.isCustomerSearch = false;
         this.paginate();
         this.loading = false;
         this.cdr.detectChanges();
@@ -72,17 +72,8 @@ export class RentalListComponent implements OnInit {
     this.formData = {};
   }
 
-  validate(): boolean {
-    if (!this.formData.rentalDate) { this.error = 'Rental date is required.'; return false; }
-    if (!this.formData.inventoryId || this.formData.inventoryId <= 0) { this.error = 'A valid Inventory ID is required.'; return false; }
-    if (!this.formData.customerId || this.formData.customerId <= 0) { this.error = 'A valid Customer ID is required.'; return false; }
-    if (!this.formData.staffId || this.formData.staffId <= 0) { this.error = 'A valid Staff ID is required.'; return false; }
-    return true;
-  }
-
   save(): void {
     this.error = '';
-    if (!this.validate()) return;
     const payload = {
       rentalDate: this.formData.rentalDate,
       inventoryId: this.formData.inventoryId,
@@ -90,8 +81,8 @@ export class RentalListComponent implements OnInit {
       staffId: this.formData.staffId
     };
     this.svc.create(payload).subscribe({
-      next: () => {
-        this.successMsg = 'Rental created!';
+      next: (res: any) => {
+        this.successMsg = res?.message || 'Rental created!';
         this.closeModal();
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
@@ -105,8 +96,8 @@ export class RentalListComponent implements OnInit {
     if (!confirm(`Mark rental #${id} as returned?`)) return;
     this.error = '';
     this.svc.returnRental(id).subscribe({
-      next: () => {
-        this.successMsg = `Rental #${id} returned!`;
+      next: (res: any) => {
+        this.successMsg = res?.message || `Rental #${id} returned!`;
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
       },
@@ -119,30 +110,30 @@ export class RentalListComponent implements OnInit {
   }
 
   keys(item: any): string[] {
-  return [
-    'rentalId',
-    'rentalDate',
-    'inventoryId',
-    'customerId', 
-    'staffId',
-    'returnDate'
-  ];
-}
-
-formatValue(key: string, val: any): string {
-  if (key.toLowerCase().includes('date') && val) {
-    const date = new Date(val);
-    return date.toLocaleString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).replace(',', '');
+    return [
+      'rentalId',
+      'rentalDate',
+      'inventoryId',
+      'customerId',
+      'staffId',
+      'returnDate'
+    ];
   }
-  return val != null ? String(val) : '';
-}
+
+  formatValue(key: string, val: any): string {
+    if (key.toLowerCase().includes('date') && val) {
+      const date = new Date(val);
+      return date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).replace(',', '');
+    }
+    return val != null ? String(val) : '';
+  }
 
   search(term: string): void {
     this.searchTerm = term.trim();
@@ -167,7 +158,7 @@ formatValue(key: string, val: any): string {
           this.cdr.detectChanges();
         },
         error: (e: any) => {
-          this.error = formatBackendError(e); // BACKEND MESSAGE
+          this.error = formatBackendError(e);
           this.filteredItems = [];
           this.currentPage = 1;
           this.paginate();
@@ -222,7 +213,7 @@ formatValue(key: string, val: any): string {
     this.loading = true;
     this.svc.getByCustomerId(id).subscribe({
       next: (data: any[]) => {
-        this.isCustomerSearch = true;   // ← SET FLAG: show customerId column
+        this.isCustomerSearch = true;
         this.filteredItems = data;
         this.currentPage = 1;
         this.paginate();
@@ -242,7 +233,7 @@ formatValue(key: string, val: any): string {
   clearCustomerSearch(): void {
     this.customerIdInput = '';
     this.customerSearchError = '';
-    this.isCustomerSearch = false;   // ← RESET FLAG
+    this.isCustomerSearch = false;
     this.load();
   }
 }
