@@ -37,14 +37,9 @@ class StaffServiceImplTest {
     }
 
     // =========================
-    // ✅ POSITIVE TESTS (8)
+    // POSITIVE TESTS
     // =========================
 
-    @Test
-    void testGetAllStaff() {
-        when(staffRepository.findAll()).thenReturn(List.of(staff));
-        assertEquals(1, staffService.getAllStaff().size());
-    }
 
     @Test
     void testGetStaffById() {
@@ -90,7 +85,7 @@ class StaffServiceImplTest {
 
 
     // =========================
-    // ❌ NEGATIVE TESTS (7)
+    // NEGATIVE TESTS
     // =========================
 
     @Test

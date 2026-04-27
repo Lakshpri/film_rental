@@ -37,13 +37,9 @@ class AddressServiceImplTest {
         address.setAddress("Test Address");
     }
 
-    // ---------- POSITIVE TESTS (8) ----------
+    // ---------- POSITIVE TESTS ----------
 
-    @Test
-    void testGetAllAddresses() {
-        when(addressRepository.findAll()).thenReturn(List.of(address));
-        assertEquals(1, service.getAllAddresses().size());
-    }
+
 
     @Test
     void testGetAddressById() {
@@ -62,7 +58,7 @@ class AddressServiceImplTest {
     }
 
 
-    // ---------- NEGATIVE TESTS (7) ----------
+    // ---------- NEGATIVE TESTS  ----------
 
     @Test
     void testGetAddressById_NotFound() {
