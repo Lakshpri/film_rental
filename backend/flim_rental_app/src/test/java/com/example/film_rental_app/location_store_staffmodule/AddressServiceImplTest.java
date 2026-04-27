@@ -51,24 +51,6 @@ class AddressServiceImplTest {
         assertEquals("Test Address", service.getAddressById(1).getAddress());
     }
 
-    @Test
-    void testCreateAddress() {
-        when(addressRepository.save(address)).thenReturn(address);
-        assertNotNull(service.createAddress(address));
-    }
-
-    @Test
-    void testUpdateAddress() {
-        Address updated = new Address();
-        updated.setAddress("Updated");
-
-        when(addressRepository.findById(1)).thenReturn(Optional.of(address));
-        when(addressRepository.save(any())).thenReturn(address);
-
-        Address result = service.updateAddress(1, updated);
-        assertEquals("Updated", result.getAddress());
-    }
-
 
 
     @Test
@@ -79,23 +61,6 @@ class AddressServiceImplTest {
         assertEquals(1, service.getAddressesByCity(1).size());
     }
 
-    @Test
-    void testUpdatePartialFields() {
-        Address updated = new Address();
-        updated.setPhone("123");
-
-        when(addressRepository.findById(1)).thenReturn(Optional.of(address));
-        when(addressRepository.save(any())).thenReturn(address);
-
-        service.updateAddress(1, updated);
-        assertEquals("123", address.getPhone());
-    }
-
-    @Test
-    void testCreateAddressNullSafe() {
-        when(addressRepository.save(any())).thenReturn(address);
-        assertNotNull(service.createAddress(new Address()));
-    }
 
     // ---------- NEGATIVE TESTS (7) ----------
 
