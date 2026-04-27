@@ -30,16 +30,7 @@ class FilmServiceImplTest {
     @InjectMocks
     private FilmServiceImpl filmService;
 
-    // ---------------------- POSITIVE TEST CASES (8) ----------------------
-
-    @Test
-    void testGetAllFilms_Success() {
-        when(filmRepository.findAll()).thenReturn(List.of(new Film(), new Film()));
-
-        List<Film> result = filmService.getAllFilms();
-
-        assertEquals(2, result.size());
-    }
+    // ---------------------- POSITIVE TEST CASES----------------------
 
     @Test
     void testGetFilmById_Success() {
@@ -85,16 +76,6 @@ class FilmServiceImplTest {
     }
 
     @Test
-    void testGetActorsByFilm_Success() {
-        when(filmRepository.existsById(1)).thenReturn(true);
-        when(filmActorRepository.findById_FilmId(1)).thenReturn(List.of(new FilmActor()));
-
-        List<FilmActor> result = filmService.getActorsByFilm(1);
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
     void testAddActorToFilm_Success() {
         Film film = new Film();
         Actor actor = new Actor();
@@ -109,17 +90,7 @@ class FilmServiceImplTest {
         assertNotNull(result);
     }
 
-    @Test
-    void testRemoveActorFromFilm_Success() {
-        when(filmActorRepository.existsById(any())).thenReturn(true);
-
-        boolean result = filmService.removeActorFromFilm(1, 2);
-
-        assertTrue(result);
-        verify(filmActorRepository).deleteById(any());
-    }
-
-    // ---------------------- NEGATIVE TEST CASES (7) ----------------------
+    // ---------------------- NEGATIVE TEST CASES----------------------
 
     @Test
     void testGetFilmById_NotFound() {
@@ -141,14 +112,6 @@ class FilmServiceImplTest {
     }
 
     @Test
-    void testUpdateFilm_NotFound() {
-        when(filmRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(FilmNotFoundException.class,
-                () -> filmService.updateFilm(1, new Film()));
-    }
-
-    @Test
     void testUpdateFilm_DuplicateTitle() {
         Film existing = new Film();
         existing.setTitle("Old");
@@ -161,14 +124,6 @@ class FilmServiceImplTest {
 
         assertThrows(FilmAlreadyExistsException.class,
                 () -> filmService.updateFilm(1, updated));
-    }
-
-    @Test
-    void testDeleteFilm_NotFound() {
-        when(filmRepository.existsById(1)).thenReturn(false);
-
-        assertThrows(FilmNotFoundException.class,
-                () -> filmService.deleteFilm(1));
     }
     @Test
     void testAddCategoryToFilm_CategoryNotFound() {

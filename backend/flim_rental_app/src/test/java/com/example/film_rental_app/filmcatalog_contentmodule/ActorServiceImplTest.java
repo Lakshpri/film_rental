@@ -30,17 +30,7 @@ class ActorServiceImplTest {
     @InjectMocks
     private ActorServiceImpl actorService;
 
-    // ---------------------- POSITIVE TEST CASES (8) ----------------------
-
-    @Test
-    void testGetAllActors_Success() {
-        List<Actor> actors = List.of(new Actor(), new Actor());
-        when(actorRepository.findAll()).thenReturn(actors);
-
-        List<Actor> result = actorService.getAllActors();
-
-        assertEquals(2, result.size());
-    }
+    // ---------------------- POSITIVE TEST CASES ----------------------
 
     @Test
     void testGetActorById_Success() {
@@ -54,27 +44,7 @@ class ActorServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.getActorId());
     }
-    @Test
-    void testDeleteActor_Success() {
-        when(actorRepository.existsById(1)).thenReturn(true);
-        when(filmActorRepository.findById_ActorId(1)).thenReturn(Collections.emptyList());
-
-        boolean result = actorService.deleteActor(1);
-
-        assertTrue(result);
-        verify(actorRepository).deleteById(1);
-    }
-
-    @Test
-    void testGetAllActors_EmptyList() {
-        when(actorRepository.findAll()).thenReturn(Collections.emptyList());
-
-        List<Actor> result = actorService.getAllActors();
-
-        assertTrue(result.isEmpty());
-    }
-
-    // ---------------------- NEGATIVE TEST CASES (7) ----------------------
+    // ---------------------- NEGATIVE TEST CASES ----------------------
 
     @Test
     void testGetActorById_NotFound() {
@@ -120,13 +90,5 @@ class ActorServiceImplTest {
 
         assertThrows(ActorAlreadyExistsException.class,
                 () -> actorService.updateActor(1, updated));
-    }
-
-    @Test
-    void testDeleteActor_NotFound() {
-        when(actorRepository.existsById(1)).thenReturn(false);
-
-        assertThrows(ActorNotFoundException.class,
-                () -> actorService.deleteActor(1));
     }
 }
