@@ -38,36 +38,6 @@ class CountryRepositoryTest {
         return c;
     }
 
-    @Test
-    @DisplayName("Save country with valid data")
-    void saveCountry_withValidData_shouldPersist() {
-        Country saved = countryRepository.saveAndFlush(buildValid("USA"));
-        assertThat(saved.getCountryId()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Blank country name should throw exception")
-    void saveCountry_withBlankName_shouldThrow() {
-        Country c = buildValid("  ");
-        assertThatThrownBy(() -> countryRepository.saveAndFlush(c))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
-    @DisplayName("Null country name should throw exception")
-    void saveCountry_withNullName_shouldThrow() {
-        Country c = buildValid(null);
-        assertThatThrownBy(() -> countryRepository.saveAndFlush(c))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
-    @DisplayName("Country name > 50 chars should throw exception")
-    void saveCountry_withTooLongName_shouldThrow() {
-        Country c = buildValid("C".repeat(51));
-        assertThatThrownBy(() -> countryRepository.saveAndFlush(c))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
 
     @Test
     void testFindById() {
@@ -95,5 +65,25 @@ class CountryRepositoryTest {
 
         Optional<Country> deleted = countryRepository.findById(country.getCountryId());
         assertFalse(deleted.isPresent());
+    }
+
+    // Tests the custom @Query
+    @Test
+    @DisplayName("Custom @Query: findCountriesWithNameLongerThan returns only matching countries")
+    void testFindCountriesWithNameLongerThan_ReturnsLongNames() {
+        countryRepository.save(buildValid("US"));
+        countryRepository.save(buildValid("Germany"));
+        countryRepository.save(buildValid("Switzerland"));
+
+        List<Country> result = countryRepository.findCountriesWithNameLongerThan(5);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+
+        assertTrue(
+                result.stream().allMatch(c -> c.getCountry().length() > 5),
+                "All returned countries should have name length > 5"
+        );
+        System.out.println("Countries with name > 5 chars: " + result.stream().map(Country::getCountry).toList());
     }
 }

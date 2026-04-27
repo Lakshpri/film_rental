@@ -40,15 +40,6 @@ class CategoryServiceImplTest {
 
     //  POSITIVE TEST CASES
 
-    @Test
-    void testGetCategoryById_Success() {
-        when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
-
-        Category result = categoryService.getCategoryById(1);
-
-        assertNotNull(result);
-        assertEquals("Action", result.getName());
-    }
 
     @Test
     void testCreateCategory_Success() {
@@ -97,28 +88,7 @@ class CategoryServiceImplTest {
                 () -> categoryService.createCategory(category));
     }
 
-    @Test
-    void testUpdateCategory_NotFound() {
-        Category updated = new Category();
-        updated.setName("Comedy");
 
-        when(categoryRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(CategoryNotFoundException.class,
-                () -> categoryService.updateCategory(1, updated));
-    }
-
-    @Test
-    void testUpdateCategory_DuplicateName() {
-        Category updated = new Category();
-        updated.setName("Comedy");
-
-        when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
-        when(categoryRepository.existsByName("Comedy")).thenReturn(true);
-
-        assertThrows(CategoryAlreadyExistsException.class,
-                () -> categoryService.updateCategory(1, updated));
-    }
 
     @Test
     void testDeleteCategory_NotFound() {

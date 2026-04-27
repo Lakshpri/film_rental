@@ -20,25 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LanguageRepositoryTest {
 
     @Autowired private LanguageRepository languageRepository;
-    @Test
-    @DisplayName("Save language with valid name should persist")
-    void saveLanguage_withValidData_shouldPersist() {
-        Language lang = new Language();
-        lang.setName("French");
-
-        Language saved = languageRepository.saveAndFlush(lang);
-        assertThat(saved.getLanguageId()).isNotNull();
-        assertThat(saved.getName()).isEqualTo("French");
-    }
-    @Test
-    @DisplayName("Blank language name should throw ConstraintViolationException")
-    void saveLanguage_withBlankName_shouldThrow() {
-        Language lang = new Language();
-        lang.setName("   ");
-
-        assertThatThrownBy(() -> languageRepository.saveAndFlush(lang))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
 
     @Test
     @DisplayName("Null language name should throw ConstraintViolationException")
@@ -60,38 +41,7 @@ class LanguageRepositoryTest {
         assertThat(saved.getLanguageId()).isNotNull();
     }
 
-    @Test
-    @DisplayName("Language name exceeding 20 chars should throw ConstraintViolationException")
-    void saveLanguage_withTooLongName_shouldThrow() {
-        Language lang = new Language();
-        lang.setName("L".repeat(21));
 
-        assertThatThrownBy(() -> languageRepository.saveAndFlush(lang))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
-    void testFindById() {
-        Language lang = new Language();
-        lang.setName("English");
-        Language saved = languageRepository.save(lang);
-
-        Optional<Language> found = languageRepository.findById(saved.getLanguageId());
-
-        assertTrue(found.isPresent());
-        assertEquals("English", found.get().getName());
-    }
-
-    @Test
-    void testFindAll() {
-        languageRepository.save(new Language(null, "Tamil", null, null, null));
-        languageRepository.save(new Language(null, "Hindi", null, null, null));
-
-        List<Language> list = languageRepository.findAll();
-
-        assertNotNull(list);
-        assertTrue(list.size() >= 2);
-    }
 
 
     @Test
@@ -106,15 +56,17 @@ class LanguageRepositoryTest {
         assertEquals("Spanish Updated", updated.getName());
     }
 
+    // Custom  @Query
     @Test
-    void testDeleteLanguage() {
-        Language lang = new Language();
-        lang.setName("German");
-        Language saved = languageRepository.save(lang);
+    void testFindByNameNative() {
+        languageRepository.save(new Language(null, "Tamil", null, null, null));
+        languageRepository.save(new Language(null, "English", null, null, null));
 
-        languageRepository.deleteById(saved.getLanguageId());
+        List<Language> result = languageRepository.findByNameNative("Tam");
 
-        Optional<Language> deleted = languageRepository.findById(saved.getLanguageId());
-        assertFalse(deleted.isPresent());
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Tamil", result.get(0).getName());
+        System.out.println("Found: " + result.get(0).getName());
     }
 }

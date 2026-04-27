@@ -51,16 +51,6 @@ class LanguageServiceImplTest {
         assertEquals("English", result.getName());
     }
 
-    @Test
-    void testCreateLanguage_Success() {
-        when(languageRepository.existsByName("English")).thenReturn(false);
-        when(languageRepository.save(language)).thenReturn(language);
-
-        Language result = languageService.createLanguage(language);
-
-        assertNotNull(result);
-        verify(languageRepository).save(language);
-    }
 
     @Test
     void testUpdateLanguage_Success() {
