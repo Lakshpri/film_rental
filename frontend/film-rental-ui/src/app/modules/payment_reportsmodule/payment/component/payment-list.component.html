@@ -42,6 +42,7 @@
         </button>
       </div>
  
+      <!-- Backend error message e.g. "Payment with ID 999 was not found." -->
       <div *ngIf="paymentIdError" style="margin-top:10px;font-size:12px;color:var(--red)">
         {{ paymentIdError }}
       </div>
@@ -217,31 +218,99 @@
       <span class="modal-title">Create Payment</span>
       <button class="modal-close" (click)="closeModal()">&#10005;</button>
     </div>
-    <div *ngIf="error" class="alert alert-error" style="margin-bottom:12px;font-size:12px">{{ error }}</div>
+ 
+    <!-- Top-level backend error (409 duplicate, 400 business rule, etc.) -->
+    <div *ngIf="error" class="alert alert-error" style="margin-bottom:12px;font-size:12px">
+      {{ error }}
+    </div>
+ 
+    <!-- CUSTOMER ID -->
     <div class="form-group">
       <label class="form-label">Customer ID *</label>
-      <input class="form-control" type="number" min="1" [(ngModel)]="formData.customerId" placeholder="e.g. 1" />
+      <input
+        class="form-control"
+        type="number"
+        min="1"
+        [(ngModel)]="formData.customerId"
+        placeholder="e.g. 1"
+        [style.border-color]="hasFieldError('customerId') ? 'var(--red)' : ''" />
+      <!-- e.g. "Customer ID must be a number greater than zero (e.g. 1, 2, 3)" -->
+      <div *ngIf="hasFieldError('customerId')"
+           style="margin-top:4px;font-size:11px;color:var(--red)">
+        {{ fieldError('customerId') }}
+      </div>
     </div>
+ 
+    <!-- STAFF ID -->
     <div class="form-group">
       <label class="form-label">Staff ID *</label>
-      <input class="form-control" type="number" min="1" [(ngModel)]="formData.staffId" placeholder="e.g. 1" />
+      <input
+        class="form-control"
+        type="number"
+        min="1"
+        [(ngModel)]="formData.staffId"
+        placeholder="e.g. 1"
+        [style.border-color]="hasFieldError('staffId') ? 'var(--red)' : ''" />
+      <!-- e.g. "Staff ID must be a number greater than zero (e.g. 1, 2, 3)" -->
+      <div *ngIf="hasFieldError('staffId')"
+           style="margin-top:4px;font-size:11px;color:var(--red)">
+        {{ fieldError('staffId') }}
+      </div>
     </div>
+ 
+    <!-- RENTAL ID -->
     <div class="form-group">
       <label class="form-label">Rental ID <span style="color:var(--text-3);font-size:11px">(optional)</span></label>
-      <input class="form-control" type="number" min="1" [(ngModel)]="formData.rentalId" placeholder="Leave blank if none" />
+      <input
+        class="form-control"
+        type="number"
+        min="1"
+        [(ngModel)]="formData.rentalId"
+        placeholder="Leave blank if none"
+        [style.border-color]="hasFieldError('rentalId') ? 'var(--red)' : ''" />
+      <!-- e.g. "Rental ID must be a number greater than zero (e.g. 1, 2, 3)" -->
+      <div *ngIf="hasFieldError('rentalId')"
+           style="margin-top:4px;font-size:11px;color:var(--red)">
+        {{ fieldError('rentalId') }}
+      </div>
     </div>
+ 
+    <!-- AMOUNT -->
     <div class="form-group">
       <label class="form-label">Amount *</label>
-      <input class="form-control" type="number" step="0.01" min="0.01" [(ngModel)]="formData.amount" placeholder="e.g. 4.99" />
+      <input
+        class="form-control"
+        type="number"
+        step="0.01"
+        min="0.01"
+        [(ngModel)]="formData.amount"
+        placeholder="e.g. 4.99"
+        [style.border-color]="hasFieldError('amount') ? 'var(--red)' : ''" />
+      <!-- e.g. "Payment amount must be greater than zero. Please enter a valid amount (e.g. 4.99)" -->
+      <div *ngIf="hasFieldError('amount')"
+           style="margin-top:4px;font-size:11px;color:var(--red)">
+        {{ fieldError('amount') }}
+      </div>
     </div>
+ 
+    <!-- PAYMENT DATE -->
     <div class="form-group">
       <label class="form-label">Payment Date *</label>
-      <input class="form-control" type="datetime-local" [(ngModel)]="formData.paymentDate" />
+      <input
+        class="form-control"
+        type="datetime-local"
+        [(ngModel)]="formData.paymentDate"
+        [style.border-color]="hasFieldError('paymentDate') ? 'var(--red)' : ''" />
+      <!-- e.g. "Payment date cannot be a future date." -->
+      <div *ngIf="hasFieldError('paymentDate')"
+           style="margin-top:4px;font-size:11px;color:var(--red)">
+        {{ fieldError('paymentDate') }}
+      </div>
     </div>
+ 
     <div class="modal-footer">
       <button class="btn" (click)="closeModal()">Cancel</button>
       <button class="btn btn-primary" (click)="save()">Create</button>
     </div>
   </div>
 </div>
- 

@@ -1,14 +1,13 @@
 import { formatBackendError } from '../../../../shared/error-utils';
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ReportsService } from '../service/reports.service';
  
 @Component({
   standalone: true,
   selector: 'app-reports',
   templateUrl: './reports.component.html',
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule]
 })
 export class ReportsComponent {
   error = '';
@@ -20,15 +19,15 @@ export class ReportsComponent {
     { key: 'staff',      label: 'Staff List',        icon: '👔', description: 'All staff members' },
     { key: 'stores',     label: 'Sales by Store',    icon: '🏪', description: 'Revenue breakdown by store' },
     { key: 'categories', label: 'Sales by Category', icon: '🏷️', description: 'Revenue breakdown by category' },
-    { key: 'actors',     label: 'Actor Info',         icon: '🎭', description: 'All actor records' },
+    { key: 'actors',     label: 'Actor Info',        icon: '🎭', description: 'All actor records' },
   ];
  
-  customers:  any[] = []; customersLoading  = false; customersLoaded  = false; customerSearch = '';
-  films:      any[] = []; filmsLoading      = false; filmsLoaded      = false; filmSearch     = '';
-  staff:      any[] = []; staffLoading      = false; staffLoaded      = false; staffSearch    = '';
+  customers:  any[] = []; customersLoading  = false; customersLoaded  = false;
+  films:      any[] = []; filmsLoading      = false; filmsLoaded      = false;
+  staff:      any[] = []; staffLoading      = false; staffLoaded      = false;
   stores:     any[] = []; storesLoading     = false; storesLoaded     = false;
   categories: any[] = []; catsLoading       = false; catsLoaded       = false;
-  actors:     any[] = []; actorsLoading     = false; actorsLoaded     = false; actorSearch    = '';
+  actors:     any[] = []; actorsLoading     = false; actorsLoaded     = false;
  
   page: Record<string, number> = {};
   pageSize = 10;
@@ -58,13 +57,12 @@ export class ReportsComponent {
     }
   }
  
-  // ── Loaders — each unwraps the exact map key from ReportServiceImpl ──
+  // ── Loaders ───────────────────────────────────────────────────────
  
   loadCustomers(): void {
     this.customersLoading = true; this.customersLoaded = false; this.error = '';
     this.svc.getCustomerList().subscribe({
       next: (d: any) => {
-        // backend: map.put("customers", customers)
         this.customers = d.customers || [];
         this.customersLoaded = true; this.customersLoading = false;
         this.cdr.detectChanges();
@@ -77,7 +75,6 @@ export class ReportsComponent {
     this.filmsLoading = true; this.filmsLoaded = false; this.error = '';
     this.svc.getFilmList().subscribe({
       next: (d: any) => {
-        // backend: map.put("films", films)
         this.films = d.films || [];
         this.filmsLoaded = true; this.filmsLoading = false;
         this.cdr.detectChanges();
@@ -90,7 +87,6 @@ export class ReportsComponent {
     this.staffLoading = true; this.staffLoaded = false; this.error = '';
     this.svc.getStaffList().subscribe({
       next: (d: any) => {
-        // backend: map.put("staff", staff)
         this.staff = d.staff || [];
         this.staffLoaded = true; this.staffLoading = false;
         this.cdr.detectChanges();
@@ -103,7 +99,6 @@ export class ReportsComponent {
     this.storesLoading = true; this.storesLoaded = false; this.error = '';
     this.svc.getSalesByStore().subscribe({
       next: (d: any) => {
-        // backend: map.put("stores", stores)
         this.stores = d.stores || [];
         this.storesLoaded = true; this.storesLoading = false;
         this.cdr.detectChanges();
@@ -116,7 +111,6 @@ export class ReportsComponent {
     this.catsLoading = true; this.catsLoaded = false; this.error = '';
     this.svc.getSalesByCategory().subscribe({
       next: (d: any) => {
-        // backend: map.put("categories", categories)
         this.categories = d.categories || [];
         this.catsLoaded = true; this.catsLoading = false;
         this.cdr.detectChanges();
@@ -129,39 +123,12 @@ export class ReportsComponent {
     this.actorsLoading = true; this.actorsLoaded = false; this.error = '';
     this.svc.getActorInfo().subscribe({
       next: (d: any) => {
-        // backend: map.put("actors", actors)
         this.actors = d.actors || [];
         this.actorsLoaded = true; this.actorsLoading = false;
         this.cdr.detectChanges();
       },
       error: (e: any) => { this.error = formatBackendError(e); this.actorsLoading = false; this.cdr.detectChanges(); }
     });
-  }
- 
-  // ── Filtered getters ───────────────────────────────────────────────
-  get filteredCustomers(): any[] {
-    const q = this.customerSearch.toLowerCase();
-    return q ? this.customers.filter((c: any) =>
-      (c.firstName + ' ' + c.lastName + ' ' + c.email).toLowerCase().includes(q)
-    ) : this.customers;
-  }
-  get filteredFilms(): any[] {
-    const q = this.filmSearch.toLowerCase();
-    return q ? this.films.filter((f: any) =>
-      (f.title + ' ' + f.rating + ' ' + f.languageName).toLowerCase().includes(q)
-    ) : this.films;
-  }
-  get filteredStaff(): any[] {
-    const q = this.staffSearch.toLowerCase();
-    return q ? this.staff.filter((s: any) =>
-      (s.firstName + ' ' + s.lastName + ' ' + s.email + ' ' + s.username).toLowerCase().includes(q)
-    ) : this.staff;
-  }
-  get filteredActors(): any[] {
-    const q = this.actorSearch.toLowerCase();
-    return q ? this.actors.filter((a: any) =>
-      (a.firstName + ' ' + a.lastName).toLowerCase().includes(q)
-    ) : this.actors;
   }
  
   // ── Pagination ─────────────────────────────────────────────────────
