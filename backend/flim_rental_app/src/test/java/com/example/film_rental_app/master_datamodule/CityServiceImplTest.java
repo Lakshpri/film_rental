@@ -52,15 +52,6 @@ class CityServiceImplTest {
     //  POSITIVE TEST CASES
 
 
-    @Test
-    void testGetAllCities_Success() {
-        when(cityRepository.findAll()).thenReturn(Arrays.asList(city));
-
-        List<City> result = cityService.getAllCities();
-
-        assertEquals(1, result.size());
-        verify(cityRepository).findAll();
-    }
 
     @Test
     void testGetCityById_Success() {

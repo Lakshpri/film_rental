@@ -14,7 +14,7 @@ export class CityListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-
+modalError = ''; formErrors: { [key: string]: string } = {};
   constructor(private svc: CityService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
 
@@ -30,11 +30,11 @@ export class CityListComponent implements OnInit {
   openEdit(item: any): void { this.editItem = item; this.formData = { city: item.city, countryId: item.countryId }; this.error = ''; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.error = ''; }
 
-  validate(): boolean {
-    if (!this.formData.city?.trim()) { this.error = 'City name is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.countryId || this.formData.countryId <= 0) { this.error = 'A valid Country ID is required.'; this.cdr.detectChanges(); return false; }
-    return true;
-  }
+validate(): boolean {
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   save(): void {
     this.error = '';
@@ -50,27 +50,55 @@ export class CityListComponent implements OnInit {
     });
   }
 
-  delete(item: any): void {
-    if (!confirm('Delete this City?')) return;
+delete(item: any): void {
+  if (!confirm('Delete this City?')) return;
+
+  this.error = '';
+  this.successMsg = '';
+
+  this.svc.delete(item.cityId).subscribe({
+    next: (res: any) => {
+      if (res?.success) {
+        this.successMsg =
+          res.message || `City ${res.cityId} deleted successfully`;
+      } else {
+        this.error = res.message || 'Delete failed';
+      }
+
+      this.load();
+
+      setTimeout(() => {
+        this.successMsg = '';
+        this.error = '';
+        this.cdr.detectChanges();
+      }, 3000);
+    },
+    error: (e: any) => {
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+  search(term: string): void {
+    this.searchTerm = term.trim();
     this.error = '';
-    this.svc.delete(item.cityId).subscribe({
-      next: () => { this.successMsg = 'City deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
 
-search(term: string): void {
-  this.searchTerm = term.trim();
-  this.error = ''; 
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
 
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+    if (isNaN(Number(this.searchTerm))) {
+      this.error = 'Please enter a numeric City ID to search.';
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
 
-  if (!isNaN(Number(this.searchTerm))) {
     const id = Number(this.searchTerm);
     this.loading = true;
     this.svc.getById(id).subscribe({
@@ -84,12 +112,8 @@ search(term: string): void {
         this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
       }
     });
-  } else {
-    const lower = this.searchTerm.toLowerCase();
-    this.filteredItems = this.items.filter(item => item.city?.toLowerCase().includes(lower));
-    this.currentPage = 1; this.paginate();
   }
-}
+
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;

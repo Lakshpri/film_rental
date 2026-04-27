@@ -14,8 +14,8 @@ export class CountryListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-  cities: any[] = [];
   filteredCities: any[] = [];
+  modalError = ''; formErrors: { [key: string]: string } = {};
 
   constructor(private svc: CountryService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
@@ -33,10 +33,11 @@ export class CountryListComponent implements OnInit {
   openEdit(item: any): void { this.editItem = item; this.formData = { country: item.country }; this.error = ''; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.error = ''; }
 
-  validate(): boolean {
-    if (!this.formData.country?.trim()) { this.error = 'Country name is required.'; return false; }
-    return true;
-  }
+validate(): boolean {
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   save(): void {
     this.error = '';
@@ -53,32 +54,52 @@ export class CountryListComponent implements OnInit {
       },
       error: (e: any) => {
         this.error = formatBackendError(e);
-        this.cdr.detectChanges(); // ← THIS was the missing line
+        this.cdr.detectChanges();
       }
     });
   }
 
-  delete(item: any): void {
-    if (!confirm('Delete this Country?')) return;
-    this.error = '';
-    this.svc.delete(item.countryId).subscribe({
-      next: () => { this.successMsg = 'Country deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+delete(item: any): void {
+  if (!confirm('Delete this Country?')) return;
 
- search(term: string): void {
-  this.searchTerm = term.trim();
   this.error = '';
+  this.successMsg = '';
 
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+  this.svc.delete(item.countryId).subscribe({
+    next: (res: any) => {
+      this.successMsg = res?.message || 'Country deleted!';
+      this.load();
 
-  if (!isNaN(Number(this.searchTerm))) {
+      setTimeout(() => {
+        this.successMsg = '';
+        this.cdr.detectChanges();
+      }, 3000);
+    },
+    error: (e: any) => {
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    if (isNaN(Number(this.searchTerm))) {
+      this.error = 'Please enter a numeric Country ID to search.';
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const id = Number(this.searchTerm);
     this.loading = true;
     this.svc.getById(id).subscribe({
@@ -92,32 +113,41 @@ export class CountryListComponent implements OnInit {
         this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
       }
     });
-  } else {
-    const lower = this.searchTerm.toLowerCase();
-    this.filteredItems = this.items.filter(item => item.country?.toLowerCase().includes(lower));
-    this.currentPage = 1; this.paginate();
   }
-}
+
   searchCities(term: string): void {
     const value = term.trim();
-    if (!value) { this.filteredCities = []; return; }
-    if (!isNaN(Number(value))) {
-      const id = Number(value);
-      this.loading = true;
-      this.svc.getCitiesByCountryId(id).subscribe({
-        next: (res: any[]) => { this.filteredCities = res || []; this.loading = false; this.cdr.detectChanges(); },
-        error: () => { this.filteredCities = []; this.loading = false; this.cdr.detectChanges(); }
-      });
-    } else {
-      const lower = value.toLowerCase();
-      const foundCountry = this.items.find(c => c.country?.toLowerCase().includes(lower));
-      if (!foundCountry) { this.filteredCities = []; return; }
-      this.loading = true;
-      this.svc.getCitiesByCountryId(foundCountry.countryId).subscribe({
-        next: (res: any[]) => { this.filteredCities = res || []; this.loading = false; this.cdr.detectChanges(); },
-        error: () => { this.filteredCities = []; this.loading = false; this.cdr.detectChanges(); }
-      });
+    this.error = '';
+
+    if (!value) {
+      this.filteredCities = [];
+      return;
     }
+
+    if (isNaN(Number(value))) {
+      this.error = 'Please enter a numeric Country ID to search cities.';
+      this.filteredCities = [];
+      return;
+    }
+
+    const id = Number(value);
+    this.loading = true;
+    this.svc.getCitiesByCountryId(id).subscribe({
+      next: (res: any[]) => {
+        this.filteredCities = res || [];
+        if (this.filteredCities.length === 0) {
+          this.error = `No cities found for Country ID ${id}.`;
+        }
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        this.error = formatBackendError(e);
+        this.filteredCities = [];
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   paginate(): void {

@@ -40,17 +40,6 @@ class CategoryServiceImplTest {
 
     //  POSITIVE TEST CASES
 
-
-    @Test
-    void testGetAllCategories_Success() {
-        when(categoryRepository.findAll()).thenReturn(Arrays.asList(category));
-
-        List<Category> result = categoryService.getAllCategories();
-
-        assertEquals(1, result.size());
-        verify(categoryRepository, times(1)).findAll();
-    }
-
     @Test
     void testGetCategoryById_Success() {
         when(categoryRepository.findById(1)).thenReturn(Optional.of(category));

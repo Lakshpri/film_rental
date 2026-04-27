@@ -14,10 +14,10 @@ export class LanguageListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-
+  modalError = ''; formErrors: { [key: string]: string } = {};
   constructor(private svc: LanguageService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
-
+  
   load(): void {
     this.loading = true; this.error = '';
     this.svc.getAll().subscribe({
@@ -30,10 +30,11 @@ export class LanguageListComponent implements OnInit {
   openEdit(item: any): void { this.editItem = item; this.formData = { name: item.name }; this.error = ''; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.error = ''; }
 
-  validate(): boolean {
-    if (!this.formData.name?.trim()) { this.error = 'Language name is required.'; this.cdr.detectChanges(); return false; }
-    return true;
-  }
+validate(): boolean {
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   save(): void {
     this.error = '';
@@ -51,27 +52,55 @@ export class LanguageListComponent implements OnInit {
     });
   }
 
-  delete(item: any): void {
-    if (!confirm('Delete this Language?')) return;
-    this.error = '';
-    this.svc.delete(item.languageId).subscribe({
-      next: () => { this.successMsg = 'Language deleted!'; this.load(); setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+delete(item: any): void {
+  if (!confirm('Delete this Language?')) return;
 
-search(term: string): void {
-  this.searchTerm = term.trim();
   this.error = '';
+  this.successMsg = '';
 
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+  this.svc.delete(item.languageId).subscribe({
+    next: (res: any) => {
+      if (res?.success) {
+        this.successMsg =
+          res.message || `Language ${res.languageId} deleted successfully`;
+      } else {
+        this.error = res.message || 'Delete failed';
+      }
 
-  if (!isNaN(Number(this.searchTerm))) {
+      this.load();
+
+      setTimeout(() => {
+        this.successMsg = '';
+        this.error = '';
+        this.cdr.detectChanges();
+      }, 3000);
+    },
+    error: (e: any) => {
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    if (isNaN(Number(this.searchTerm))) {
+      this.error = 'Please enter a numeric Language ID to search.';
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const id = Number(this.searchTerm);
     this.loading = true;
     this.svc.getById(id).subscribe({
@@ -85,12 +114,8 @@ search(term: string): void {
         this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
       }
     });
-  } else {
-    const lower = this.searchTerm.toLowerCase();
-    this.filteredItems = this.items.filter(item => item.name?.toLowerCase().includes(lower));
-    this.currentPage = 1; this.paginate();
   }
-}
+
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;

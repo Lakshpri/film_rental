@@ -14,7 +14,7 @@
   <div *ngIf="loading" class="loading">Loading Categories...</div>
 
   <div class="search-bar">
-    <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
+    <input class="search-input" type="text" placeholder="Search by Category ID..." (input)="search($any($event.target).value)" />
     <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
 
