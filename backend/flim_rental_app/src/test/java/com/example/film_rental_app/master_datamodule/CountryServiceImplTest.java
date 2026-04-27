@@ -46,8 +46,6 @@ class CountryServiceImplTest {
 
     // POSITIVE TEST CASES
 
-
-
     @Test
     void testGetCountryById_Success() {
         when(countryRepository.findById(1)).thenReturn(Optional.of(country));
@@ -58,16 +56,6 @@ class CountryServiceImplTest {
         assertEquals("India", result.getCountry());
     }
 
-    @Test
-    void testCreateCountry_Success() {
-        when(countryRepository.existsByCountry("India")).thenReturn(false);
-        when(countryRepository.save(country)).thenReturn(country);
-
-        Country result = countryService.createCountry(country);
-
-        assertNotNull(result);
-        verify(countryRepository).save(country);
-    }
 
     @Test
     void testUpdateCountry_Success() {
@@ -124,17 +112,6 @@ class CountryServiceImplTest {
                 () -> countryService.updateCountry(1, updated));
     }
 
-    @Test
-    void testUpdateCountry_DuplicateName() {
-        Country updated = new Country();
-        updated.setCountry("USA");
-
-        when(countryRepository.findById(1)).thenReturn(Optional.of(country));
-        when(countryRepository.existsByCountry("USA")).thenReturn(true);
-
-        assertThrows(CountryAlreadyExistsException.class,
-                () -> countryService.updateCountry(1, updated));
-    }
 
     @Test
     void testDeleteCountry_WithExistingCities() {

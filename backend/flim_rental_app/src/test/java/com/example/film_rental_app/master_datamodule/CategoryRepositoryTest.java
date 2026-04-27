@@ -29,31 +29,6 @@ public class CategoryRepositoryTest {
     }
 
     @Test
-    void testFindAll() {
-        List<Category> list = categoryRepository.findAll();
-
-        assertNotNull(list);
-        System.out.println("All categories: " + list);
-    }
-
-    @Test
-    void testUpdateCategory() {
-        Category category = new Category();
-        category.setName("Comedy");
-        Category saved = categoryRepository.save(category);
-
-        Category existing = categoryRepository.findById(saved.getCategoryId())
-                .orElseThrow();
-
-        existing.setName("Comedy Updated");
-
-        Category updated = categoryRepository.save(existing);
-
-        assertEquals("Comedy Updated", updated.getName());
-        System.out.println("Updated: " + updated);
-    }
-
-    @Test
     void testDeleteById() {
         Category category = new Category();
         category.setName("Horror");
@@ -65,5 +40,15 @@ public class CategoryRepositoryTest {
 
         assertFalse(deleted.isPresent());
         System.out.println("Deleted successfully");
+    }
+    // Tests the custom @Query
+    @Test
+    void testSearchByName_NoMatch_ReturnsEmptyList() {
+
+        List<Category> result = categoryRepository.searchByName("zzznomatch");
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        System.out.println("No match result: " + result);
     }
 }

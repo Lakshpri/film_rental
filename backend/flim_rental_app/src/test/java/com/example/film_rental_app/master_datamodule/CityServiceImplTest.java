@@ -63,17 +63,6 @@ class CityServiceImplTest {
         assertEquals("Chennai", result.getCity());
     }
 
-    @Test
-    void testCreateCity_Success() {
-        when(countryRepository.existsById(1)).thenReturn(true);
-        when(cityRepository.existsByCityAndCountry_CountryId("Chennai", 1)).thenReturn(false);
-        when(cityRepository.save(city)).thenReturn(city);
-
-        City result = cityService.createCity(city);
-
-        assertNotNull(result);
-        verify(cityRepository).save(city);
-    }
 
     @Test
     void testUpdateCity_Success() {

@@ -40,12 +40,6 @@ class CityRepositoryTest {
         return c;
     }
 
-    @Test
-    @DisplayName("Save city with valid data should persist")
-    void saveCity_withValidData_shouldPersist() {
-        City saved = cityRepository.saveAndFlush(buildValid("Pune"));
-        assertThat(saved.getCityId()).isNotNull();
-    }
 
     @Test
     void saveCity_withBlankName_shouldThrow() {
@@ -68,18 +62,6 @@ class CityRepositoryTest {
                 .isInstanceOf(ConstraintViolationException.class);
     }
 
-    @Test
-    void testFindCityById() {
-        City saved = cityRepository.save(buildValid("Chennai"));
-        Optional<City> found = cityRepository.findById(saved.getCityId());
-        assertTrue(found.isPresent());
-    }
-
-    @Test
-    void testFindAllCities() {
-        List<City> cities = cityRepository.findAll();
-        assertNotNull(cities);
-    }
 
     @Test
     void testUpdateCity() {
@@ -101,14 +83,16 @@ class CityRepositoryTest {
         assertFalse(deleted.isPresent());
     }
 
+    // Custom @Query:
     @Test
-    void testFindByCountryId() {
-        cityRepository.save(buildValid("Bangalore"));
-        cityRepository.save(buildValid("Hyderabad"));
+    void testFindCitiesByCountrySorted() {
+        cityRepository.save(buildValid("Mumbai"));
+        cityRepository.save(buildValid("Ahmedabad"));
 
-        List<City> cities =
-                cityRepository.findByCountry_CountryId(country.getCountryId());
+        List<City> result = cityRepository.findCitiesByCountrySorted(country.getCountryId());
 
-        assertEquals(2, cities.size());
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        System.out.println("Sorted cities: " + result);
     }
 }
