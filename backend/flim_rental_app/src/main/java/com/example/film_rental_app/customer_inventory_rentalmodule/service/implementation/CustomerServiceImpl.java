@@ -12,18 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
-@Transactional
+@Service// Marks as service layer
+@Transactional // Handles transactions
 public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
+    // Fetch all customers
     @Override
     @Transactional(readOnly = true)
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
+    // Get customer by ID with exception handling
     @Override
     @Transactional(readOnly = true)
     public Customer getCustomerById(Integer customerId) {
@@ -32,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
     }
 
+    // Create new customer with duplicate email check
     @Override
     public Customer createCustomer(Customer customer) {
         // DuplicateResourceException → HTTP 409
@@ -41,6 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.save(customer);
     }
 
+    // Update customer with validation
     @Override
     public Customer updateCustomer(Integer customerId, Customer updated) {
         // ResourceNotFoundException → HTTP 404
@@ -52,6 +56,8 @@ public class CustomerServiceImpl implements CustomerService {
                 && customerRepository.existsByEmail(updated.getEmail())) {
             throw new CustomerAlreadyExistsException(updated.getEmail());
         }
+
+        // Update fields
         customer.setFirstName(updated.getFirstName());
         customer.setLastName(updated.getLastName());
         customer.setEmail(updated.getEmail());
@@ -60,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (updated.getAddress() != null) customer.setAddress(updated.getAddress());
         return customerRepository.save(customer);
     }
-
+    // Delete customer only if inactive
     @Override
     public boolean deleteCustomer(Integer customerId) {
         // ResourceNotFoundException → HTTP 404

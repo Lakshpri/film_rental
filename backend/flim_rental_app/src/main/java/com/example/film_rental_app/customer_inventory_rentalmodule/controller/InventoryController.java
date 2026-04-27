@@ -16,50 +16,71 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/inventory")
-@Validated
+@RestController // Marks this class as REST API controller
+@RequestMapping("/api/inventory") // Base URL
+@Validated // Enables validation
 public class InventoryController {
 
-    @Autowired private InventoryService inventoryService;
-    @Autowired private FilmService filmService;
-    @Autowired private StoreService storeService;
-    @Autowired private InventoryMapper inventoryMapper;
+    @Autowired private InventoryService inventoryService; // Business logic
+    @Autowired private FilmService filmService; // Fetch Film
+    @Autowired private StoreService storeService; // Fetch Store
+    @Autowired private InventoryMapper inventoryMapper; // DTO ↔ Entity conversion
 
     // GET /api/inventory
     @GetMapping
     public ResponseEntity<List<InventoryResponseDTO>> getAllInventory() {
+
+        // Fetch all inventory → convert to DTO
         List<InventoryResponseDTO> result = inventoryService.getAllInventory().stream()
                 .map(inventoryMapper::toResponseDTO)
                 .toList();
-        return ResponseEntity.ok(result);
+
+        return ResponseEntity.ok(result); // Return 200 OK
     }
 
     // GET /api/inventory/{inventoryId}
     @GetMapping("/{inventoryId}")
     public ResponseEntity<InventoryResponseDTO> getInventoryById(
             @PathVariable @Positive(message = "Inventory ID must be a positive number") Integer inventoryId) {
-        return ResponseEntity.ok(inventoryMapper.toResponseDTO(inventoryService.getInventoryById(inventoryId)));
+
+        // Fetch inventory → convert to DTO
+        return ResponseEntity.ok(
+                inventoryMapper.toResponseDTO(
+                        inventoryService.getInventoryById(inventoryId)
+                )
+        );
     }
 
     // POST /api/inventory
     @PostMapping
     public ResponseEntity<InventoryResponseDTO> createInventory(@Valid @RequestBody InventoryRequestDTO dto) {
+
+        // Convert DTO → Entity
         Inventory inventory = inventoryMapper.toEntity(dto);
+
+        // Set relationships using services
         inventory.setFilm(filmService.getFilmById(dto.getFilmId()));
         inventory.setStore(storeService.getStoreById(dto.getStoreId()));
-        InventoryResponseDTO response = inventoryMapper.toResponseDTO(inventoryService.createInventory(inventory));
+
+        // Save and convert back to DTO
+        InventoryResponseDTO response =
+                inventoryMapper.toResponseDTO(inventoryService.createInventory(inventory));
+
         response.setMessage("Inventory item created successfully.");
-        return ResponseEntity.status(201).body(response);
+
+        return ResponseEntity.status(201).body(response); // Return 201 Created
     }
 
     // DELETE /api/inventory/{inventoryId}
     @DeleteMapping("/{inventoryId}")
     public ResponseEntity<InventoryResponseDTO> deleteInventory(
             @PathVariable @Positive(message = "Inventory ID must be a positive number") Integer inventoryId) {
+
         inventoryService.deleteInventory(inventoryId);
+
         InventoryResponseDTO response = new InventoryResponseDTO();
         response.setMessage("Inventory item deleted successfully.");
+
         return ResponseEntity.ok(response);
     }
 }
