@@ -27,7 +27,7 @@ export class PaymentListComponent implements OnInit {
   paymentIdError = '';
   showPaymentIdResult = false;
 
-  // Search bar 2 — filter from loaded items by customerId
+  // Search bar 2 — GET /api/payments/customer/{customerId}
   customerIdInput: number | null = null;
   customerPayments: any[] = [];
   customerPaymentsFiltered: any[] = [];
@@ -41,7 +41,7 @@ export class PaymentListComponent implements OnInit {
   // UI state
   loading = true;
   error = '';
-  fieldErrors: { [key: string]: string } = {};   // ← holds backend @Valid field errors
+  fieldErrors: { [key: string]: string } = {};
   showModal = false;
   formData: any = {};
   successMsg = '';
@@ -50,13 +50,20 @@ export class PaymentListComponent implements OnInit {
 
   ngOnInit(): void { this.loadAll(); }
 
-  // ── Extract backend error message ─────────────────────────────────
-  // Also populates fieldErrors if the backend returned a "fields" map (@Valid)
+  /**
+   * Parses the backend error response into a displayable string.
+   *
+   * When a "fields" map is present (from @Valid or @Positive),
+   * the first field message is returned directly so the user sees
+   * the specific constraint message instead of the generic error label.
+   * fieldErrors is also populated so the form template can show
+   * per-field messages next to each input.
+   */
   private extractError(e: any): string {
-    // @Valid field-level errors — populate fieldErrors map
     if (e?.error?.fields && typeof e.error.fields === 'object') {
       this.fieldErrors = e.error.fields;
-      return e.error.error || 'Some fields have invalid values.';
+      const firstMessage = Object.values(e.error.fields)[0] as string;
+      return firstMessage || e.error.error || 'Some fields have invalid values.';
     }
     this.fieldErrors = {};
     return e?.error?.message
@@ -89,13 +96,16 @@ export class PaymentListComponent implements OnInit {
     });
   }
 
-  // ── Search Bar 1: GET /api/payments/{paymentId} ───────────────────
+  /**
+   * Calls GET /api/payments/{paymentId}.
+   * Only blocks null/undefined — 0 and negative values reach the backend
+   * so the @Positive constraint message is shown from the backend response.
+   * Note: !id check cannot be used here because 0 is falsy in JavaScript.
+   */
   searchByPaymentId(): void {
+    if (this.paymentIdInput === null || this.paymentIdInput === undefined) return;
     const id = Number(this.paymentIdInput);
-    if (!id || id <= 0) {
-      this.paymentIdError = 'Enter a valid Payment ID.';
-      return;
-    }
+
     this.paymentIdLoading = true;
     this.paymentIdError = '';
     this.paymentIdResult = null;
@@ -109,6 +119,7 @@ export class PaymentListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
+        // covers: @Positive violation, PaymentNotFoundException
         this.paymentIdError = this.extractError(e);
         this.paymentIdLoading = false;
         this.showPaymentIdResult = false;
@@ -124,36 +135,43 @@ export class PaymentListComponent implements OnInit {
     this.showPaymentIdResult = false;
   }
 
-  // ── Search Bar 2: Filter from already-loaded items by customerId ──
+  /**
+   * Calls GET /api/payments/customer/{customerId}.
+   * Only blocks null/undefined — 0 and negative values reach the backend
+   * so the @Positive constraint message is shown from the backend response.
+   * Note: !id check cannot be used here because 0 is falsy in JavaScript.
+   */
   searchByCustomerId(): void {
+    if (this.customerIdInput === null || this.customerIdInput === undefined) return;
     const id = Number(this.customerIdInput);
-    if (!id || id <= 0) {
-      this.customerIdError = 'Enter a valid Customer ID.';
-      return;
-    }
 
+    this.customerIdLoading = true;
     this.customerIdError = '';
     this.showCustomerPayments = false;
     this.customerPayments = [];
     this.customerPaymentsFiltered = [];
     this.customerPaymentsPagedItems = [];
 
-    const results = this.items.filter(
-      (p: any) => Number(p.customerId) === id
-    );
-
-    if (results.length === 0) {
-      this.customerIdError = `No payments found for Customer ID ${id}.`;
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.customerPayments = results;
-    this.customerPaymentsFiltered = [...results];
-    this.customerPaymentsPage = 1;
-    this.paginateCustomer();
-    this.showCustomerPayments = true;
-    this.cdr.detectChanges();
+    this.svc.getByCustomer(id).subscribe({
+      next: (results: any[]) => {
+        this.customerPayments = results;
+        this.customerPaymentsFiltered = [...results];
+        this.customerPaymentsPage = 1;
+        this.paginateCustomer();
+        this.showCustomerPayments = results.length > 0;
+        this.customerIdLoading = false;
+        if (results.length === 0) {
+          this.customerIdError = `No payments found for Customer ID ${id}.`;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (e: any) => {
+        // covers: @Positive violation, CustomerNotFoundException
+        this.customerIdError = this.extractError(e);
+        this.customerIdLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   clearCustomerIdSearch(): void {
@@ -205,12 +223,10 @@ export class PaymentListComponent implements OnInit {
     return String(value);
   }
 
-  // Returns the field-level error from backend for a given field name
   fieldError(field: string): string {
     return this.fieldErrors[field] || '';
   }
 
-  // True if the backend returned a field error for this field
   hasFieldError(field: string): boolean {
     return !!this.fieldErrors[field];
   }
@@ -225,7 +241,7 @@ export class PaymentListComponent implements OnInit {
       paymentDate: new Date().toISOString().slice(0, 16)
     };
     this.error = '';
-    this.fieldErrors = {};   // clear any previous field errors
+    this.fieldErrors = {};
     this.showModal = true;
   }
 
@@ -235,30 +251,43 @@ export class PaymentListComponent implements OnInit {
     this.fieldErrors = {};
   }
 
+  /**
+   * Submits POST /api/payments.
+   *
+   * Null is sent for empty fields so @NotNull fires "field is required".
+   * Explicit null/empty check is used instead of truthy check because
+   * 0 is falsy in JavaScript — without this, typing 0 would send null
+   * and trigger @NotNull instead of the correct @Positive message.
+   */
   save(): void {
     this.error = '';
     this.fieldErrors = {};
 
     const payload: any = {
-      customerId:  Number(this.formData.customerId),
-      staffId:     Number(this.formData.staffId),
-      amount:      Number(this.formData.amount),
+      customerId:  this.formData.customerId !== null && this.formData.customerId !== '' ? Number(this.formData.customerId) : null,
+      staffId:     this.formData.staffId !== null && this.formData.staffId !== '' ? Number(this.formData.staffId) : null,
+      amount:      this.formData.amount !== null && this.formData.amount !== '' ? Number(this.formData.amount) : null,
+      // datetime-local gives "YYYY-MM-DDTHH:mm" — backend expects seconds
       paymentDate: this.formData.paymentDate.length === 16
         ? this.formData.paymentDate + ':00'
         : this.formData.paymentDate
     };
+
+    // rentalId is optional — only include if the user entered a value
     if (this.formData.rentalId !== null && this.formData.rentalId !== '') {
       payload.rentalId = Number(this.formData.rentalId);
     }
+
     this.svc.create(payload).subscribe({
       next: (res: any) => {
-        this.successMsg = res.message;
+        this.successMsg = res.message; // "Payment created!" from backend
         this.closeModal();
         this.loadAll();
         setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
       },
       error: (e: any) => {
-        this.error = this.extractError(e);   // also populates fieldErrors if @Valid
+        // extractError also populates fieldErrors for @Valid field-level messages
+        this.error = this.extractError(e);
         this.cdr.detectChanges();
       }
     });
@@ -269,7 +298,7 @@ export class PaymentListComponent implements OnInit {
     if (!confirm(`Delete Payment #${item.paymentId}?`)) return;
     this.svc.delete(item.paymentId).subscribe({
       next: (res: any) => {
-        this.successMsg = res.message;
+        this.successMsg = res.message; // "Payment deleted Successfully!" from backend
         this.loadAll();
         setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
       },
