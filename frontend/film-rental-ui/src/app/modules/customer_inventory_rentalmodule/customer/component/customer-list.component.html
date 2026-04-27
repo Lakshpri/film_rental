@@ -64,6 +64,7 @@
       <span class="modal-title">{{ editItem ? 'Edit' : 'Create' }} Customer</span>
       <button class="modal-close" (click)="closeModal()">&#10005;</button>
     </div>
+      <div *ngIf="error" class="alert alert-error" style="margin: 0 0 12px 0; white-space: pre-line;">{{ error }}</div>
     <div class="form-group">
       <label class="form-label">First Name *</label>
       <input class="form-control" [(ngModel)]="formData.firstName" placeholder="e.g. Arjun" />

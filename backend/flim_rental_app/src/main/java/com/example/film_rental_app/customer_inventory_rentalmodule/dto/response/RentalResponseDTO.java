@@ -2,22 +2,39 @@ package com.example.film_rental_app.customer_inventory_rentalmodule.dto.response
 
 import java.time.LocalDateTime;
 
+// DTO used to send rental details to frontend
 public class RentalResponseDTO {
 
+    // Response message
     private String message;
+
+    // Rental details
     private Integer rentalId;
     private LocalDateTime rentalDate;
     private LocalDateTime returnDate;
+
+    // Inventory details
     private Integer inventoryId;
+
+    // Film details (from Inventory → Film)
     private Integer filmId;
     private String filmTitle;
+
+    // Customer details
     private Integer customerId;
     private String customerName;
+
+    // Staff details
     private Integer staffId;
     private String staffName;
+
+    // Last update timestamp
     private LocalDateTime lastUpdate;
 
+    // Default constructor
     public RentalResponseDTO() {}
+
+    // Getters and Setters
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
