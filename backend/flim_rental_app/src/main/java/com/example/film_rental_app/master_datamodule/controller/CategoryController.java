@@ -61,8 +61,7 @@ public class CategoryController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", deleted);
-        response.put("message", "Category deleted successfully");
-        response.put("categoryId", categoryId);
+        response.put("message", "Category " + categoryId + " deleted successfully");
 
         return ResponseEntity.ok(response);
     }

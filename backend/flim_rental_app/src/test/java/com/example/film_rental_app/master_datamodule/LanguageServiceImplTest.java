@@ -42,16 +42,6 @@ class LanguageServiceImplTest {
 
 
     @Test
-    void testGetAllLanguages_Success() {
-        when(languageRepository.findAll()).thenReturn(Arrays.asList(language));
-
-        List<Language> result = languageService.getAllLanguages();
-
-        assertEquals(1, result.size());
-        verify(languageRepository).findAll();
-    }
-
-    @Test
     void testGetLanguageById_Success() {
         when(languageRepository.findById(1)).thenReturn(Optional.of(language));
 

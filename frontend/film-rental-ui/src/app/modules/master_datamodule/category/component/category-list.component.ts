@@ -14,7 +14,7 @@ export class CategoryListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-
+  modalError = ''; formErrors: { [key: string]: string } = {};
   constructor(private svc: CategoryService, private cdr: ChangeDetectorRef) {}
   ngOnInit(): void { setTimeout(() => this.load()); }
 
@@ -30,10 +30,11 @@ export class CategoryListComponent implements OnInit {
   openEdit(item: any): void { this.editItem = item; this.formData = { name: item.name }; this.error = ''; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.error = ''; }
 
-  validate(): boolean {
-    if (!this.formData.name?.trim()) { this.error = 'Category name is required.'; this.cdr.detectChanges(); return false; }
-    return true;
-  }
+validate(): boolean {
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   save(): void {
     this.error = '';
@@ -51,47 +52,82 @@ export class CategoryListComponent implements OnInit {
     });
   }
 
-  delete(item: any): void {
-    if (!confirm('Delete this Category?')) return;
-    this.error = '';
-    this.svc.delete(item.categoryId).subscribe({
-      next: () => {
-        this.successMsg = 'Category deleted!'; this.load();
-        setTimeout(() => { this.successMsg = ''; this.cdr.detectChanges(); }, 3000);
-      },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
+ delete(item: any): void {
+  if (!confirm('Delete this Category?')) return;
+
+  this.error = '';
+  this.successMsg = '';
+
+  this.svc.delete(item.categoryId).subscribe({
+    next: (res: any) => {
+      if (res?.success) {
+        this.successMsg =
+          res.message || `Category ${res.categoryId} deleted successfully`;
+      } else {
+        this.error = res.message || 'Delete failed';
+      }
+
+      this.load();
+
+      setTimeout(() => {
+        this.successMsg = '';
+        this.error = '';
+        this.cdr.detectChanges();
+      }, 3000);
+    },
+    error: (e: any) => {
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
+ search(term: string): void {
+  this.searchTerm = term.trim();
+  this.error = '';
+
+  if (!this.searchTerm) {
+    this.filteredItems = [...this.items];
+    this.currentPage = 1;
+    this.paginate();
+    return;
   }
 
-  search(term: string): void {
-    this.searchTerm = term.trim();
-    this.error = ''; 
-
-    if (!this.searchTerm) {
-      this.filteredItems = [...this.items]; this.currentPage = 1; this.paginate(); return;
-    }
-
-    if (!isNaN(Number(this.searchTerm))) {
-      const id = Number(this.searchTerm);
-      this.loading = true;
-      this.svc.getById(id).subscribe({
-        next: (res: any) => {
-          this.filteredItems = res ? [res] : [];
-          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
-        },
-        error: (e: any) => {
-          this.error = formatBackendError(e);
-          this.filteredItems = [];
-          this.currentPage = 1; this.paginate(); this.loading = false; this.cdr.detectChanges();
-        }
-      });
-    } else {
-      const lower = this.searchTerm.toLowerCase();
-      this.filteredItems = this.items.filter(item => item.name?.toLowerCase().includes(lower));
-      this.currentPage = 1; this.paginate();
-    }
+  if (isNaN(Number(this.searchTerm))) {
+    this.error = 'Please enter a valid numeric Category ID.';
+    this.filteredItems = [...this.items];
+    this.currentPage = 1;
+    this.paginate();
+    return;
   }
 
+  const id = Number(this.searchTerm);
+  if (id <= 0) {
+    this.error = 'Category ID must be a positive number.';
+    this.filteredItems = [];
+    this.paginate();
+    return;
+  }
+
+  this.loading = true;
+
+  this.svc.getById(id).subscribe({
+    next: (res: any) => {
+      this.filteredItems = res ? [res] : [];
+      this.currentPage = 1;
+      this.paginate();
+      this.loading = false;
+      this.cdr.detectChanges();
+    },
+    error: (e: any) => {
+      this.error = formatBackendError(e);
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;

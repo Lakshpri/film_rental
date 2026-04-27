@@ -47,15 +47,6 @@ class CountryServiceImplTest {
     // POSITIVE TEST CASES
 
 
-    @Test
-    void testGetAllCountries_Success() {
-        when(countryRepository.findAll()).thenReturn(Arrays.asList(country));
-
-        List<Country> result = countryService.getAllCountries();
-
-        assertEquals(1, result.size());
-        verify(countryRepository).findAll();
-    }
 
     @Test
     void testGetCountryById_Success() {

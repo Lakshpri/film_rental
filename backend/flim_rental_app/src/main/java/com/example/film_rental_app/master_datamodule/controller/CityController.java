@@ -73,8 +73,7 @@ public class CityController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", deleted);
-        response.put("message", "City deleted successfully");
-        response.put("cityId", cityId);
+        response.put("message", "City " + cityId + " deleted successfully");
 
         return ResponseEntity.ok(response);
     }
