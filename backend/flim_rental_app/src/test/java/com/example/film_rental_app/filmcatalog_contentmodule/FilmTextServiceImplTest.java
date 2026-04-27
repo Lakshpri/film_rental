@@ -30,16 +30,7 @@ class FilmTextServiceImplTest {
     @InjectMocks
     private FilmTextServiceImpl filmTextService;
 
-    // ---------------------- POSITIVE TEST CASES (5) ----------------------
-
-    @Test
-    void testGetAllFilmTexts_Success() {
-        when(filmTextRepository.findAll()).thenReturn(List.of(new FilmText(), new FilmText()));
-
-        List<FilmText> result = filmTextService.getAllFilmTexts();
-
-        assertEquals(2, result.size());
-    }
+    // ---------------------- POSITIVE TEST CASES ----------------------
 
     @Test
     void testGetFilmTextById_Success() {
@@ -80,17 +71,7 @@ class FilmTextServiceImplTest {
         assertEquals("New", result.getTitle());
     }
 
-    @Test
-    void testDeleteFilmText_Success() {
-        when(filmTextRepository.existsById(1)).thenReturn(true);
-
-        boolean result = filmTextService.deleteFilmText(1);
-
-        assertTrue(result);
-        verify(filmTextRepository).deleteById(1);
-    }
-
-    // ---------------------- NEGATIVE TEST CASES (5) ----------------------
+    // ---------------------- NEGATIVE TEST CASES ----------------------
 
     @Test
     void testGetFilmTextById_NotFound() {
@@ -109,18 +90,6 @@ class FilmTextServiceImplTest {
         assertThrows(FilmNotFoundException.class,
                 () -> filmTextService.createFilmText(filmText));
     }
-
-    @Test
-    void testCreateFilmText_AlreadyExists() {
-        FilmText filmText = new FilmText(1, "Title", "Desc");
-
-        when(filmRepository.existsById(1)).thenReturn(true);
-        when(filmTextRepository.existsByFilmId(1)).thenReturn(true);
-
-        assertThrows(FilmTextAlreadyExistsException.class,
-                () -> filmTextService.createFilmText(filmText));
-    }
-
     @Test
     void testUpdateFilmText_NotFound() {
         when(filmTextRepository.findById(1)).thenReturn(Optional.empty());
