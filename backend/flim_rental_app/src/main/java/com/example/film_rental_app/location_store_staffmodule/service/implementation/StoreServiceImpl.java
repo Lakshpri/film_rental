@@ -10,6 +10,7 @@ import com.example.film_rental_app.location_store_staffmodule.repository.StaffRe
 import com.example.film_rental_app.location_store_staffmodule.repository.StoreRepository;
 import com.example.film_rental_app.location_store_staffmodule.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     @Transactional(readOnly = true)
     public List<Store> getAllStores() {
-        return storeRepository.findAllWithDetails();   // ← was findAll()
+        return storeRepository.findAllWithDetails(Sort.by("storeId"));   // ← was findAll()
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.example.film_rental_app.location_store_staffmodule.repository.StaffRe
 import com.example.film_rental_app.location_store_staffmodule.repository.StoreRepository;
 import com.example.film_rental_app.location_store_staffmodule.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     @Transactional(readOnly = true)
     public List<Staff> getAllStaff() {
-        return staffRepository.findAll();
+        return staffRepository.findAll(Sort.by("staffId"));
     }
 
     @Override

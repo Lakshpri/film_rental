@@ -15,8 +15,7 @@ export class AddressListComponent {
    items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-  modalError = '';
-
+  modalError = ''; formErrors: { [key: string]: string } = {};
   // Search by Address ID
   searchAddressId: number | null = null;
   searchAddressIdResult: any = null;
@@ -117,12 +116,12 @@ export class AddressListComponent {
   openEdit(item: any): void { this.editItem = item; this.formData = { address: item.address, address2: item.address2, district: item.district, postalCode: item.postalCode, phone: item.phone, cityId: item.cityId }; this.modalError = ''; this.showModal = true; }
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
+  
   validate(): boolean {
-    if (!this.formData.address?.trim()) { this.modalError = 'Address line 1 is required.'; this.cdr.detectChanges(); return false; }
-    if (!this.formData.cityId || this.formData.cityId <= 0) { this.modalError = 'A valid City ID is required.'; this.cdr.detectChanges(); return false; }
-    if (this.formData.phone && !/^[0-9\-\+\s\(\)]{6,20}$/.test(this.formData.phone)) { this.modalError = 'Phone number format is invalid.'; this.cdr.detectChanges(); return false; }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
 
   save(): void {
     this.modalError = '';
@@ -137,14 +136,28 @@ export class AddressListComponent {
     });
   }
 
+ 
   delete(item: any): void {
-    if (!confirm('Delete this Address?')) return;
-    this.error = '';
-    this.svc.delete(item.addressId).subscribe({
-      next: () => { this.successMsg = 'Address deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+  if (!confirm('Delete this Address?')) return;
+
+  this.error = '';
+  this.successMsg = '';
+
+  this.svc.delete(item.addressId).subscribe({
+    next: (res: any) => {
+      // ✅ get message from backend response
+      this.successMsg = res?.message || 'Deleted successfully';
+
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      // ✅ backend exception
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   search(term: string): void {
     this.searchTerm = term;

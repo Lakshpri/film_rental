@@ -1,6 +1,7 @@
 package com.example.film_rental_app.location_store_staffmodule.repository;
 
 import com.example.film_rental_app.location_store_staffmodule.entity.Store;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,5 +18,5 @@ public interface StoreRepository extends JpaRepository<Store, Integer> {
             "JOIN FETCH s.address a " +
             "JOIN FETCH a.city c " +
             "JOIN FETCH c.country")
-    List<Store> findAllWithDetails();
+    List<Store> findAllWithDetails(Sort sort);
 }
