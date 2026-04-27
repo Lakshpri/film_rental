@@ -12,6 +12,7 @@ import { ActorService } from '../service/actor.service';
 export class ActorListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
+  idSearchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   modalError = ''; formErrors: { [key: string]: string } = {};
 
@@ -76,21 +77,38 @@ export class ActorListComponent implements OnInit {
     });
   }
 
- search(term: string): void {
-  this.searchTerm = term.trim();
-  this.error = '';
+  searchById(term: string): void {
+    const raw = term.trim();
+    this.idSearchTerm = raw;
+    this.error = '';
 
-  // ✅ If empty → reset
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+    if (!raw) {
+      this.filteredItems = [...this.items];
+      if (this.searchTerm) {
+        const lower = this.searchTerm.toLowerCase();
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.firstName?.toLowerCase().includes(lower) ||
+          item.lastName?.toLowerCase().includes(lower)
+        );
+      }
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
 
-  // ✅ If numeric → search by ID (API)
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
+    if (isNaN(Number(raw)) || raw === '') return;
+
+    const id = Number(raw);
+
+    // Added only this validation
+    if (id <= 0) {
+      this.error = 'Actor ID must be a positive number';
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     this.loading = true;
 
     this.svc.getById(id).subscribe({
@@ -102,8 +120,7 @@ export class ActorListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        // ✅ Show backend error
-        this.error = e.error?.message || e.error?.error || e.message || 'Actor not found';
+        this.error = e.error?.message || e.error?.error || e.message;
         this.filteredItems = [];
         this.currentPage = 1;
         this.paginate();
@@ -111,11 +128,22 @@ export class ActorListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
 
-  } else {
-    // ✅ Text search → filter by name (clean, not JSON)
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (this.idSearchTerm) return;
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const lower = this.searchTerm.toLowerCase();
-
     this.filteredItems = this.items.filter(item =>
       item.firstName?.toLowerCase().includes(lower) ||
       item.lastName?.toLowerCase().includes(lower)
@@ -124,7 +152,6 @@ export class ActorListComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));

@@ -11,6 +11,17 @@
   <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
   <div *ngIf="error" class="alert alert-error">{{ error }}</div>
   <div *ngIf="loading" class="loading">Loading Films...</div>
+  <div class="search-bar" style="margin-bottom:8px">
+    <input
+      class="search-input"
+      type="number"
+      min="1"
+      placeholder="Search by Film ID..."
+      [value]="idSearchTerm"
+      (input)="searchById($any($event.target).value)"
+      style="max-width:220px"
+    />
+  </div>
   <div class="search-bar">
     <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
     <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
