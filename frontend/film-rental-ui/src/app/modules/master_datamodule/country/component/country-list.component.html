@@ -1,11 +1,11 @@
 <div class="topbar">
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
-  <div style="display:flex;align-items:center;gap:12px">
-    <span class="topbar-title">Countries</span>
-    <span class="topbar-badge">Master Data Module</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="topbar-title">Countries</span>
+      <span class="topbar-badge">Master Data Module</span>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Add Country</button>
   </div>
-  <button class="btn btn-primary" (click)="openCreate()">+ Add Country</button>
-</div>
 </div>
 
 <div class="page-content">
@@ -14,19 +14,16 @@
   <div *ngIf="loading" class="loading">Loading Countries...</div>
 
   <div class="search-bar">
-    <input class="search-input" type="text" placeholder="Search..."
+    <input class="search-input" type="text" placeholder="Search by Country ID..."
       (input)="search($any($event.target).value)" />
     <span style="color:var(--text-3);font-size:12px;white-space:nowrap">
       {{ filteredItems.length }} records
     </span>
-    <div class="search-bar">
-      <input class="search-input" type="text"
-        placeholder="Search Cities by Country ID or Name..."
-        (input)="searchCities($any($event.target).value)" />
-    </div>
+    <input class="search-input" type="text" placeholder="Search Cities by Country ID..."
+      (input)="searchCities($any($event.target).value)" />
   </div>
 
-  <div *ngIf="!loading && filteredCities.length === 0" class="table-wrap">
+  <div *ngIf="!loading" class="table-wrap">
     <table>
       <thead>
         <tr><th>ID</th><th>Country</th><th>Last Update</th><th>Actions</th></tr>
@@ -46,6 +43,9 @@
   </div>
 
   <div *ngIf="filteredCities.length > 0" class="table-wrap" style="margin-top:20px">
+    <div style="font-size:13px;color:var(--text-3);margin-bottom:8px">
+      Cities result — {{ filteredCities.length }} record(s)
+    </div>
     <table>
       <thead>
         <tr><th>ID</th><th>City</th><th>Country</th></tr>

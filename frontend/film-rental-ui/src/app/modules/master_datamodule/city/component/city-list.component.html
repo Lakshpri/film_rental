@@ -1,11 +1,11 @@
 <div class="topbar">
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
-  <div style="display:flex;align-items:center;gap:12px">
-    <span class="topbar-title">Cities</span>
-    <span class="topbar-badge">Master Data Module</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="topbar-title">Cities</span>
+      <span class="topbar-badge">Master Data Module</span>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Add City</button>
   </div>
-  <button class="btn btn-primary" (click)="openCreate()">+ Add City</button>
-</div>
 </div>
 
 <div class="page-content">
@@ -14,13 +14,16 @@
   <div *ngIf="loading" class="loading">Loading Cities...</div>
 
   <div class="search-bar">
-    <input class="search-input" type="text" placeholder="Search..." (input)="search($any($event.target).value)" />
+    <input class="search-input" type="text" placeholder="Search by City ID..."
+      (input)="search($any($event.target).value)" />
     <span style="color:var(--text-3);font-size:12px;white-space:nowrap">{{ filteredItems.length }} records</span>
   </div>
 
   <div *ngIf="!loading" class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>City</th><th>Country ID</th><th>Last Update</th><th>Actions</th></tr></thead>
+      <thead>
+        <tr><th>ID</th><th>City</th><th>Country ID</th><th>Last Update</th><th>Actions</th></tr>
+      </thead>
       <tbody>
         <tr *ngFor="let item of pagedItems">
           <td style="color:var(--text-3)">{{ item.cityId }}</td>
@@ -32,7 +35,9 @@
             <button class="btn btn-sm btn-danger" (click)="delete(item)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="items.length === 0"><td colspan="5" style="text-align:center;color:var(--text-3);padding:30px">No Cities found.</td></tr>
+        <tr *ngIf="pagedItems.length === 0">
+          <td colspan="5" style="text-align:center;color:var(--text-3);padding:30px">No Cities found.</td>
+        </tr>
       </tbody>
     </table>
 
@@ -66,8 +71,14 @@
       <button class="modal-close" (click)="closeModal()">&#10005;</button>
     </div>
     <div *ngIf="error" class="alert alert-error" style="margin: 0 0 12px 0;">{{ error }}</div>
-    <div class="form-group"><label class="form-label">City Name *</label><input class="form-control" [(ngModel)]="formData.city" placeholder="e.g. Chennai" /></div>
-    <div class="form-group"><label class="form-label">Country ID *</label><input class="form-control" type="number" [(ngModel)]="formData.countryId" placeholder="e.g. 1" /></div>
+    <div class="form-group">
+      <label class="form-label">City Name *</label>
+      <input class="form-control" [(ngModel)]="formData.city" placeholder="e.g. Chennai" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Country ID *</label>
+      <input class="form-control" type="number" [(ngModel)]="formData.countryId" placeholder="e.g. 1" />
+    </div>
     <div class="modal-footer">
       <button class="btn" (click)="closeModal()">Cancel</button>
       <button class="btn btn-primary" (click)="save()">{{ editItem ? 'Update' : 'Create' }}</button>

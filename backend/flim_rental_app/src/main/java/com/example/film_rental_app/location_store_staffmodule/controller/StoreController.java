@@ -48,7 +48,7 @@ public class StoreController {
 
     @GetMapping("/{storeId}")
     public ResponseEntity<StoreResponseDTO> getStoreById(
-            @PathVariable @Positive(message = "Store ID must be a positive number") Integer storeId) {
+            @PathVariable @Positive(message = "Please enter a valid Store ID (positive number).") Integer storeId) {
         return ResponseEntity.ok(storeMapper.toResponseDTO(storeService.getStoreById(storeId)));
     }
 

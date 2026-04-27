@@ -37,7 +37,7 @@ public class AddressController {
 
     @GetMapping("/{addressId}")
     public ResponseEntity<AddressResponseDTO> getAddressById(
-            @PathVariable @Positive(message = "Address ID must be a positive number") Integer addressId) {
+            @PathVariable @Positive(message = "Please enter a valid Address ID (positive number).") Integer addressId) {
         return ResponseEntity.ok(addressMapper.toResponseDTO(addressService.getAddressById(addressId)));
     }
 

@@ -61,8 +61,7 @@ public class LanguageController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", deleted);
-        response.put("message", "Language deleted successfully");
-        response.put("languageId", languageId);
+        response.put("message", "Language " + languageId + " deleted successfully");
 
         return ResponseEntity.ok(response);
     }
