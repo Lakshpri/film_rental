@@ -89,24 +89,7 @@ public class PaymentServiceImplTest {
         assertEquals(1, result.size());
     }
 
-    @Test
-    void testGetPaymentsByStaff() {
-        when(paymentRepository.findByStaff_StaffId(1)).thenReturn(List.of(new Payment()));
 
-        List<Payment> result = paymentService.getPaymentsByStaff(1);
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
-    void testGetPaymentsGreaterThan() {
-        when(paymentRepository.findByAmountGreaterThan(new BigDecimal("50")))
-                .thenReturn(List.of(new Payment()));
-
-        List<Payment> result = paymentService.getPaymentsGreaterThan(new BigDecimal("50"));
-
-        assertEquals(1, result.size());
-    }
 
     @Test
     void testCreatePaymentWithRental() {

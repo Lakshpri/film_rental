@@ -17,14 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+// Contains all business logic for payment operations
+// @Transactional ensures DB changes are rolled back if anything fails mid-operation
 @Service
 @Transactional
 public class PaymentServiceImpl implements PaymentService {
 
     @Autowired private PaymentRepository  paymentRepository;
     @Autowired private CustomerRepository customerRepository;
-    @Autowired private PaymentMapper      paymentMapper; // ✅ needed for mapping before delete
 
+    // Needed to convert payment to DTO before deletion — data is gone after delete
+    @Autowired private PaymentMapper paymentMapper;
+
+    // readOnly = true — no DB writes, faster performance for GET operations
     @Override
     @Transactional(readOnly = true)
     public List<Payment> getAllPayments() {
@@ -34,63 +39,62 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(readOnly = true)
     public Payment getPaymentById(Integer paymentId) {
+        // orElseThrow — returns 404 with clear message if payment not found
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
     }
 
     @Override
     public Payment createPayment(Payment payment) {
-        if (payment.getAmount() == null || payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+
+        // Guard 1 — reject zero or negative amounts before hitting the DB
+        if (payment.getAmount() == null ||
+                payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new PaymentInvalidOperationException(
                     "The payment amount must be greater than zero. You entered: "
                             + payment.getAmount()
                             + ". Please enter a valid amount greater than zero (e.g. 4.99).");
         }
-        if (payment.getRental() != null
-                && paymentRepository.existsByRental_RentalId(payment.getRental().getRentalId())) {
-            throw new PaymentAlreadyExistsException(payment.getRental().getRentalId());
+
+        // Guard 2 — prevent charging the same rental twice
+        // Only checked when a rental is linked — rental is optional
+        if (payment.getRental() != null &&
+                paymentRepository.existsByRental_RentalId(
+                        payment.getRental().getRentalId())) {
+            throw new PaymentAlreadyExistsException(
+                    payment.getRental().getRentalId());
         }
+
         return paymentRepository.save(payment);
     }
 
     @Override
-    // ✅ Return type changed from boolean to PaymentResponseDTO
     public PaymentResponseDTO deletePayment(Integer paymentId) {
-        // Fetch first — throw 404 if not found
+
+        // Step 1 — confirm payment exists before attempting delete
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
 
-        // ✅ Map to DTO BEFORE deleting — once deleted, data is gone
+        // Step 2 — capture data as DTO BEFORE deleting
+        // Once deleted from DB, lazy-loaded fields like customer and staff are gone
         PaymentResponseDTO response = paymentMapper.toResponseDTO(payment);
 
+        // Step 3 — safe to delete now that data is captured
         paymentRepository.deleteById(paymentId);
 
+        // Step 4 — return the deleted payment's data so client can confirm
         return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsByCustomer(Integer customerId) {
+
+        // Check customer exists first — empty list would be misleading if customer doesn't exist
         if (!customerRepository.existsById(customerId)) {
             throw new CustomerNotFoundException(customerId);
         }
+
         return paymentRepository.findByCustomer_CustomerId(customerId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Payment> getPaymentsByStaff(Integer staffId) {
-        return paymentRepository.findByStaff_StaffId(staffId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Payment> getPaymentsGreaterThan(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PaymentInvalidOperationException(
-                    "The amount you entered for filtering must be zero or a positive number. You entered: "
-                            + amount + ". Negative amounts cannot be used here.");
-        }
-        return paymentRepository.findByAmountGreaterThan(amount);
     }
 }

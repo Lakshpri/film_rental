@@ -23,42 +23,52 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Implements AnalyticsService — handles customer balance, rewards eligibility, and inventory availability
+// Uses domain services for business logic; repositories used directly only for existence checks
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
 
+    // Domain services for fetching payments, rentals, and inventory data
     @Autowired private PaymentService     paymentService;
     @Autowired private CustomerService    customerService;
     @Autowired private RentalService      rentalService;
     @Autowired private InventoryService   inventoryService;
+
+    // Repositories used directly for lightweight existence checks only
     @Autowired private FilmRepository     filmRepository;
     @Autowired private StoreRepository    storeRepository;
     @Autowired private CustomerRepository customerRepository;
 
+    // Validates customer exists, sums all payment amounts, returns customerId + totalPayments + totalAmountPaid
     @Override
     public Map<String, Object> getCustomerBalance(Integer customerId) {
 
+        // Throws 404 if customer does not exist
         customerService.getCustomerById(customerId);
 
         List<Payment> payments = paymentService.getPaymentsByCustomer(customerId);
 
+        // Accumulate total amount paid across all payments
         BigDecimal total = BigDecimal.ZERO;
         for (Payment p : payments) {
             total = total.add(p.getAmount());
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("customerId", customerId);
-        result.put("totalPayments", payments.size());
+        result.put("customerId",      customerId);
+        result.put("totalPayments",   payments.size());
         result.put("totalAmountPaid", total);
         return result;
     }
 
+    // Fetches all customers, counts their rentals, flags those above average as reward-eligible
     @Override
     public Map<String, Object> getRewardsReport() {
 
         List<Customer> customers = customerRepository.findAll();
         List<Map<String, Object>> list = new ArrayList<>();
 
+        // Build a row per customer with their rental count
         for (Customer c : customers) {
             int rentalCount = rentalService.getRentalsByCustomer(c.getCustomerId()).size();
 
@@ -71,14 +81,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             list.add(row);
         }
 
-        // Calculate average rentals
+        // Calculate average rentals across all customers
         int totalRentals = 0;
         for (Map<String, Object> row : list) {
             totalRentals += (Integer) row.get("rentalCount");
         }
         double avg = list.isEmpty() ? 0 : (double) totalRentals / list.size();
 
-        // Customers above average are eligible for rewards
+        // Customers above average rental count are eligible for rewards
         List<Map<String, Object>> eligible = new ArrayList<>();
         for (Map<String, Object> row : list) {
             if ((Integer) row.get("rentalCount") > avg) {
@@ -87,25 +97,23 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("averageRentals", avg);
+        result.put("averageRentals",          avg);
         result.put("rewardEligibleCustomers", eligible);
         return result;
     }
 
+    // Validates film and store exist, then returns inventory IDs with no active rental (returnDate == null check)
     @Override
     public Map<String, Object> getFilmInStock(Integer filmId, Integer storeId) {
 
-        if (!filmRepository.existsById(filmId)) {
-            throw new FilmNotFoundException(filmId);
-        }
-        if (!storeRepository.existsById(storeId)) {
-            throw new StoreNotFoundException(storeId);
-        }
+        // Throws 404 if film or store does not exist
+        if (!filmRepository.existsById(filmId))   throw new FilmNotFoundException(filmId);
+        if (!storeRepository.existsById(storeId)) throw new StoreNotFoundException(storeId);
 
         List<Inventory> allInventory = inventoryService.getInventoryByStoreAndFilm(storeId, filmId);
         List<Rental>    allRentals   = rentalService.getAllRentals();
 
-        // An inventory item is IN stock if no active rental exists for it
+        // Inventory item is in stock only if no active (unreturned) rental exists for it
         List<Integer> inStockIds = new ArrayList<>();
         for (Inventory inv : allInventory) {
             boolean isRentedOut = false;
@@ -133,20 +141,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return result;
     }
 
+    // Validates film and store exist, then returns inventory IDs that have an active rental (returnDate == null check)
     @Override
     public Map<String, Object> getFilmNotInStock(Integer filmId, Integer storeId) {
 
-        if (!filmRepository.existsById(filmId)) {
-            throw new FilmNotFoundException(filmId);
-        }
-        if (!storeRepository.existsById(storeId)) {
-            throw new StoreNotFoundException(storeId);
-        }
+        // Throws 404 if film or store does not exist
+        if (!filmRepository.existsById(filmId))   throw new FilmNotFoundException(filmId);
+        if (!storeRepository.existsById(storeId)) throw new StoreNotFoundException(storeId);
 
         List<Inventory> allInventory = inventoryService.getInventoryByStoreAndFilm(storeId, filmId);
         List<Rental>    allRentals   = rentalService.getAllRentals();
 
-        // An inventory item is NOT in stock if it has an active (unreturned) rental
+        // Inventory item is rented out if it has an active (unreturned) rental
         List<Integer> rentedOutIds = new ArrayList<>();
         for (Inventory inv : allInventory) {
             for (Rental r : allRentals) {
