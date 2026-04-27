@@ -15,7 +15,7 @@ export class StoreListComponent implements OnInit {  // FIX 2: 'implements OnIni
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
-  modalError = '';
+  modalError = ''; formErrors: { [key: string]: string } = {};
 
   // Search by Store ID
   searchStoreId: number | null = null;
@@ -85,14 +85,11 @@ export class StoreListComponent implements OnInit {  // FIX 2: 'implements OnIni
   closeModal(): void { this.showModal = false; this.modalError = ''; }
 
   validate(): boolean {
-    if (!this.formData.managerStaffId || this.formData.managerStaffId <= 0) {
-      this.modalError = 'A valid Manager Staff ID is required.'; this.cdr.detectChanges(); return false;
-    }
-    if (!this.formData.addressId || this.formData.addressId <= 0) {
-      this.modalError = 'A valid Address ID is required.'; this.cdr.detectChanges(); return false;
-    }
-    return true;
-  }
+  this.formErrors = {};
+  this.modalError = '';
+  return true;
+}
+
 
   save(): void {
     this.modalError = '';
@@ -110,13 +107,26 @@ export class StoreListComponent implements OnInit {  // FIX 2: 'implements OnIni
   }
 
   delete(item: any): void {
-    if (!confirm('Delete this Store?')) return;
-    this.error = '';
-    this.svc.delete(item.storeId).subscribe({
-      next: () => { this.successMsg = 'Store deleted!'; this.load(); setTimeout(() => this.successMsg = '', 3000); },
-      error: (e: any) => { this.error = formatBackendError(e); this.cdr.detectChanges(); }
-    });
-  }
+  if (!confirm('Delete this Store?')) return;
+
+  this.error = '';
+  this.successMsg = '';
+
+  this.svc.delete(item.storeId).subscribe({
+    next: (res: any) => {
+      // ✅ take message from backend
+      this.successMsg = res?.message || 'Store deleted successfully';
+
+      this.load();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (e: any) => {
+      // ✅ backend exception
+      this.error = formatBackendError(e);
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   search(term: string): void {
     this.searchTerm = term;
