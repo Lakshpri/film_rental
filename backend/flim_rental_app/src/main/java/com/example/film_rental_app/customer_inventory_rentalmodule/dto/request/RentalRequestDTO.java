@@ -6,27 +6,36 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
+// DTO used to receive rental input from frontend
 public class RentalRequestDTO {
 
+    // Rental date must not be null and cannot be future
     @NotNull(message = "Rental date is required")
-    @PastOrPresent(message = "Rental date cannot be a future date. Please enter today's date or a past date")
+    @PastOrPresent(message = "Rental date cannot be a future date")
     private LocalDateTime rentalDate;
 
+    // Return date (optional, may be null if not returned)
     private LocalDateTime returnDate;
 
+    // Inventory ID must not be null and must be positive
     @NotNull(message = "Inventory ID is required")
-    @Positive(message = "Inventory ID must be a number greater than zero (e.g. 1, 2, 3)")
+    @Positive(message = "Inventory ID must be a number greater than zero")
     private Integer inventoryId;
 
+    // Customer ID must not be null and must be positive
     @NotNull(message = "Customer ID is required")
-    @Positive(message = "Customer ID must be a number greater than zero (e.g. 1, 2, 3)")
+    @Positive(message = "Customer ID must be a number greater than zero")
     private Integer customerId;
 
+    // Staff ID must not be null and must be positive
     @NotNull(message = "Staff ID is required")
-    @Positive(message = "Staff ID must be a number greater than zero (e.g. 1, 2, 3)")
+    @Positive(message = "Staff ID must be a number greater than zero")
     private Integer staffId;
 
+    // Default constructor
     public RentalRequestDTO() {}
+
+    // Getters and Setters
 
     public LocalDateTime getRentalDate() { return rentalDate; }
     public void setRentalDate(LocalDateTime rentalDate) { this.rentalDate = rentalDate; }

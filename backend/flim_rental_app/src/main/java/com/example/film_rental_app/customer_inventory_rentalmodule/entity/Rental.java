@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+// Marks this class as a database entity
 @Entity
+// Maps to "rental" table with unique constraint
 @Table(name = "rental",
         uniqueConstraints = {
                 @UniqueConstraint(
@@ -21,49 +23,58 @@ import java.util.Set;
 )
 public class Rental {
 
+    // Primary key
     @Id
+    // Auto-increment ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rental_id")
     private Integer rentalId;
 
+    // Rental start date (cannot be null)
     @NotNull
     @Column(name = "rental_date", nullable = false)
     private LocalDateTime rentalDate;
 
+    // Return date (can be null if not returned)
     @Column(name = "return_date")
-    private LocalDateTime returnDate;
+    private LocalDateTime returnDate; // manually enter user update
 
+    // Automatically updates on record change
     @UpdateTimestamp
     @Column(name = "last_update", nullable = false)
-    private LocalDateTime lastUpdate;
+    private LocalDateTime lastUpdate; // system updates
 
+    // Many rentals belong to one inventory item
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "inventory_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_rental_inventory"))
     private Inventory inventory;
 
+    // Many rentals belong to one customer
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_rental_customer"))
     private Customer customer;
 
+    // Many rentals handled by one staff
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "staff_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_rental_staff"))
     private Staff staff;
 
+    // One rental can have multiple payments
     @OneToMany(mappedBy = "rental", fetch = FetchType.LAZY)
     private Set<Payment> payments = new HashSet<>();
 
-    // No-Args Constructor (Required by JPA)
+    // Default constructor (required by JPA)
     public Rental() {}
 
-    //  Constructor with ID
+    // Constructor with only ID
     public Rental(Integer rentalId) {
         this.rentalId = rentalId;
     }
 
-    //  Full Constructor
+    // Full constructor
     public Rental(Integer rentalId, LocalDateTime rentalDate, LocalDateTime returnDate,
                   LocalDateTime lastUpdate, Inventory inventory,
                   Customer customer, Staff staff, Set<Payment> payments) {
@@ -77,7 +88,8 @@ public class Rental {
         this.payments = payments;
     }
 
-    //  Getters and Setters
+    // Getters and Setters
+
     public Integer getRentalId() { return rentalId; }
     public void setRentalId(Integer rentalId) { this.rentalId = rentalId; }
 
@@ -102,7 +114,7 @@ public class Rental {
     public Set<Payment> getPayments() { return payments; }
     public void setPayments(Set<Payment> payments) { this.payments = payments; }
 
-    // toString (exclude relationships to avoid recursion)
+    // toString without relationships to avoid infinite loop
     @Override
     public String toString() {
         return "Rental{" +

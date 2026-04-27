@@ -14,70 +14,85 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+// Marks this class as a database entity
 @Entity
+// Maps this entity to "customer" table
 @Table(name = "customer")
 public class Customer {
 
+    // Primary key
     @Id
+    // Auto-increment ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Column name in DB
     @Column(name = "customer_id")
     private Integer customerId;
 
+    // Cannot be empty
     @NotBlank
+    // Max length 45
     @Size(max = 45)
+    // Column mapping
     @Column(name = "first_name", nullable = false, length = 45)
     private String firstName;
 
+    // Cannot be empty
     @NotBlank
+    // Max length 45
     @Size(max = 45)
     @Column(name = "last_name", nullable = false, length = 45)
     private String lastName;
 
+    // Must be valid email
     @Email
+    // Max length 50
     @Size(max = 50)
     @Column(name = "email", length = 50)
     private String email;
 
+    // Active status (default true)
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
+    // Automatically sets created date
     @CreationTimestamp
     @Column(name = "create_date", nullable = false, updatable = false)
     private LocalDateTime createDate;
 
+    // Automatically updates on change
     @UpdateTimestamp
     @Column(name = "last_update")
     private LocalDateTime lastUpdate;
 
-    // Many Customers -> One Store
+    // Many customers belong to one store
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_customer_store"))
     private Store store;
 
-    // Many Customers -> One Address
+    // Many customers belong to one address
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "address_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_customer_address"))
     private Address address;
 
-    // One Customer -> Many Rentals
+    // One customer can have many rentals
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Rental> rentals = new HashSet<>();
 
-    // One Customer -> Many Payments
+    // One customer can have many payments
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Payment> payments = new HashSet<>();
 
-    // Default Constructor
+    // Default constructor (required for JPA)
     public Customer() {}
 
-    // Constructor with ID
+    // Constructor with only ID
     public Customer(Integer customerId) {
         this.customerId = customerId;
     }
 
-    // Full Constructor
+    // Full constructor
     public Customer(Integer customerId, String firstName, String lastName, String email,
                     boolean active, LocalDateTime createDate, LocalDateTime lastUpdate,
                     Store store, Address address, Set<Rental> rentals, Set<Payment> payments) {
@@ -129,7 +144,7 @@ public class Customer {
     public Set<Payment> getPayments() { return payments; }
     public void setPayments(Set<Payment> payments) { this.payments = payments; }
 
-    // toString (excluding relationships to avoid recursion)
+    // toString without relationships to avoid infinite loop
     @Override
     public String toString() {
         return "Customer{" +

@@ -9,44 +9,50 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+// Marks this class as a database entity
 @Entity
+// Maps to "inventory" table
 @Table(name = "inventory")
 public class Inventory {
 
+    // Primary key
     @Id
+    // Auto-increment ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Column name in DB
     @Column(name = "inventory_id")
     private Integer inventoryId;
 
+    // Automatically updates when record changes
     @UpdateTimestamp
     @Column(name = "last_update", nullable = false)
     private LocalDateTime lastUpdate;
 
-    // Many Inventory items -> One Film
+    // Many inventory items belong to one film
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "film_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_inventory_film"))
     private Film film;
 
-    // Many Inventory items -> One Store
+    // Many inventory items belong to one store
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_inventory_store"))
     private Store store;
 
-    // One Inventory item -> Many Rentals
+    // One inventory item can have many rentals
     @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Rental> rentals = new HashSet<>();
 
-    //  No-Args Constructor (Required by JPA)
+    // Default constructor (required for JPA)
     public Inventory() {}
 
-    // Constructor with ID
+    // Constructor with only ID
     public Inventory(Integer inventoryId) {
         this.inventoryId = inventoryId;
     }
 
-    // Full Constructor
+    // Full constructor
     public Inventory(Integer inventoryId, LocalDateTime lastUpdate,
                      Film film, Store store, Set<Rental> rentals) {
         this.inventoryId = inventoryId;
@@ -73,7 +79,7 @@ public class Inventory {
     public Set<Rental> getRentals() { return rentals; }
     public void setRentals(Set<Rental> rentals) { this.rentals = rentals; }
 
-    //  toString (exclude relationships to avoid recursion)
+    // toString without relationships to avoid infinite loop
     @Override
     public String toString() {
         return "Inventory{" +

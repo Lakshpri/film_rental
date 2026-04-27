@@ -2,21 +2,42 @@ package com.example.film_rental_app.customer_inventory_rentalmodule.dto.response
 
 import java.time.LocalDateTime;
 
+// DTO used to send customer data to frontend
 public class CustomerResponseDTO {
 
+    // Message for response status
     private String message;
+
+    // Customer ID
     private Integer customerId;
+
+    // Customer basic details
     private String firstName;
     private String lastName;
     private String email;
+
+    // Active status
     private boolean active;
+
+    // Store ID (instead of full Store object)
     private Integer storeId;
+
+    // Address ID (instead of full Address object)
     private Integer addressId;
+
+    // Address line (custom field from Address entity)
     private String addressLine;
+
+    // Creation timestamp
     private LocalDateTime createDate;
+
+    // Last update timestamp
     private LocalDateTime lastUpdate;
 
+    // Default constructor
     public CustomerResponseDTO() {}
+
+    // Getters and Setters
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
