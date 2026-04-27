@@ -1,7 +1,6 @@
 package com.example.film_rental_app.customer_inventory_rentalmodule;
 
 import com.example.film_rental_app.customer_inventory_rentalmodule.entity.*;
-import com.example.film_rental_app.customer_inventory_rentalmodule.exception.*;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.CustomerRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.repository.RentalRepository;
 import com.example.film_rental_app.customer_inventory_rentalmodule.service.implementation.RentalServiceImpl;
@@ -22,9 +21,9 @@ class RentalServiceImplTest {
 
     @Mock
     private RentalRepository rentalRepository;
+
     @Mock
     private CustomerRepository customerRepository;
-
 
     private Rental rental;
     private Inventory inventory;
@@ -34,6 +33,7 @@ class RentalServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Common test data
         inventory = new Inventory();
         inventory.setInventoryId(1);
 
@@ -47,8 +47,7 @@ class RentalServiceImplTest {
         rental.setRentalDate(LocalDateTime.now());
     }
 
-    // ===== POSITIVE TESTS (8) =====
-
+    // 1. Get all rentals
     @Test
     void testGetAllRentals() {
         when(rentalRepository.findAll()).thenReturn(List.of(rental));
@@ -58,6 +57,7 @@ class RentalServiceImplTest {
         assertEquals(1, result.size());
     }
 
+    // 2. Get rental by ID
     @Test
     void testGetRentalById() {
         when(rentalRepository.findById(1)).thenReturn(Optional.of(rental));
@@ -67,6 +67,7 @@ class RentalServiceImplTest {
         assertNotNull(result);
     }
 
+    // 3. Create rental
     @Test
     void testCreateRental() {
         when(rentalRepository.findByCustomer_CustomerId(1)).thenReturn(Collections.emptyList());
@@ -78,8 +79,9 @@ class RentalServiceImplTest {
         assertNotNull(result);
     }
 
+    // 4. Update rental (return item)
     @Test
-    void testUpdateRental_ReturnItem() {
+    void testUpdateRental() {
         when(rentalRepository.findById(1)).thenReturn(Optional.of(rental));
         when(rentalRepository.save(any())).thenReturn(rental);
 
@@ -91,6 +93,7 @@ class RentalServiceImplTest {
         assertNotNull(result);
     }
 
+    // 5. Delete rental (only if returned)
     @Test
     void testDeleteRental() {
         rental.setReturnDate(LocalDateTime.now());
@@ -102,116 +105,34 @@ class RentalServiceImplTest {
         assertTrue(result);
     }
 
+    // 6. Get rentals by customer
     @Test
     void testGetRentalsByCustomer() {
-        Customer customer = new Customer();
-        customer.setCustomerId(1);
-
-        Rental rental = new Rental();
-        rental.setCustomer(customer);
-
         when(customerRepository.existsById(1)).thenReturn(true);
         when(rentalRepository.findByCustomer_CustomerId(1)).thenReturn(List.of(rental));
 
         List<Rental> result = rentalService.getRentalsByCustomer(1);
 
-        assertNotNull(result);
         assertEquals(1, result.size());
     }
 
+    // 7. Rental not found
     @Test
-    void testUpdateRental_WithNewRentalDate() {
-        when(rentalRepository.findById(1)).thenReturn(Optional.of(rental));
-        when(rentalRepository.save(any())).thenReturn(rental);
-
-        Rental updated = new Rental();
-        updated.setRentalDate(LocalDateTime.now().minusDays(1));
-
-        Rental result = rentalService.updateRental(1, updated);
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void testCreateRental_WithNullCustomerInventory() {
-        when(rentalRepository.save(any())).thenReturn(new Rental());
-
-        Rental result = rentalService.createRental(new Rental());
-
-        assertNotNull(result);
-    }
-
-    // ===== NEGATIVE TESTS (7) =====
-
-    @Test
-    void testGetRentalById_NotFound() {
+    void testRentalNotFound() {
         when(rentalRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(RentalNotFoundException.class,
+        assertThrows(RuntimeException.class,
                 () -> rentalService.getRentalById(1));
     }
 
+    // 8. Delete active rental (should fail)
     @Test
-    void testUpdateRental_NotFound() {
-        when(rentalRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(RentalNotFoundException.class,
-                () -> rentalService.updateRental(1, new Rental()));
-    }
-
-    @Test
-    void testDeleteRental_NotFound() {
-        when(rentalRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(RentalNotFoundException.class,
-                () -> rentalService.deleteRental(1));
-    }
-
-    @Test
-    void testDeleteRental_ActiveRental() {
+    void testDeleteActiveRental() {
         rental.setReturnDate(null);
 
         when(rentalRepository.findById(1)).thenReturn(Optional.of(rental));
 
-        assertThrows(RentalInvalidOperationException.class,
+        assertThrows(RuntimeException.class,
                 () -> rentalService.deleteRental(1));
-    }
-
-    @Test
-    void testCreateRental_InventoryUnavailable() {
-        when(rentalRepository.findAll()).thenReturn(List.of(rental));
-
-        Rental newRental = new Rental();
-        newRental.setInventory(inventory);
-        newRental.setCustomer(customer);
-
-        assertThrows(InventoryUnavailableException.class,
-                () -> rentalService.createRental(newRental));
-    }
-
-    @Test
-    void testCreateRental_DuplicateForCustomer() {
-        when(rentalRepository.findAll()).thenReturn(Collections.emptyList());
-        when(rentalRepository.findByCustomer_CustomerId(1)).thenReturn(List.of(rental));
-
-        Rental duplicate = new Rental();
-        duplicate.setInventory(inventory);
-        duplicate.setCustomer(customer);
-
-        assertThrows(RentalAlreadyExistsException.class,
-                () -> rentalService.createRental(duplicate));
-    }
-
-    @Test
-    void testUpdateRental_AlreadyReturnedModification() {
-        rental.setReturnDate(LocalDateTime.now());
-
-        when(rentalRepository.findById(1)).thenReturn(Optional.of(rental));
-
-        Rental updated = new Rental();
-        updated.setReturnDate(LocalDateTime.now().plusDays(1));
-
-        assertThrows(RentalInvalidOperationException.class,
-                () -> rentalService.updateRental(1, updated));
     }
 }

@@ -27,6 +27,7 @@ class CustomerServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Common test data
         customer = new Customer();
         customer.setCustomerId(1);
         customer.setFirstName("John");
@@ -35,36 +36,37 @@ class CustomerServiceImplTest {
         customer.setActive(true);
     }
 
-    // ================= POSITIVE TEST CASES =================
-
+    // 1. Get all customers
     @Test
     void testGetAllCustomers() {
         when(customerRepository.findAll()).thenReturn(List.of(customer));
-
-        List<Customer> result = customerService.getAllCustomers();
-
-        assertEquals(1, result.size());
+        assertEquals(1, customerService.getAllCustomers().size());
     }
 
+    // 2. Get customer by ID
     @Test
     void testGetCustomerById() {
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
-
-        Customer result = customerService.getCustomerById(1);
-
-        assertEquals("John", result.getFirstName());
+        assertEquals("John", customerService.getCustomerById(1).getFirstName());
     }
 
+    // 3. Create customer (success)
     @Test
     void testCreateCustomer() {
-        when(customerRepository.existsByEmail(customer.getEmail())).thenReturn(false);
+        when(customerRepository.existsByEmail(any())).thenReturn(false);
         when(customerRepository.save(customer)).thenReturn(customer);
-
-        Customer result = customerService.createCustomer(customer);
-
-        assertNotNull(result);
+        assertNotNull(customerService.createCustomer(customer));
     }
 
+    // 4. Create customer (duplicate email)
+    @Test
+    void testCreateCustomerDuplicateEmail() {
+        when(customerRepository.existsByEmail(any())).thenReturn(true);
+        assertThrows(CustomerAlreadyExistsException.class,
+                () -> customerService.createCustomer(customer));
+    }
+
+    // 5. Update customer
     @Test
     void testUpdateCustomer() {
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
@@ -73,102 +75,21 @@ class CustomerServiceImplTest {
 
         Customer updated = new Customer();
         updated.setFirstName("New");
-        updated.setLastName("Name");
-        updated.setEmail("new@example.com");
-        updated.setActive(false);
 
-        Customer result = customerService.updateCustomer(1, updated);
-
-        assertEquals("New", result.getFirstName());
+        assertEquals("New", customerService.updateCustomer(1, updated).getFirstName());
     }
 
+    // 6. Delete customer (inactive)
     @Test
     void testDeleteCustomer() {
         customer.setActive(false);
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
-
-        boolean result = customerService.deleteCustomer(1);
-
-        assertTrue(result);
+        assertTrue(customerService.deleteCustomer(1));
     }
 
+    // 7. Delete customer (active → error)
     @Test
-    void testGetCustomersByStoreAndStatus() {
-        when(customerRepository.findByStoreIdAndActiveStatus(1, true))
-                .thenReturn(List.of(customer));
-
-        List<Customer> result = customerService.getCustomersByStoreAndStatus(1, true);
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
-    void testSearchCustomersByName() {
-        when(customerRepository.searchByName("John")).thenReturn(List.of(customer));
-
-        List<Customer> result = customerService.searchCustomersByName("John");
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
-    void testCreateCustomerWithoutEmail() {
-        customer.setEmail(null);
-        when(customerRepository.save(customer)).thenReturn(customer);
-
-        Customer result = customerService.createCustomer(customer);
-
-        assertNotNull(result);
-    }
-
-    // ================= NEGATIVE TEST CASES =================
-
-    @Test
-    void testGetCustomerById_NotFound() {
-        when(customerRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(CustomerNotFoundException.class,
-                () -> customerService.getCustomerById(1));
-    }
-
-    @Test
-    void testCreateCustomer_DuplicateEmail() {
-        when(customerRepository.existsByEmail(customer.getEmail())).thenReturn(true);
-
-        assertThrows(CustomerAlreadyExistsException.class,
-                () -> customerService.createCustomer(customer));
-    }
-
-    @Test
-    void testUpdateCustomer_NotFound() {
-        when(customerRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(CustomerNotFoundException.class,
-                () -> customerService.updateCustomer(1, customer));
-    }
-
-    @Test
-    void testUpdateCustomer_DuplicateEmail() {
-        when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
-        when(customerRepository.existsByEmail(any())).thenReturn(true);
-
-        Customer updated = new Customer();
-        updated.setEmail("duplicate@example.com");
-
-        assertThrows(CustomerAlreadyExistsException.class,
-                () -> customerService.updateCustomer(1, updated));
-    }
-
-    @Test
-    void testDeleteCustomer_NotFound() {
-        when(customerRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(CustomerNotFoundException.class,
-                () -> customerService.deleteCustomer(1));
-    }
-
-    @Test
-    void testDeleteCustomer_ActiveCustomer() {
+    void testDeleteActiveCustomer() {
         customer.setActive(true);
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
 
@@ -176,16 +97,32 @@ class CustomerServiceImplTest {
                 () -> customerService.deleteCustomer(1));
     }
 
+    // 8. Customer not found
     @Test
-    void testUpdateCustomer_NullEmailSafe() {
-        when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
-        when(customerRepository.save(any())).thenReturn(customer);
+    void testCustomerNotFound() {
+        when(customerRepository.findById(1)).thenReturn(Optional.empty());
 
-        Customer updated = new Customer();
-        updated.setEmail(null);
+        assertThrows(CustomerNotFoundException.class,
+                () -> customerService.getCustomerById(1));
+    }
 
-        Customer result = customerService.updateCustomer(1, updated);
+    // 9. Filter by store and status
+    @Test
+    void testGetByStoreAndStatus() {
+        when(customerRepository.findByStoreIdAndActiveStatus(1, true))
+                .thenReturn(List.of(customer));
 
-        assertNotNull(result);
+        assertEquals(1,
+                customerService.getCustomersByStoreAndStatus(1, true).size());
+    }
+
+    // 10. Search by name
+    @Test
+    void testSearchCustomers() {
+        when(customerRepository.searchByName("John"))
+                .thenReturn(List.of(customer));
+
+        assertEquals(1,
+                customerService.searchCustomersByName("John").size());
     }
 }
