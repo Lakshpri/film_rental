@@ -12,6 +12,7 @@ import { FilmService } from '../service/film.service';
 export class FilmListComponent implements OnInit {
   items: any[] = []; filteredItems: any[] = []; pagedItems: any[] = [];
   currentPage = 1; pageSize = 10; totalPages = 1; searchTerm = '';
+  idSearchTerm = '';
   loading = true; error = ''; showModal = false; editItem: any = null; formData: any = {}; successMsg = '';
   modalError = ''; formErrors: { [key: string]: string } = {};
 
@@ -97,21 +98,45 @@ export class FilmListComponent implements OnInit {
     });
   }
 
- search(term: string): void {
-  this.searchTerm = term.trim();
-  this.error = '';
+  searchById(term: string): void {
+    const raw = term.trim();
+    this.idSearchTerm = raw;
+    this.error = '';
 
-  // ✅ Reset when empty
-  if (!this.searchTerm) {
-    this.filteredItems = [...this.items];
-    this.currentPage = 1;
-    this.paginate();
-    return;
-  }
+    // Clear ID search → restore full list (then re-apply text filter if any)
+    if (!raw) {
+      this.filteredItems = [...this.items];
 
-  // ✅ Numeric → search by ID (API)
-  if (!isNaN(Number(this.searchTerm))) {
-    const id = Number(this.searchTerm);
+      if (this.searchTerm) {
+        const lower = this.searchTerm.toLowerCase();
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.title?.toLowerCase().includes(lower) ||
+          item.description?.toLowerCase().includes(lower) ||
+          item.rating?.toLowerCase().includes(lower)
+        );
+      }
+
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
+    // Only allow numeric input
+    if (isNaN(Number(raw)) || raw === '') {
+      return;
+    }
+
+    const id = Number(raw);
+
+    // Added only this validation
+    if (id <= 0) {
+      this.error = 'Film ID must be a positive number';
+      this.filteredItems = [];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     this.loading = true;
 
     this.svc.getById(id).subscribe({
@@ -123,8 +148,7 @@ export class FilmListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (e: any) => {
-        // ✅ Show backend exception
-        this.error = e.error?.message || e.error?.error || e.message || 'Film not found';
+        this.error = e.error?.message || e.error?.error || e.message;
         this.filteredItems = [];
         this.currentPage = 1;
         this.paginate();
@@ -132,11 +156,22 @@ export class FilmListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
 
-  } else {
-    // ✅ Text search → filter by meaningful fields
+  search(term: string): void {
+    this.searchTerm = term.trim();
+    this.error = '';
+
+    if (this.idSearchTerm) return;
+
+    if (!this.searchTerm) {
+      this.filteredItems = [...this.items];
+      this.currentPage = 1;
+      this.paginate();
+      return;
+    }
+
     const lower = this.searchTerm.toLowerCase();
-
     this.filteredItems = this.items.filter(item =>
       item.title?.toLowerCase().includes(lower) ||
       item.description?.toLowerCase().includes(lower) ||
@@ -146,7 +181,6 @@ export class FilmListComponent implements OnInit {
     this.currentPage = 1;
     this.paginate();
   }
-}
 
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
@@ -175,35 +209,55 @@ export class FilmListComponent implements OnInit {
     this.activeFilm = item; this.subType = 'actors'; this.subTitle = 'Actors in ' + item.title; this.showSubModal = true;
     this.loadSubItems();
   }
+
   openCategories(item: any): void {
     this.activeFilm = item; this.subType = 'categories'; this.subTitle = 'Categories for ' + item.title; this.showSubModal = true;
     this.loadSubItems();
   }
+
   loadSubItems(): void {
     this.subLoading = true; this.subItems = []; this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.getActorsByFilm(this.activeFilm.filmId) : this.svc.getCategoriesByFilm(this.activeFilm.filmId);
+    const req = this.subType === 'actors'
+      ? this.svc.getActorsByFilm(this.activeFilm.filmId)
+      : this.svc.getCategoriesByFilm(this.activeFilm.filmId);
+
     req.subscribe({
       next: (d: any[]) => { this.subItems = d; this.subLoading = false; this.cdr.detectChanges(); },
       error: (e: any) => { this.subModalError = e.error?.message || e.error?.error || 'Failed to load'; this.subLoading = false; this.cdr.detectChanges(); }
     });
   }
+
   addSubItem(): void {
     if (!this.newSubId) return;
     this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.addActorToFilm(this.activeFilm.filmId, +this.newSubId) : this.svc.addCategoryToFilm(this.activeFilm.filmId, +this.newSubId);
+
+    const req = this.subType === 'actors'
+      ? this.svc.addActorToFilm(this.activeFilm.filmId, +this.newSubId)
+      : this.svc.addCategoryToFilm(this.activeFilm.filmId, +this.newSubId);
+
     req.subscribe({
       next: () => { this.newSubId = ''; this.loadSubItems(); },
       error: (e: any) => { this.subModalError = e.error?.reason || e.error?.message || e.error?.error || 'Failed to add'; this.cdr.detectChanges(); }
     });
   }
+
   removeSubItem(id: number): void {
     if (!confirm('Remove?')) return;
     this.subModalError = '';
-    const req = this.subType === 'actors' ? this.svc.removeActorFromFilm(this.activeFilm.filmId, id) : this.svc.removeCategoryFromFilm(this.activeFilm.filmId, id);
+
+    const req = this.subType === 'actors'
+      ? this.svc.removeActorFromFilm(this.activeFilm.filmId, id)
+      : this.svc.removeCategoryFromFilm(this.activeFilm.filmId, id);
+
     req.subscribe({
       next: () => this.loadSubItems(),
       error: (e: any) => { this.subModalError = e.error?.reason || e.error?.message || e.error?.error || 'Failed to remove'; this.cdr.detectChanges(); }
     });
   }
-  closeSubModal(): void { this.showSubModal = false; this.activeFilm = null; this.subModalError = ''; }
+
+  closeSubModal(): void {
+    this.showSubModal = false;
+    this.activeFilm = null;
+    this.subModalError = '';
+  }
 }
