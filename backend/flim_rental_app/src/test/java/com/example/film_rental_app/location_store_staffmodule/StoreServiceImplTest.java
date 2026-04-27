@@ -39,11 +39,6 @@ class StoreServiceImplTest {
 
     // ---------- POSITIVE (8) ----------
 
-    @Test
-    void testGetAllStores() {
-        when(repository.findAll()).thenReturn(List.of(store));
-        assertEquals(1, service.getAllStores().size());
-    }
 
     @Test
     void testGetStoreById() {

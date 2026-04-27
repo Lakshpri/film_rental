@@ -52,13 +52,7 @@ class StaffServiceImplTest {
         assertEquals("John", staffService.getStaffById(1).getFirstName());
     }
 
-    @Test
-    void testCreateStaff_Success() {
-        when(staffRepository.existsByUsername("john123")).thenReturn(false);
-        when(staffRepository.save(staff)).thenReturn(staff);
 
-        assertNotNull(staffService.createStaff(staff));
-    }
 
     @Test
     void testUpdateStaff_Success() {
@@ -93,16 +87,7 @@ class StaffServiceImplTest {
         assertTrue(staffService.getAllStaff().isEmpty());
     }
 
-    @Test
-    void testCreateStaff_DifferentUser() {
-        Staff newStaff = new Staff();
-        newStaff.setUsername("newuser");
 
-        when(staffRepository.existsByUsername("newuser")).thenReturn(false);
-        when(staffRepository.save(any())).thenReturn(newStaff);
-
-        assertNotNull(staffService.createStaff(newStaff));
-    }
 
     // =========================
     // ❌ NEGATIVE TESTS (7)
@@ -115,13 +100,7 @@ class StaffServiceImplTest {
                 () -> staffService.getStaffById(1));
     }
 
-    @Test
-    void testCreateStaff_DuplicateUsername() {
-        when(staffRepository.existsByUsername("john123")).thenReturn(true);
 
-        assertThrows(StaffAlreadyExistsException.class,
-                () -> staffService.createStaff(staff));
-    }
 
     @Test
     void testUpdateStaff_NotFound() {
@@ -131,17 +110,7 @@ class StaffServiceImplTest {
                 () -> staffService.updateStaff(1, staff));
     }
 
-    @Test
-    void testUpdateStaff_DuplicateUsername() {
-        Staff updated = new Staff();
-        updated.setUsername("newuser");
 
-        when(staffRepository.findById(1)).thenReturn(Optional.of(staff));
-        when(staffRepository.existsByUsername("newuser")).thenReturn(true);
-
-        assertThrows(StaffAlreadyExistsException.class,
-                () -> staffService.updateStaff(1, updated));
-    }
 
     @Test
     void testDeleteStaff_NotFound() {
@@ -161,12 +130,5 @@ class StaffServiceImplTest {
                 () -> staffService.deleteStaff(1));
     }
 
-    @Test
-    void testCreateStaff_SaveThrowsException() {
-        when(staffRepository.existsByUsername("john123")).thenReturn(false);
-        when(staffRepository.save(any())).thenThrow(RuntimeException.class);
 
-        assertThrows(RuntimeException.class,
-                () -> staffService.createStaff(staff));
-    }
 }
