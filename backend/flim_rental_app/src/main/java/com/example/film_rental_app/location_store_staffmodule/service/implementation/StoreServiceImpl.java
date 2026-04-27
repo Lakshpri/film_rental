@@ -27,7 +27,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     @Transactional(readOnly = true)
     public List<Store> getAllStores() {
-        return storeRepository.findAll();
+        return storeRepository.findAllWithDetails();   // ← was findAll()
     }
 
     @Override
