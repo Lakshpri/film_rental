@@ -35,7 +35,6 @@ export class InventoryListComponent implements OnInit {
     this.load();
   }
 
-  // ================= LOAD =================
   load(): void {
     this.loading = true;
     this.error = '';
@@ -56,7 +55,6 @@ export class InventoryListComponent implements OnInit {
     });
   }
 
-  // ================= CREATE =================
   openCreate(): void {
     this.formData = { filmId: null, storeId: null };
     this.error = '';
@@ -70,9 +68,10 @@ export class InventoryListComponent implements OnInit {
 
   save(): void {
     this.error = '';
+
     this.svc.create(this.formData).subscribe({
-      next: () => {
-        this.successMsg = 'Inventory created!';
+      next: (res: any) => {
+        this.successMsg = res?.message || 'Inventory created!';
         this.closeModal();
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
@@ -83,13 +82,12 @@ export class InventoryListComponent implements OnInit {
     });
   }
 
-  // ================= DELETE =================
   delete(item: any): void {
     if (!confirm('Delete this Inventory item?')) return;
 
     this.svc.delete(item.inventoryId ?? item.id).subscribe({
-      next: () => {
-        this.successMsg = 'Deleted successfully';
+      next: (res: any) => {
+        this.successMsg = res?.message || 'Deleted successfully';
         this.load();
         setTimeout(() => this.successMsg = '', 3000);
       },
@@ -99,7 +97,6 @@ export class InventoryListComponent implements OnInit {
     });
   }
 
-  // ================= SEARCH BY INVENTORY ID =================
   searchByInventoryId(): void {
     const id = this.inventorySearchTerm.trim();
 
@@ -136,7 +133,6 @@ export class InventoryListComponent implements OnInit {
     });
   }
 
-  // ================= SEARCH BY STORE ID =================
   searchByStoreId(): void {
     const id = this.storeSearchTerm.trim();
 
@@ -152,7 +148,6 @@ export class InventoryListComponent implements OnInit {
     this.paginate();
   }
 
-  // ================= TABLE HELPERS =================
   keys(item: any): string[] {
     return Object.keys(item).slice(0, 6);
   }
@@ -161,7 +156,6 @@ export class InventoryListComponent implements OnInit {
     return val === null || val === undefined || typeof val !== 'object';
   }
 
-  // ================= PAGINATION =================
   paginate(): void {
     this.totalPages = Math.max(1, Math.ceil(this.filteredItems.length / this.pageSize));
 
