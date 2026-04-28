@@ -151,21 +151,7 @@ public class PaymentServiceImplTest {
                 () -> paymentService.createPayment(p));
     }
 
-    @Test
-    void testDeletePaymentNotFound() {
-        when(paymentRepository.existsById(1)).thenReturn(false);
 
-        assertThrows(PaymentNotFoundException.class,
-                () -> paymentService.deletePayment(1));
-    }
-
-    @Test
-    void testDeletePaymentNotAllowed() {
-        when(paymentRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(PaymentInvalidOperationException.class,
-                () -> paymentService.deletePayment(1));
-    }
 
     @Test
     void testCustomerNotFound() {

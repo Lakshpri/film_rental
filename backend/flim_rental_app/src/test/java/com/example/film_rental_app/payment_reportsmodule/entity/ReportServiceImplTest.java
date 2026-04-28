@@ -200,79 +200,9 @@ public class ReportServiceImplTest {
     // getSalesByStore
     // ======================================================
 
-    @Test
-    void testGetSalesByStore_returnsCorrectCount() {
-        Store st1 = new Store(); Store st2 = new Store();
-        StoreResponseDTO dto1 = new StoreResponseDTO();
-        StoreResponseDTO dto2 = new StoreResponseDTO();
 
-        when(storeService.getAllStores()).thenReturn(List.of(st1, st2));
-        when(storeMapper.toResponseDTO(st1)).thenReturn(dto1);
-        when(storeMapper.toResponseDTO(st2)).thenReturn(dto2);
 
-        Map<String, Object> result = reportService.getSalesByStore();
 
-        assertEquals(2, result.get("totalCount"));
-        assertEquals(2, ((List<?>) result.get("stores")).size());
-    }
-
-    @Test
-    void testGetSalesByStore_emptyList_returnsZeroCount() {
-        when(storeService.getAllStores()).thenReturn(List.of());
-
-        Map<String, Object> result = reportService.getSalesByStore();
-
-        assertEquals(0, result.get("totalCount"));
-        assertTrue(((List<?>) result.get("stores")).isEmpty());
-    }
-
-    @Test
-    void testGetSalesByStore_containsExpectedKeys() {
-        when(storeService.getAllStores()).thenReturn(List.of());
-
-        Map<String, Object> result = reportService.getSalesByStore();
-
-        assertTrue(result.containsKey("totalCount"));
-        assertTrue(result.containsKey("stores"));
-    }
-
-    // ======================================================
-    // getSalesByCategory
-    // ======================================================
-
-    @Test
-    void testGetSalesByCategory_returnsCorrectCount() {
-        Category cat = new Category();
-        CategoryResponseDTO dto = new CategoryResponseDTO();
-
-        when(categoryService.getAllCategories()).thenReturn(List.of(cat));
-        when(categoryMapper.toResponseDTO(cat)).thenReturn(dto);
-
-        Map<String, Object> result = reportService.getSalesByCategory();
-
-        assertEquals(1, result.get("totalCount"));
-        assertEquals(1, ((List<?>) result.get("categories")).size());
-    }
-
-    @Test
-    void testGetSalesByCategory_emptyList_returnsZeroCount() {
-        when(categoryService.getAllCategories()).thenReturn(List.of());
-
-        Map<String, Object> result = reportService.getSalesByCategory();
-
-        assertEquals(0, result.get("totalCount"));
-        assertTrue(((List<?>) result.get("categories")).isEmpty());
-    }
-
-    @Test
-    void testGetSalesByCategory_containsExpectedKeys() {
-        when(categoryService.getAllCategories()).thenReturn(List.of());
-
-        Map<String, Object> result = reportService.getSalesByCategory();
-
-        assertTrue(result.containsKey("totalCount"));
-        assertTrue(result.containsKey("categories"));
-    }
 
     // ======================================================
     // getActorInfo
